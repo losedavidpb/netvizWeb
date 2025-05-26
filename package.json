@@ -1,15 +1,23 @@
 {
   "name": "netvizweb",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "homepage": "https://<your-username>.github.io/netvizWeb",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
+    "lint": "eslint ./src --format html --output-file ./reports/eslint.html",
+    "pretty-lint": "node eslint.style.cjs",
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist",
+    "start": "vite",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
   "dependencies": {
+    "cheerio": "^1.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },
@@ -21,6 +29,7 @@
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "gh-pages": "^6.3.0",
     "globals": "^16.0.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
