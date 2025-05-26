@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "type": "module",
-  "homepage": "https://<your-username>.github.io/netvizWeb",
+  "homepage": "https://losedavidpb.github.io/netvizWeb",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
