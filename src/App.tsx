@@ -1,8 +1,8 @@
+import { Widget } from "./gui/Widget";
+
 function App() {
   return (
-    <div>
-      <h1>🚧 Under Development 🚧</h1>
-    </div>
+    <Widget></Widget>
   );
 }
 

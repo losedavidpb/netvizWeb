@@ -27,9 +27,7 @@ body {
   margin: 0;
   display: flex;
   justify-content: center;
-  /* Center horizontally */
   align-items: center;
-  /* Center vertically */
   min-width: 320px;
   min-height: 100vh;
   background-color: #242424;
@@ -38,8 +36,22 @@ body {
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
-  color: #ffffff;
-  /* Ensure the text color is visible on dark background */
+  color: black;
+}
+
+#widget {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #ffffff;
+  color: #000000;
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 10;
+  box-shadow: 4px 0px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 button {
@@ -50,8 +62,10 @@ button {
   font-weight: 500;
   font-family: inherit;
   background-color: #1a1a1a;
+  color: #ffffff;
   cursor: pointer;
   transition: border-color 0.25s;
+
 }
 
 button:hover {
@@ -75,5 +89,10 @@ button:focus-visible {
 
   button {
     background-color: #f9f9f9;
+  }
+
+  #widget {
+    background-color: #ffffff;
+    color: #000000;
   }
 }
