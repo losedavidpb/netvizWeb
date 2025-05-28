@@ -17,6 +17,8 @@
     "eject": "react-scripts eject"
   },
   "dependencies": {
+    "@react-three/drei": "^10.0.8",
+    "@react-three/fiber": "^9.1.2",
     "bootstrap": "^5.3.6",
     "cheerio": "^1.0.0",
     "react": "^19.1.0",

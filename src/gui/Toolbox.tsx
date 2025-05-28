@@ -1,11 +1,14 @@
 import { useState, useRef } from "react";
 import CollapsibleList from "./CollapsibleList";
-import { OpenFileCommand } from "../controller/commands/OpenFileCommand";
-import { CommandMap } from "../controller/CommandMap";
 
-export function Widget() {
-    const [selectedOptionAlgorithm, setSelectedOptionAlgorithm] = useState<string | null>('Fruchterman Reingold');
-    const [selectedOptionColouration, setSelectedOptionColouration] = useState<string | null>('Degree Centrality');
+/**
+ * Display the toolbox
+ *
+ * @returns HTML for the toolbox
+ */
+export function Toolbox() {
+    const [selectedOptAlgorithm, setSelectedOptAlgorithm] = useState<string | null>('Fruchterman Reingold');
+    const [selectedOptColour, setSelectedOptColour] = useState<string | null>('Degree Centrality');
 
     const [textNode, setTextNode] = useState<string>("");
     const [colorNode, setColorNode] = useState('#ffffff');
@@ -17,12 +20,8 @@ export function Widget() {
     const [fileContent, setFileContent] = useState<string>('');
     const [fileName, setFileName] = useState<string>('');
 
-    // Commands
-    const commands = new CommandMap();
-    commands.add('openFile', new OpenFileCommand());
-
     return (
-        <div className="container bg-white shadow-sm rounded" id="widget">
+        <div className="container bg-white shadow-sm rounded" id="toolbox">
             <h1 className="mb-3">Toolbox</h1>
             <hr></hr>
 
@@ -38,15 +37,7 @@ export function Widget() {
                     ref={fileInputRef}
                     type="file"
                     style={{ display: 'none' }}
-                    onChange={(e) => {
-                        const openFile = commands.get('openFile');
-
-                        if (openFile) {
-                            openFile.execute(e)
-                            setFileName(openFile.getFileName());
-                            setFileContent(openFile.getContent());
-                        }
-                    }}
+                    onChange={() => console.log("Loading Graph ...")}
                 />
 
                 <button
@@ -62,13 +53,13 @@ export function Widget() {
             <CollapsibleList
                 options={['Fruchterman Reingold', 'Simple Force Directed', 'Multi Level']}
                 defaultText="Fruchterman Reingold"
-                onOptionSelect={(e) => setSelectedOptionAlgorithm(e)}
+                onOptionSelect={(e) => setSelectedOptAlgorithm(e)}
             />
 
             <CollapsibleList
                 options={['Degree Centrality', 'Distance Centrality', 'Betweenness Centrality']}
                 defaultText="Degree Centrality"
-                onOptionSelect={(e) => setSelectedOptionColouration(e)}
+                onOptionSelect={(e) => setSelectedOptColour(e)}
             />
 
             <div className="d-flex flex-column mb-3">
