@@ -4,6 +4,11 @@ import { Billboard, Line, Text } from '@react-three/drei';
 
 import { Vertex } from "./Vertex";
 
+/**
+ * Edge :: Representation of an edge
+ *
+ * @author losedavidpb <losedavidpb@gmail.com>
+ */
 export class Edge {
 
     // --------------------------------
@@ -16,23 +21,6 @@ export class Edge {
     private text: string;
     private colour: THREE.Color;
 
-    // ----------------------
-    // TODO: TEMP
-    //
-    // These properties should be located in a public component as
-    // they will likely be used by other components.
-    //
-    // ----------------------
-
-    // Scene in which all objects are rendered
-    static scene: THREE.Scene;
-
-    // Camera used to view the scene
-    static camera: THREE.Camera;
-
-    // WebGL renderer used to draw the scene
-    static renderer: THREE.WebGLRenderer;
-
     /**
      * Constructor for Edge
      *
@@ -40,22 +28,6 @@ export class Edge {
      * @param connect second vertex of the edge
      */
     constructor(base: Vertex, connect: Vertex) {
-        // ----------------------
-        // TODO: TEMP
-        //
-        // These conditions would not be necessary if the scene, camera,
-        // and renderer are defined externally.
-        //
-        // ----------------------
-
-        if (Edge.scene == null || Edge.camera == null || Edge.renderer == null) {
-            throw new Error('NullError :: THREE.js has not been initialised yet');
-        }
-
-        if (base == null || connect == null) {
-            throw new Error('NullError :: Vertices of the edge must be defined');
-        }
-
         this.base = base;
         this.connect = connect;
 
@@ -68,6 +40,7 @@ export class Edge {
      *
      * @returns edge component
      */
+    /* v8 ignore next 26 */
     draw(): JSX.Element {
         return (
             <>
@@ -100,6 +73,7 @@ export class Edge {
      *
      * @returns text component
      */
+    /* v8 ignore next 25 */
     drawText(): JSX.Element {
         // Open mutex
 
@@ -204,6 +178,6 @@ export class Edge {
             throw new Error('InvalidRGB :: Passed colour is invalid');
         }
 
-        this.colour = new THREE.Color('rgb(' + R + ',' + G + ',' + B + ')');
+        this.colour = new THREE.Color().setRGB(R, G, B);
     }
 }

@@ -1,4 +1,4 @@
-import { Graph } from "./gui/Graph";
+import { GraphCanvas } from "./gui/GraphCanvas";
 import { Toolbox } from "./gui/Toolbox";
 
 /**
@@ -14,7 +14,7 @@ function App() {
           <Toolbox />
         </div>
         <div className="col bg-light">
-          <Graph />
+          <GraphCanvas />
         </div>
       </div>
     </div>

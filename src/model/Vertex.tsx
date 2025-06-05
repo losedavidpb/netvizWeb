@@ -44,32 +44,15 @@ export class Vertex {
     // modify them unless you know what you are doing.
 
     // Radius of the vertex.
-    static radius = 0.05;
+    static readonly radius = 0.05;
 
     // Number of horizontal divisions (latitude)
     // for the vertex sphere geometry
-    static rings = 12;
+    static readonly rings = 12;
 
     // Number of vertical divisions (longitude)
     // for the vertex sphere geometry
-    static sectors = 12;
-
-    // ----------------------
-    // TODO: TEMP
-    //
-    // These properties should be located in a public component as
-    // they will likely be used by other components.
-    //
-    // ----------------------
-
-    // Scene in which all objects are rendered
-    static scene: THREE.Scene;
-
-    // Camera used to view the scene
-    static camera: THREE.Camera;
-
-    // WebGL renderer used to draw the scene
-    static renderer: THREE.WebGLRenderer;
+    static readonly sectors = 12;
 
     /**
      * Constructor for Vertex
@@ -79,22 +62,9 @@ export class Vertex {
      * @param offsetZ offset for Z-coord
      */
     constructor(offsetX: number, offsetY: number, offsetZ: number) {
-        // ----------------------
-        // TODO: TEMP
-        //
-        // These conditions would not be necessary if the scene, camera,
-        // and renderer are defined externally.
-        //
-        // ----------------------
-
-        if (Vertex.scene == null || Vertex.camera == null || Vertex.renderer == null) {
-            throw new Error('NullError :: THREE.js has not been initialised yet');
-        }
-
         this.selected = false;
 
-        this.pos = new THREE.Vector3();
-        this.setPos({ x: offsetX, y: offsetY, z: offsetZ });
+        this.pos = new THREE.Vector3(offsetX, offsetY, offsetZ);
 
         this.force = new THREE.Vector3();
         this.velocity = new THREE.Vector3();
@@ -121,6 +91,8 @@ export class Vertex {
     /**
      * Update the vertex
      */
+
+    // TODO: Implement tests if necessary
     update(): void {
         // Open mutex
 
@@ -137,13 +109,13 @@ export class Vertex {
                 const y = Math.sin(-(Math.PI / 2) + Math.PI * r * RINGS);
                 const z = Math.sin(2 * Math.PI * s * SECTORS) * Math.sin(Math.PI * r * RINGS);
 
-                this.vertices[vertIndex++] = this.getPos().x + x * Vertex.radius;
-                this.vertices[vertIndex++] = this.getPos().y + y * Vertex.radius;
-                this.vertices[vertIndex++] = this.getPos().z + z * Vertex.radius;
+                this.vertices[vertIndex++] = this.pos.x + x * Vertex.radius;
+                this.vertices[vertIndex++] = this.pos.y + y * Vertex.radius;
+                this.vertices[vertIndex++] = this.pos.z + z * Vertex.radius;
 
-                this.colours[colIndex++] = this.getColour().r;
-                this.colours[colIndex++] = this.getColour().g;
-                this.colours[colIndex++] = this.getColour().b;
+                this.colours[colIndex++] = this.colour.r;
+                this.colours[colIndex++] = this.colour.g;
+                this.colours[colIndex++] = this.colour.b;
             }
         }
 
@@ -156,12 +128,13 @@ export class Vertex {
             }
         }
 
+        // TODO: Include implementation if necessary
         // Update edges if any
-        if (this.edges.length > 0) {
+        /*if (this.edges.length > 0) {
             for (let i = 0; i < this.edges.length; ++i) {
                 this.edges[i].update();
             }
-        }
+        }*/
 
         // Close mutex
     }
@@ -171,6 +144,7 @@ export class Vertex {
      *
      * @returns vertex component
      */
+    /* v8 ignore next 52 */
     draw(): JSX.Element {
         // Open mutex
 
@@ -229,6 +203,7 @@ export class Vertex {
      *
      * @returns text component
      */
+    /* v8 ignore next 26 */
     drawText(): JSX.Element {
         // Open mutex
 
@@ -364,14 +339,14 @@ export class Vertex {
             throw new Error('InvalidRGB :: Passed colour is invalid');
         }
 
-        this.colour = new THREE.Color('rgb(' + R + ',' + G + ',' + B + ')');
+        this.colour = new THREE.Color().setRGB(R, G, B);
         let colIndex = 0;
 
         for (let r = 0; r < Vertex.rings; r++) {
             for (let s = 0; s < Vertex.sectors; s++) {
-                this.colours[colIndex++] = this.getColour().r;
-                this.colours[colIndex++] = this.getColour().g;
-                this.colours[colIndex++] = this.getColour().b;
+                this.colours[colIndex++] = this.colour.r;
+                this.colours[colIndex++] = this.colour.g;
+                this.colours[colIndex++] = this.colour.b;
             }
         }
     }
@@ -408,7 +383,7 @@ export class Vertex {
      *
      * @param level new level
      */
-    setLevel(level: number) {
+    setLevel(level: number): void {
         if (level < 0) {
             throw new Error('InvalidLevel: level must be an integer');
         }
@@ -430,12 +405,19 @@ export class Vertex {
      *
      * @param degree new degree
      */
-    setDegree(degree: number) {
+    setDegree(degree: number): void {
         if (degree < 0) {
             throw new Error('InvalidDegree: degree must be an integer');
         }
 
         this.degree = degree;
+    }
+
+    /**
+     * Increment the current degree
+     */
+    updateDegree(): void {
+        this.degree += 1;
     }
 
     /**
@@ -452,12 +434,42 @@ export class Vertex {
      *
      * @param vertexNumber new vertex number
      */
-    setVertexNumber(vertexNumber: number) {
+    setVertexNumber(vertexNumber: number): void {
         if (vertexNumber < 0) {
             throw new Error('InvalidNumber: number must be an integer');
         }
 
         this.vertexNumber = vertexNumber;
+    }
+
+    /**
+     * Get the edges of the vertex
+     *
+     * @returns edges
+     */
+    getEdges(): Edge[] {
+        let edges = [];
+
+        for (let i = 0; i < this.edges.length; i++) {
+            edges.push(this.edges[i]);
+        }
+
+        return edges;
+    }
+
+    /**
+     * Get the attached points of the vertex
+     *
+     * @returns attached points
+     */
+    getAttachedPoints(): Vertex[] {
+        let attachedPoints = [];
+
+        for (let i = 0; i < this.attachedPoints.length; i++) {
+            attachedPoints.push(this.attachedPoints[i]);
+        }
+
+        return attachedPoints;
     }
 
     /**

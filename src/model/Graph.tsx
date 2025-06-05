@@ -1,0 +1,149 @@
+import * as THREE from 'three';
+
+import type { Vertex } from "./Vertex";
+
+/**
+ * Graph :: Representation of a graph
+ *
+ * @author losedavidpb <losedavidpb@gmail.com>
+ */
+export abstract class Graph {
+
+    // --------------------------------
+    // Properties
+    // --------------------------------
+
+    // Scene in which all objects are rendered
+    static scene: THREE.Scene;
+
+    // Camera used to view the scene
+    static camera: THREE.Camera;
+
+    // WebGL renderer used to draw the scene
+    static renderer: THREE.WebGLRenderer;
+
+    //private algorithm: Algorithm;
+
+    protected vertices: Vertex[];
+    protected edgeList: number[][];
+    protected adjacencyMatrix: number[][];
+
+    /**
+     * Constructor for Graph
+     *
+     * @param filePath path of the file
+     */
+    constructor(filePath?: string) {
+        // ----------------------
+        // TODO: TEMP
+        //
+        // These conditions would not be necessary if the scene, camera,
+        // and renderer are defined externally.
+        //
+        // ----------------------
+
+        /*if (Graph.scene == null || Graph.camera == null || Graph.renderer == null) {
+            throw new Error('NullError :: THREE.js has not been initialised yet');
+        }*/
+
+        this.vertices = [];
+        this.edgeList = [];
+        this.adjacencyMatrix = [];
+
+        if (filePath) {
+            this.read(filePath);
+        }
+    }
+
+    /**
+     * Draw the graph
+     */
+    draw(): void {
+        this.vertices?.map((vertex) => {
+            vertex.draw();
+        })
+    }
+
+    /**
+     * Update the graph
+     */
+    update(): void {
+        this.vertices?.map((vertex) => {
+            vertex.update();
+        })
+    }
+
+    /**
+     * Prepare the graph using the passed file
+     *
+     * @param filePath path of the file with the graph
+     */
+    protected abstract read(filePath: string): void;
+
+    /**
+     * Convert a string of vertices into an array of integers
+     *
+     * @param input string of vertices
+     */
+    static split(input: string): number[] {
+        const tokens = input.trim().split(/\s+/);
+        return tokens.map(token => parseInt(token, 10));
+    }
+
+    /**
+     * Hashcode of the graph
+     *
+     * @param h1 Current seconds
+     * @param h2 Current microseconds
+     * @param h3 PID of the process
+     * @returns
+     */
+    static hash(h1: number, h2: number, h3: number): number {
+        return ((h1 * 2654435789) + h2) * 2654435789 + h3;
+    }
+
+    /**
+     * Get the vertices
+     *
+     * @returns vertices
+     */
+    getVertices(): Vertex[] {
+        return this.vertices;
+    }
+
+    /**
+     * Get the edges
+     *
+     * @returns edges
+     */
+    getEdges(): number[][] {
+        return this.edgeList;
+    }
+
+    /**
+     * Get the adjacency matrix
+     *
+     * @returns adjacency matrix
+     */
+    getAdjacencyMatrix() {
+        return this.adjacencyMatrix;
+    }
+
+    /**
+     * Get the number of vertices
+     *
+     * @returns number of vertices
+     */
+    getNumVertices(): number {
+        return this.vertices.length;
+    }
+
+    /**
+     * Get the number of edges
+     *
+     * @returns number of edges
+     */
+    getNumEdges(): number {
+        return this.edgeList.length;
+    }
+}
