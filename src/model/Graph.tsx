@@ -13,6 +13,11 @@ export abstract class Graph {
     // Properties
     // --------------------------------
 
+    // TODO: Shouldn't be located somewhere else?
+    //
+    // Flag to indicate whether the class is being tested or not
+    static testMode: boolean;
+
     // Scene in which all objects are rendered
     static scene: THREE.Scene;
 
@@ -34,17 +39,11 @@ export abstract class Graph {
      * @param filePath path of the file
      */
     constructor(filePath?: string) {
-        // ----------------------
-        // TODO: TEMP
-        //
-        // These conditions would not be necessary if the scene, camera,
-        // and renderer are defined externally.
-        //
-        // ----------------------
-
-        /*if (Graph.scene == null || Graph.camera == null || Graph.renderer == null) {
-            throw new Error('NullError :: THREE.js has not been initialised yet');
-        }*/
+        if (!Graph.testMode) {
+            if (Graph.scene == null || Graph.camera == null || Graph.renderer == null) {
+                throw new Error('NullError :: THREE.js has not been initialised yet');
+            }
+        }
 
         this.vertices = [];
         this.edgeList = [];
@@ -58,19 +57,21 @@ export abstract class Graph {
     /**
      * Draw the graph
      */
+    /* v8 ignore next 5 */
     draw(): void {
         this.vertices?.map((vertex) => {
             vertex.draw();
-        })
+        });
     }
 
     /**
      * Update the graph
      */
+    /* v8 ignore next 5 */
     update(): void {
         this.vertices?.map((vertex) => {
             vertex.update();
-        })
+        });
     }
 
     /**
@@ -86,8 +87,18 @@ export abstract class Graph {
      * @param input string of vertices
      */
     static split(input: string): number[] {
+        if (input.trim().length === 0) return [];
+
         const tokens = input.trim().split(/\s+/);
-        return tokens.map(token => parseInt(token, 10));
+        return tokens.map(token => {
+            let num = parseInt(token, 10);
+
+            if (isNaN(num)) {
+                throw new Error(`InvalidToken: '${token}' is not a number`);
+            }
+
+            return num;
+        });
     }
 
     /**
@@ -127,23 +138,5 @@ export abstract class Graph {
      */
     getAdjacencyMatrix() {
         return this.adjacencyMatrix;
-    }
-
-    /**
-     * Get the number of vertices
-     *
-     * @returns number of vertices
-     */
-    getNumVertices(): number {
-        return this.vertices.length;
-    }
-
-    /**
-     * Get the number of edges
-     *
-     * @returns number of edges
-     */
-    getNumEdges(): number {
-        return this.edgeList.length;
     }
 }
