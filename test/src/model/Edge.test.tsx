@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest';
 
-import { Edge } from "../../src/model/Edge";
-import { Vertex } from "../../src/model/Vertex";
+import { Edge } from "../../../src/model/Edge";
+import { Vertex } from "../../../src/model/Vertex";
 
 // --------------------------------------
 // Base

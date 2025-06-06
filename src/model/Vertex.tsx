@@ -81,7 +81,7 @@ export class Vertex {
 
         let size = Vertex.rings * Vertex.sectors;
         this.vertices = new Array(size * 3).fill(0);
-        this.colours = new Array(size * 3).fill(0);
+        this.colours = new Array(size * 3).fill(1);
         this.indices = new Array(size * 4).fill(0);
 
         // Update the vertex

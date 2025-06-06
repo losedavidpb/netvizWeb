@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 
-import { Vertex } from '../../src/model/Vertex';
+import { Vertex } from '../../../src/model/Vertex';
 
 // --------------------------------------
 // Selected

@@ -1,6 +1,10 @@
 import { test, expect } from 'vitest';
 
-import { Graph } from '../../src/model/Graph';
+import { Graph } from '../../../src/model/Graph';
+
+// --------------------------------------
+// Test Configuration
+// --------------------------------------
 
 // Enable testing to avoid WebGL checks
 Graph.testMode = true;

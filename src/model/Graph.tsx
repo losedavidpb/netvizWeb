@@ -90,6 +90,7 @@ export abstract class Graph {
         if (input.trim().length === 0) return [];
 
         const tokens = input.trim().split(/\s+/);
+
         return tokens.map(token => {
             let num = parseInt(token, 10);
 
