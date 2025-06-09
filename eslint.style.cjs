@@ -35,9 +35,11 @@ fs.readFile('./reports/eslint.html', 'utf-8', (err, data) => {
     // Remove absolute paths for each file
     $('th').each(function () {
         const currentText = $(this).text();
-        const index = currentText.indexOf('src\\');
-        const fileName = index !== -1 ? currentText.slice(index) : currentText;
 
+        var index = currentText.indexOf('src/');
+        index = index == -1 ? currentText.indexOf('src\\') : index;
+
+        const fileName = index !== -1 ? currentText.slice(index) : currentText;
         $(this).text(`[+] ${fileName}`);
     });
 
