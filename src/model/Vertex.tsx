@@ -269,6 +269,8 @@ export class Vertex {
         if (x !== undefined) this.pos.x = x;
         if (y !== undefined) this.pos.y = y;
         if (z !== undefined) this.pos.z = z;
+
+        this.update();
     }
 
     /**
@@ -340,15 +342,7 @@ export class Vertex {
         }
 
         this.colour = new THREE.Color().setRGB(R, G, B);
-        let colIndex = 0;
-
-        for (let r = 0; r < Vertex.rings; r++) {
-            for (let s = 0; s < Vertex.sectors; s++) {
-                this.colours[colIndex++] = this.colour.r;
-                this.colours[colIndex++] = this.colour.g;
-                this.colours[colIndex++] = this.colour.b;
-            }
-        }
+        this.update();
     }
 
     /**

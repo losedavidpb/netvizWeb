@@ -49,7 +49,7 @@ export abstract class Graph {
         this.edgeList = [];
         this.adjacencyMatrix = [];
 
-        if (filePath) {
+        if (filePath !== undefined) {
             this.read(filePath);
         }
     }

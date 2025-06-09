@@ -43,24 +43,27 @@ export class EdgeGraph extends Graph {
 
     protected read(filePath: string): void {
         const content = fs.readFileSync(filePath, 'utf-8');
-        const lines = content.split(/\r?\n/);
 
-        // Prepare edges and find the number of vertices
-        lines?.map((line: string) => {
-            if (line.length > 1) {
-                let tokens = Graph.split(line);
+        if (content !== '') {
+            const lines = content.split(/\r?\n/);
 
-                if (!EdgeGraph.is_valid_edge(tokens)) {
-                    throw new Error(
-                        "InvalidEdge :: Edges can only have two linked vertices"
-                    );
+            // Prepare edges and find the number of vertices
+            lines?.map((line: string) => {
+                if (line.length > 1) {
+                    let tokens = Graph.split(line);
+
+                    if (!EdgeGraph.is_valid_edge(tokens)) {
+                        throw new Error(
+                            "InvalidEdge :: Edges can only have two linked vertices"
+                        );
+                    }
+
+                    this.edgeList.push(tokens);
                 }
+            });
 
-                this.edgeList.push(tokens);
-            }
-        });
-
-        this.init();
+            this.init();
+        }
     }
 
     // --------------------------------
