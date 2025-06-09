@@ -1,4 +1,5 @@
 import { test, expect } from 'vitest';
+import * as fs from 'fs';
 import path from 'path';
 
 import { EdgeGraph } from '../../../../src/model/graph/EdgeGraph';
@@ -71,8 +72,28 @@ test('EdgeGraph::constructor() : Graph is defined with EdgeList', () => {
 // Read
 // --------------------------------------
 
+test('EdgeGraph::read() : Empty graph', () => {
+    const filePath = path.join(EDGE_PATH, 'test_edg_empty.txt');
+    fs.writeFileSync(filePath, '');
+
+    const graph = new EdgeGraph(filePath);
+
+    // Expected Adjacency Matrix
+    const expectedAdjacencyMatrix: number[][] = [];
+
+    // Expected Vertices
+    const expectedVertices: Vertex[] = [];
+
+    // Expected Edges
+    const expectedEdges: [number, number][] = [];
+
+    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
+    expect(graph.getVertices()).toStrictEqual(expectedVertices);
+    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+});
+
 test('EdgeGraph::read() : Edges of more than two vertices', () => {
-    const filePath = path.join(EDGE_PATH, 'test_m_invalid_ncol.txt');
+    const filePath = path.join(EDGE_PATH, 'test_edg_invalid_ncol.txt');
 
     expect(() => { new EdgeGraph(filePath) }).toThrow(
         "InvalidEdge :: Edges can only have two linked vertices"
@@ -80,7 +101,7 @@ test('EdgeGraph::read() : Edges of more than two vertices', () => {
 });
 
 test('EdgeGraph::read() : Edges with invalid values', () => {
-    const filePath = path.join(EDGE_PATH, 'test_m_invalid_values.txt');
+    const filePath = path.join(EDGE_PATH, 'test_edg_invalid_values.txt');
 
     expect(() => { new EdgeGraph(filePath) }).toThrow(
         "InvalidToken: 'a' is not a number"
@@ -88,7 +109,7 @@ test('EdgeGraph::read() : Edges with invalid values', () => {
 });
 
 test('EdgeGraph::read() : 3 edges', () => {
-    const filePath = path.join(EDGE_PATH, 'test_m_3.txt');
+    const filePath = path.join(EDGE_PATH, 'test_edg_3.txt');
     const graph = new EdgeGraph(filePath);
 
     // Expected Adjacency Matrix
@@ -116,7 +137,7 @@ test('EdgeGraph::read() : 3 edges', () => {
 });
 
 test('EdgeGraph::read() : 6 edges', () => {
-    const filePath = path.join(EDGE_PATH, 'test_m_6.txt');
+    const filePath = path.join(EDGE_PATH, 'test_edg_6.txt');
     const graph = new EdgeGraph(filePath);
 
     // Expected Adjacency Matrix

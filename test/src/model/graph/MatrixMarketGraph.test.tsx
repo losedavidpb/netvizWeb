@@ -1,4 +1,5 @@
 import { test, expect } from 'vitest';
+import * as fs from 'fs';
 import path from 'path';
 
 import { MatrixMarketGraph } from '../../../../src/model/graph/MatrixMarketGraph';
@@ -33,23 +34,43 @@ function error_message(): string {
 // Read
 // --------------------------------------
 
+test('MatrixMarketGraph::read() : Empty graph', () => {
+    const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_empty.mtx');
+    fs.writeFileSync(filePath, '');
+
+    const graph = new MatrixMarketGraph(filePath);
+
+    // Expected Adjacency Matrix
+    const expectedAdjacencyMatrix: number[][] = [];
+
+    // Expected Vertices
+    const expectedVertices: Vertex[] = [];
+
+    // Expected Edges
+    const expectedEdges: [number, number][] = [];
+
+    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
+    expect(graph.getVertices()).toStrictEqual(expectedVertices);
+    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+});
+
 test('MatrixMarketGraph::read() : No Coordinate', () => {
-    const filePath = path.join(MATRIX_MARKET_PATH, 'test_no_coordinate.mtx');
+    const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_no_coordinate.mtx');
     expect(() => { new MatrixMarketGraph(filePath); }).toThrow(error_message());
 });
 
 test('MatrixMarketGraph::read() : No Pattern', () => {
-    const filePath = path.join(MATRIX_MARKET_PATH, 'test_no_pattern.mtx');
+    const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_no_pattern.mtx');
     expect(() => { new MatrixMarketGraph(filePath); }).toThrow(error_message());
 });
 
 test('MatrixMarketGraph::read() : No Symmetric', () => {
-    const filePath = path.join(MATRIX_MARKET_PATH, 'test_no_symmetric.mtx');
+    const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_no_symmetric.mtx');
     expect(() => { new MatrixMarketGraph(filePath); }).toThrow(error_message());
 });
 
 test('MatrixMarketGraph::read() : 6 edges', () => {
-    const filePath = path.join(MATRIX_MARKET_PATH, 'test_m_6.mtx');
+    const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_6.mtx');
     const graph = new MatrixMarketGraph(filePath);
 
     // Expected Adjacency Matrix
@@ -83,7 +104,7 @@ test('MatrixMarketGraph::read() : 6 edges', () => {
 });
 
 test('MatrixMarketGraph::read() : 12 edges', () => {
-    const filePath = path.join(MATRIX_MARKET_PATH, 'test_m_10.mtx');
+    const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_10.mtx');
     const graph = new MatrixMarketGraph(filePath);
 
     // Expected Adjacency Matrix
