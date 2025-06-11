@@ -381,3 +381,13 @@ test('Vertex::attachPoint() : Valid Vertex', () => {
     expect(edges[0].getBase() === vertex).toBe(true);
     expect(edges[0].getConnect() === other).toBe(true);
 });
+
+// --------------------------------------
+// Clone
+// --------------------------------------
+
+test('Vertex::clone() : Valid Vertex', () => {
+    const vertex = new Vertex(10, 20, 50);
+
+    expect(vertex.clone()).toStrictEqual(vertex);
+});

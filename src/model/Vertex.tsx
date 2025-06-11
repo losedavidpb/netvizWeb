@@ -481,4 +481,33 @@ export class Vertex {
         const edge = new Edge(this, vertex);
         this.edges.push(edge);
     }
+
+    /**
+     * Clone the current vertex
+     *
+     * @returns clone of the vertex
+     */
+    clone(): Vertex {
+        const clone_obj = new Vertex(0, 0, 0);
+
+        clone_obj.selected = this.isSelected();
+        clone_obj.pos = this.getPos();
+        clone_obj.velocity = this.getVelocity();
+        clone_obj.force = this.getForce();
+        clone_obj.colour = this.getColour();
+        clone_obj.text = this.getText();
+        clone_obj.level = this.getLevel();
+        clone_obj.degree = this.getDegree();
+        clone_obj.vertexNumber = this.getVertexNumber();
+
+        for (let i = 0; i < this.edges.length; i++) {
+            const connect = this.attachedPoints[i].clone();
+
+            clone_obj.attachedPoints.push(connect);
+            clone_obj.edges.push(new Edge(clone_obj, connect));
+        }
+
+        clone_obj.update();
+        return clone_obj;
+    }
 }

@@ -157,3 +157,15 @@ test('Edge::setColour() : InvalidG', () => {
         'InvalidRGB :: Passed colour is invalid'
     );
 });
+
+// --------------------------------------
+// Clone
+// --------------------------------------
+
+test('Edge::clone() : Valid Edge', () => {
+    const vertex_1 = new Vertex(10, 20, 50);
+    const vertex_2 = new Vertex(20, 50, 30);
+    const edge = new Edge(vertex_1, vertex_2);
+
+    expect(edge.clone()).toStrictEqual(edge);
+});

@@ -180,4 +180,20 @@ export class Edge {
 
         this.colour = new THREE.Color().setRGB(R, G, B);
     }
+
+    /**
+    * Clone the current edge
+    *
+    * @returns clone of the edge
+    */
+    clone(): Edge {
+        const clone_obj = new Edge(
+            this.base.clone(), this.connect.clone()
+        );
+
+        clone_obj.colour = this.getColour();
+        clone_obj.text = this.getText();
+
+        return clone_obj;
+    }
 }
