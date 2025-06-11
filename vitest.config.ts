@@ -17,7 +17,8 @@ export default defineConfig({
                 'eslint.style.cjs',
                 'vite.config.ts',
                 'vitest.config.ts',
-                '**/vite-env.d.ts'
+                '**/vite-env.d.ts',
+                'src/model/graph/mmio.tsx'
             ]
         },
         exclude: [
