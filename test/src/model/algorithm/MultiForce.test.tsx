@@ -237,3 +237,7 @@ test('MultiForce::apply() : 1x1 graph', () => {
         expect(pos.z).toBe(-9999990);
     }
 });
+
+// ......
+// TODO: Include tests for 3x3 and 6x6 graphs
+// ......
