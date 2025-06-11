@@ -39,6 +39,7 @@ export abstract class Graph {
      * @param filePath path of the file
      */
     constructor(filePath?: string) {
+        /* v8 ignore next 5 */
         if (!Graph.testMode) {
             if (Graph.scene == null || Graph.camera == null || Graph.renderer == null) {
                 throw new Error('NullError :: THREE.js has not been initialised yet');
@@ -137,7 +138,7 @@ export abstract class Graph {
      *
      * @returns adjacency matrix
      */
-    getAdjacencyMatrix() {
+    getAdjacencyMatrix(): number[][] {
         return this.adjacencyMatrix;
     }
 }
