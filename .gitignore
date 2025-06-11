@@ -27,5 +27,6 @@ package-lock.json
 *.iml
 *.ipr
 
-# Evaluation
+# Other
+TODO.txt
 reports
