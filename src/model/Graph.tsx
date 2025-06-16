@@ -116,6 +116,15 @@ export abstract class Graph {
     }
 
     /**
+     * Get the number of vertices
+     *
+     * @returns number of vertices
+     */
+    getNumVertices(): number {
+        return this.vertices.length;
+    }
+
+    /**
      * Get the vertices
      *
      * @returns vertices
