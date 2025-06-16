@@ -9,6 +9,8 @@ import { Vertex } from '../model/Vertex';
 import { Betweenness } from '../model/centrality/Betweenness';
 import { CommandMap } from '../controller/CommandMap';
 import { Widget } from './Widget';
+import { LoadGraph } from '../controller/commands/LoadGraph';
+import { RefreshGraph } from '../controller/commands/RefreshGraph';
 
 /**
  * GLWindow :: Representation of a GLWindow
@@ -34,12 +36,9 @@ export class GLWindow {
 
     private widgetRef: RefObject<Widget | null>;
 
-    //bool endThread = false;
-
-    private graphFilePath: string = '';
+    private content: string = '';
     private graph: Graph | undefined;
 
-    //private commands: Record<string, Command>;
     private commands: CommandMap = new CommandMap();
 
     private selectedNode: Vertex | null;
@@ -54,8 +53,6 @@ export class GLWindow {
     private mouseRIGHT: boolean = false;
     private mouseMIDDLE: boolean = false;
     private mouseLEFT: boolean = false;
-
-    //Widget *buttonWidget;
 
     // Avoid the definition of multiple instances
     private constructor(width: number, height: number) {
@@ -88,21 +85,40 @@ export class GLWindow {
     }
 
     /**
-     * Get the file of the graph
+     * Set React callback for rendering
      *
-     * @returns graph file path
+     * @param callback callback for react
      */
-    getGraphFilePath(): string {
-        return this.graphFilePath;
+    setUpdateCallback(callback: () => void): void {
+        const cmd = this.commands.get('RefreshGraph') as RefreshGraph;
+        cmd.setCallback(callback);
+    }
+
+    /**
+     * Get the widget of the window
+     *
+     * @returns widget
+     */
+    getWidget(): Widget | null {
+        return this.widgetRef.current;
+    }
+
+    /**
+     * Get the content of the graph
+     *
+     * @returns content of the graph
+     */
+    getContent(): string {
+        return this.content;
     }
 
     /**
      * Set a new graph file path
      *
-     * @param graphFilePath graph file path
+     * @param content graph file path
      */
-    setGraphFilePath(graphFilePath: string): void {
-        this.graphFilePath = graphFilePath;
+    setContent(content: string): void {
+        this.content = content;
     }
 
     /**
@@ -160,42 +176,6 @@ export class GLWindow {
     }
 
     /**
-     * Start the rendering process of the window
-     */
-    render() {
-        return (
-            <div
-                className="w-100 h-100"
-                tabIndex={0}
-                onKeyDown={this.keyPressedEvent}
-                onKeyUp={this.keyReleasedEvent}
-            >
-                <Canvas
-                    gl={{ antialias: true }}
-                    onWheel={this.scrollEvent}
-                    onMouseDown={this.mousePressedEvent}
-                    onMouseUp={this.mouseReleasedEvent}
-                    onMouseMove={this.mousePositionEvent}
-                    onContextMenu={e => e.preventDefault()}
-                    onCreated={({ scene, camera, gl }) => {
-                        Graph.scene = scene;
-                        Graph.camera = camera;
-                        Graph.renderer = gl;
-                    }}
-                >
-                    <this.GraphScene
-                        pitch={this.pitch}
-                        yaw={this.yaw}
-                        translate={this.translate}
-                        graph={this.graph}
-                    />
-                </Canvas>
-                <Widget ref={this.widgetRef} />
-            </div>
-        );
-    }
-
-    /**
      * Take a PNG screenshot of the current graph
      *
      * @param filename filename of the screenshot
@@ -245,6 +225,15 @@ export class GLWindow {
     };
 
     /**
+     * Toggle the view of the widget
+     */
+    toggleWidget(): void {
+        if (this.widgetRef.current !== null) {
+            this.widgetRef.current.toggleView();
+        }
+    }
+
+    /**
      * Load a graph based on the graph file path
      */
     loadGraph(): void {
@@ -264,6 +253,21 @@ export class GLWindow {
     }
 
     /**
+     * Apply the selected algorithm
+     */
+    applyAlgorithm(): void {
+        if (this.widgetRef.current !== null) {
+            this.widgetRef.current.applyAlgorithm();
+        }
+    }
+
+    applyColoration(): void {
+        if (this.widgetRef.current !== null) {
+            this.widgetRef.current.applyColoration();
+        }
+    }
+
+    /**
      * Refresh the current graph
      */
     refresh(): void {
@@ -271,10 +275,39 @@ export class GLWindow {
     }
 
     /**
-     * Toggle the view of the widget
+     * Start the rendering process of the window
      */
-    toggleView(): void {
-        this.widgetRef.current.toggleView();
+    render() {
+        return (
+            <div
+                className="w-100 h-100"
+                tabIndex={0}
+                onKeyDown={this.keyPressedEvent}
+                onKeyUp={this.keyReleasedEvent}
+            >
+                <Canvas
+                    gl={{ antialias: true }}
+                    onWheel={this.scrollEvent}
+                    onMouseDown={this.mousePressedEvent}
+                    onMouseUp={this.mouseReleasedEvent}
+                    onMouseMove={this.mousePositionEvent}
+                    onContextMenu={e => e.preventDefault()}
+                    onCreated={({ scene, camera, gl }) => {
+                        Graph.scene = scene;
+                        Graph.camera = camera;
+                        Graph.renderer = gl;
+                    }}
+                >
+                    <this.GraphScene
+                        pitch={this.pitch}
+                        yaw={this.yaw}
+                        translate={this.translate}
+                        graph={this.graph}
+                    />
+                </Canvas>
+                <Widget ref={this.widgetRef} />
+            </div>
+        );
     }
 
     // --------------------------------
@@ -283,12 +316,12 @@ export class GLWindow {
 
     init_commands(): void {
         this.commands = new CommandMap();
-        //this.commands.addCommand('LoadGraph': new LoadGraph(this));
+        this.commands.add('LoadGraph', new LoadGraph(this));
         //this.commands.addCommand('DeleteVertex': new DeleteVertex(this, -1));
         //this.commands.addCommand('DeleteEdge': new DeleteEdge(this, -1));
         //this.commands.addCommand('ColourNode': new ColourNode(this));
         //this.commands.addCommand('TextNode': new TextNode(this));
-        //this.commands.addCommand('RefreshGraph': new RefreshGraph(this));
+        this.commands.add('RefreshGraph', new RefreshGraph(this));
         //this.commands.addCommand('DragVertex': new DragVertex(this));
         //this.commands.addCommand('SelectEdge': new SelectEdge(this));
         //this.commands.addCommand('SelectVertex': new SelectVertex(this));
@@ -378,7 +411,7 @@ export class GLWindow {
         const window = GLWindow.init();
 
         if (event.key.toLowerCase() === 't') {
-            window.toggleView();
+            window.toggleWidget();
         }
 
         if (event.key.toLowerCase() === 'n') {
@@ -482,32 +515,21 @@ export class GLWindow {
             gl.setViewport(0, 0, size.width, size.height);
             gl.clear(true, true);
 
-            camera.position.set(0, 0, 0);
-            const pitchRad = THREE.MathUtils.degToRad(pitch);
-            const yawRad = THREE.MathUtils.degToRad(yaw);
-
-            const transform = new THREE.Matrix4().makeTranslation(
-                translate.x, translate.y, -translate.z
+            camera.position.set(0, 0, translate.z);
+            camera.rotation.set(
+                THREE.MathUtils.degToRad(pitch),
+                THREE.MathUtils.degToRad(yaw), 0
             );
 
-            transform.multiply(new THREE.Matrix4().makeRotationX(pitchRad))
-            transform.multiply(new THREE.Matrix4().makeRotationY(yawRad));
-
-            camera.applyMatrix4(transform);
-            camera.updateProjectionMatrix();
-
-            if (graph !== undefined) {
-                graph.update();
-                graph.draw();
-            }
+            camera.lookAt(translate.x, translate.y, 0);
         });
 
         return (
             <>
-                <color attach="background" args={[10, 10, 10]} />
                 <ambientLight />
                 <pointLight position={[10, 10, 10]} />
                 <OrbitControls />
+                {graph ? graph.draw() : null}
             </>
         );
     }

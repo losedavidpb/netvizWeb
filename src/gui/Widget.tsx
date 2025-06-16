@@ -7,6 +7,8 @@ import { GLWindow } from './GLWindow';
 import { Vertex } from '../model/Vertex';
 import { CentralityFactoryMethod } from '../model/centrality/CentralityFactoryMethod';
 import { AlgorithmFactoryMethod } from '../model/algorithm/AlgorithmFactoryMethod';
+import { AlgorithmType } from '../model/Algorithm';
+import { CentralityType } from '../model/Centrality';
 
 /**
  * Widget :: Representation of a widget
@@ -15,6 +17,8 @@ import { AlgorithmFactoryMethod } from '../model/algorithm/AlgorithmFactoryMetho
  */
 export class Widget extends Component<{}, {
     visible: boolean,
+    algorithm: AlgorithmType,
+    centrality: CentralityType,
     fileInputRef: React.RefObject<HTMLInputElement | null>,
     nodeText: string,
     nodeColour: THREE.Color,
@@ -31,6 +35,8 @@ export class Widget extends Component<{}, {
 
         this.state = {
             visible: true,
+            algorithm: "FruchtermanReingold",
+            centrality: "DegreeCentrality",
             fileInputRef: React.createRef(),
             nodeText: '',
             nodeColour: new THREE.Color(),
@@ -39,9 +45,26 @@ export class Widget extends Component<{}, {
         };
     }
 
+    /**
+     * Set the visibility of the widget
+     */
     toggleView(): void {
         const visible = this.state.visible;
         this.setState({ visible: !visible });
+    }
+
+    /**
+     * Apply the algorithm to the graph
+     */
+    applyAlgorithm(): void {
+        this.apply_algorithm(this.state.algorithm);
+    }
+
+    /**
+     * Apply the coloration to the graph
+     */
+    applyColoration(): void {
+        this.apply_centrality(this.state.centrality);
     }
 
     /**
@@ -82,15 +105,23 @@ export class Widget extends Component<{}, {
 
                     <h4>Graph Settings</h4>
                     <CollapsibleList
-                        options={['Fruchterman Reingold', 'Simple Force Directed', 'Multi Level']}
+                        options={['Fruchterman Reingold', 'Simple Force Directed', 'Multi Force']}
                         defaultText="Fruchterman Reingold"
-                        onOptionSelect={(e) => this.apply_algorithm(e)}
+                        onOptionSelect={(e) => {
+                            const opt = e.replace(/\s+/g, '') as AlgorithmType;
+                            this.apply_algorithm(opt);
+                            this.refresh_graph();
+                        }}
                     />
 
                     <CollapsibleList
                         options={['Degree Centrality', 'Distance Centrality', 'Betweenness Centrality']}
                         defaultText="Degree Centrality"
-                        onOptionSelect={(e) => this.apply_centrality(e)}
+                        onOptionSelect={(e) => {
+                            const opt = e.replace(/\s+/g, '') as CentralityType;
+                            this.apply_centrality(opt);
+                            this.refresh_graph();
+                        }}
                     />
 
                     <div className="d-flex flex-column mb-3">
@@ -169,9 +200,17 @@ export class Widget extends Component<{}, {
         if (files !== null && files.length === 1) {
             const file = files[0];
 
-            const window = GLWindow.init();
-            window.setGraphFilePath(file.name);
-            window.loadGraph();
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                const content = e.target?.result as string;
+
+                const window = GLWindow.init();
+                window.setContent(content);
+                window.loadGraph();
+            };
+
+            reader.readAsText(file);
         }
     }
 
@@ -183,20 +222,22 @@ export class Widget extends Component<{}, {
         window.saveFile(filename);
     }
 
-    private apply_algorithm(name: string): void {
+    private apply_algorithm(name: AlgorithmType): void {
         const window = GLWindow.init();
         const graph = window.getGraph();
 
         if (graph !== undefined) {
+            this.setState({ algorithm: name });
             AlgorithmFactoryMethod.createAlgorithm(name, graph).apply();
         }
     }
 
-    private apply_centrality(name: string): void {
+    private apply_centrality(name: CentralityType): void {
         const window = GLWindow.init();
         const graph = window.getGraph();
 
         if (graph !== undefined) {
+            this.setState({ centrality: name });
             CentralityFactoryMethod.createCentrality(name).apply(graph);
         }
     }
