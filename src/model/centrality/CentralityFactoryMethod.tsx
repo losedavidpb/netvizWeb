@@ -1,4 +1,4 @@
-import type { Centrality } from "../Centrality";
+import type { Centrality, CentralityType } from "../Centrality";
 import { Betweenness } from "./Betweenness";
 import { DegreeCentrality } from "./DegreeCentrality";
 import { DistanceCentrality } from "./DistanceCentrality";
@@ -15,7 +15,7 @@ export class CentralityFactoryMethod {
      * @param type type of algorithm
      * @returns algorithm
      */
-    static createCentrality(type: string): Centrality {
+    static createCentrality(type: CentralityType): Centrality {
         switch (type) {
             case 'Betweenness': return new Betweenness();
             case 'DegreeCentrality': return new DegreeCentrality();

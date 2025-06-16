@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-
 import { Graph } from "../Graph";
 import * as mmio from './mmio';
 import { Vertex } from '../Vertex';
@@ -10,9 +8,7 @@ import { Vertex } from '../Vertex';
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export class MatrixMarketGraph extends Graph {
-    protected read(filePath: string): void {
-        const content = fs.readFileSync(filePath, 'utf-8').trim();
-
+    protected read(content: string): void {
         if (content !== '') {
             const lines = content.split(/\r?\n/);
 

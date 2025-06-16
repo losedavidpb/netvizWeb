@@ -44,9 +44,6 @@ export class Edge {
     draw(): JSX.Element {
         return (
             <>
-                {this.base.draw()}
-                {this.connect.draw()}
-
                 {/* Render the solid edge */}
                 <Line
                     points={[

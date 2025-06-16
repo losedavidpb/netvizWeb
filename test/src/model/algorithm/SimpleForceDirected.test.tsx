@@ -18,6 +18,11 @@ Graph.testMode = true;
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const SIMPLE_FORCE_DIRECTED = path.join(CASES_WORKPLACE, 'simple_force_directed');
 
+function load_test_graph(filePath: string): Graph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new AdjacencyGraph(content);
+}
+
 // --------------------------------------
 // apply
 // --------------------------------------
@@ -107,8 +112,7 @@ test('SimpleForceDirected::apply() : Empty graph', () => {
     const filePath = path.join(SIMPLE_FORCE_DIRECTED, 'test_force_empty.txt');
     fs.writeFileSync(filePath, '');
 
-    const graph = new AdjacencyGraph(filePath);
-
+    const graph = load_test_graph(filePath);
     const algorithm = new SimpleForceDirected(graph);
     algorithm.apply();
 
@@ -118,8 +122,8 @@ test('SimpleForceDirected::apply() : Empty graph', () => {
 
 test('SimpleForceDirected::apply() : 1x1 graph', () => {
     const filePath = path.join(SIMPLE_FORCE_DIRECTED, 'test_force_1x1.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new SimpleForceDirected(graph);
 
     algorithm.place();
@@ -135,8 +139,8 @@ test('SimpleForceDirected::apply() : 1x1 graph', () => {
 
 test('SimpleForceDirected::apply() : 3x3 graph', () => {
     const filePath = path.join(SIMPLE_FORCE_DIRECTED, 'test_force_3x3.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new SimpleForceDirected(graph);
 
     algorithm.place();
@@ -152,8 +156,8 @@ test('SimpleForceDirected::apply() : 3x3 graph', () => {
 
 test('SimpleForceDirected::apply() : 6x6 graph', () => {
     const filePath = path.join(SIMPLE_FORCE_DIRECTED, 'test_force_6x6.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new SimpleForceDirected(graph);
 
     algorithm.place();
@@ -171,10 +175,22 @@ test('SimpleForceDirected::apply() : 6x6 graph', () => {
 // place
 // --------------------------------------
 
+function test_place(vertices: Vertex[], exp_v: number): void {
+    expect(vertices.length).toBe(exp_v);
+
+    for (let i = 0; i < vertices.length; i++) {
+        let pos = vertices[i].getPos();
+
+        expect(pos.x >= -vertices.length / 2 && pos.x < vertices.length / 2).toBe(true);
+        expect(pos.y >= -vertices.length / 2 && pos.y < vertices.length / 2).toBe(true);
+        expect(pos.z).toBe(0);
+    }
+}
+
 test('SimpleForceDirected::place() : Empty graph', () => {
     const filePath = path.join(SIMPLE_FORCE_DIRECTED, 'test_force_empty.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new SimpleForceDirected(graph);
     algorithm.place();
 
@@ -184,57 +200,33 @@ test('SimpleForceDirected::place() : Empty graph', () => {
 
 test('SimpleForceDirected::place() : 1x1 graph', () => {
     const filePath = path.join(SIMPLE_FORCE_DIRECTED, 'test_force_1x1.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new SimpleForceDirected(graph);
     algorithm.place();
 
     const vertices = graph.getVertices();
-    expect(vertices.length).toBe(1);
-
-    for (let i = 0; i < vertices.length; i++) {
-        let pos = vertices[i].getPos();
-
-        expect(pos.x >= -vertices.length / 2 && pos.x < vertices.length / 2).toBe(true);
-        expect(pos.y >= -vertices.length / 2 && pos.y < vertices.length / 2).toBe(true);
-        expect(pos.z).toBe(0);
-    }
+    test_place(vertices, 1);
 });
 
 test('SimpleForceDirected::place() : 3x3 graph', () => {
     const filePath = path.join(SIMPLE_FORCE_DIRECTED, 'test_force_3x3.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new SimpleForceDirected(graph);
     algorithm.place();
 
     const vertices = graph.getVertices();
-    expect(vertices.length).toBe(3);
-
-    for (let i = 0; i < vertices.length; i++) {
-        let pos = vertices[i].getPos();
-
-        expect(pos.x >= -vertices.length / 2 && pos.x < vertices.length / 2).toBe(true);
-        expect(pos.y >= -vertices.length / 2 && pos.y < vertices.length / 2).toBe(true);
-        expect(pos.z).toBe(0);
-    }
+    test_place(vertices, 3);
 });
 
 test('SimpleForceDirected::place() : 6x6 graph', () => {
     const filePath = path.join(SIMPLE_FORCE_DIRECTED, 'test_force_6x6.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new SimpleForceDirected(graph);
     algorithm.place();
 
     const vertices = graph.getVertices();
-    expect(vertices.length).toBe(6);
-
-    for (let i = 0; i < vertices.length; i++) {
-        let pos = vertices[i].getPos();
-
-        expect(pos.x >= -vertices.length / 2 && pos.x < vertices.length / 2).toBe(true);
-        expect(pos.y >= -vertices.length / 2 && pos.y < vertices.length /2).toBe(true);
-        expect(pos.z).toBe(0);
-    }
+    test_place(vertices, 6);
 });

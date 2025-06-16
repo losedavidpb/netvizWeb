@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-
 import { Graph } from "../Graph";
 import { Vertex } from "../Vertex";
 
@@ -12,19 +10,19 @@ export class EdgeGraph extends Graph {
     /**
      * Constructor for EdgeGraph
      *
-     * @param filePath path of the file
+     * @param content content of the file
      * @param newEdgeList list of edges
      */
-    constructor(filePath?: string, newEdgeList?: number[][]) {
+    constructor(content?: string, newEdgeList?: number[][]) {
         super();
 
         // Define Graph using the file
-        if (filePath !== undefined && newEdgeList === undefined) {
-            this.read(filePath);
+        if (content !== undefined && newEdgeList === undefined) {
+            this.read(content);
         }
 
         // Define Graph using the edgeList
-        else if (filePath === undefined && newEdgeList !== undefined) {
+        else if (content === undefined && newEdgeList !== undefined) {
             if (!EdgeGraph.is_valid_edge_list(newEdgeList)) {
                 throw new Error(
                     "InvalidEdge :: Edges can only have two linked vertices"
@@ -41,9 +39,7 @@ export class EdgeGraph extends Graph {
         }
     }
 
-    protected read(filePath: string): void {
-        const content = fs.readFileSync(filePath, 'utf-8');
-
+    protected read(content: string): void {
         if (content !== '') {
             const lines = content.split(/\r?\n/);
 

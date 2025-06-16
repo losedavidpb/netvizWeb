@@ -18,6 +18,11 @@ Graph.testMode = true;
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const FRUCHTERMAN_REINGOLD = path.join(CASES_WORKPLACE, 'fruchterman_reingold');
 
+function load_test_graph(filePath: string): Graph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new AdjacencyGraph(content);
+}
+
 // --------------------------------------
 // apply
 // --------------------------------------
@@ -115,8 +120,7 @@ test('FruchtermanReingold::apply() : Empty graph', () => {
     const filePath = path.join(FRUCHTERMAN_REINGOLD, 'test_fruchterman_empty.txt');
     fs.writeFileSync(filePath, '');
 
-    const graph = new AdjacencyGraph(filePath);
-
+    const graph = load_test_graph(filePath);
     const algorithm = new FruchtermanReingold(graph);
     algorithm.apply();
 
@@ -129,10 +133,9 @@ test('FruchtermanReingold::apply() : Empty graph', () => {
 
 test('FruchtermanReingold::apply() : 1x1 graph', () => {
     const filePath = path.join(FRUCHTERMAN_REINGOLD, 'test_fruchterman_1x1.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new FruchtermanReingold(graph);
-
     algorithm.place();
 
     const init_vtx = get_init_vertices(graph);
@@ -146,10 +149,9 @@ test('FruchtermanReingold::apply() : 1x1 graph', () => {
 
 test('FruchtermanReingold::apply() : 3x3 graph', () => {
     const filePath = path.join(FRUCHTERMAN_REINGOLD, 'test_fruchterman_3x3.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new FruchtermanReingold(graph);
-
     algorithm.place();
 
     const init_vtx = get_init_vertices(graph);
@@ -163,10 +165,9 @@ test('FruchtermanReingold::apply() : 3x3 graph', () => {
 
 test('FruchtermanReingold::apply() : 6x6 graph', () => {
     const filePath = path.join(FRUCHTERMAN_REINGOLD, 'test_fruchterman_6x6.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new FruchtermanReingold(graph);
-
     algorithm.place();
 
     const init_vtx = get_init_vertices(graph);
@@ -182,10 +183,24 @@ test('FruchtermanReingold::apply() : 6x6 graph', () => {
 // place
 // --------------------------------------
 
+function test_place(vertices: Vertex[], expected_length: number): void {
+    expect(vertices.length).toBe(expected_length);
+
+    const [W, L] = [FruchtermanReingold.W, FruchtermanReingold.L];
+
+    for (let i = 0; i < vertices.length; i++) {
+        let pos = vertices[i].getPos();
+
+        expect(pos.x >= -W / 2 && pos.x < W / 2).toBe(true);
+        expect(pos.y >= -L / 2 && pos.y < L / 2).toBe(true);
+        expect(pos.z).toBe(0);
+    }
+}
+
 test('FruchtermanReingold::place() : Empty graph', () => {
     const filePath = path.join(FRUCHTERMAN_REINGOLD, 'test_fruchterman_empty.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new FruchtermanReingold(graph);
     algorithm.place();
 
@@ -198,63 +213,33 @@ test('FruchtermanReingold::place() : Empty graph', () => {
 
 test('FruchtermanReingold::place() : 1x1 graph', () => {
     const filePath = path.join(FRUCHTERMAN_REINGOLD, 'test_fruchterman_1x1.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new FruchtermanReingold(graph);
     algorithm.place();
 
     const vertices = graph.getVertices();
-    expect(vertices.length).toBe(1);
-
-    const [W, L] = [FruchtermanReingold.W, FruchtermanReingold.L];
-
-    for (let i = 0; i < vertices.length; i++) {
-        let pos = vertices[i].getPos();
-
-        expect(pos.x >= -W / 2 && pos.x < W / 2).toBe(true);
-        expect(pos.y >= -L / 2 && pos.y < L / 2).toBe(true);
-        expect(pos.z).toBe(0);
-    }
+    test_place(vertices, 1);
 });
 
 test('FruchtermanReingold::place() : 3x3 graph', () => {
     const filePath = path.join(FRUCHTERMAN_REINGOLD, 'test_fruchterman_3x3.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new FruchtermanReingold(graph);
     algorithm.place();
 
     const vertices = graph.getVertices();
-    expect(vertices.length).toBe(3);
-
-    const [W, L] = [FruchtermanReingold.W, FruchtermanReingold.L];
-
-    for (let i = 0; i < vertices.length; i++) {
-        let pos = vertices[i].getPos();
-
-        expect(pos.x >= -W / 2 && pos.x < W / 2).toBe(true);
-        expect(pos.y >= -L / 2 && pos.y < L / 2).toBe(true);
-        expect(pos.z).toBe(0);
-    }
+    test_place(vertices, 3);
 });
 
 test('FruchtermanReingold::place() : 6x6 graph', () => {
     const filePath = path.join(FRUCHTERMAN_REINGOLD, 'test_fruchterman_6x6.txt');
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     const algorithm = new FruchtermanReingold(graph);
     algorithm.place();
 
     const vertices = graph.getVertices();
-    expect(vertices.length).toBe(6);
-
-    const [W, L] = [FruchtermanReingold.W, FruchtermanReingold.L];
-
-    for (let i = 0; i < vertices.length; i++) {
-        let pos = vertices[i].getPos();
-
-        expect(pos.x >= -W / 2 && pos.x < W / 2).toBe(true);
-        expect(pos.y >= -L / 2 && pos.y < L /2).toBe(true);
-        expect(pos.z).toBe(0);
-    }
+    test_place(vertices, 6);
 });

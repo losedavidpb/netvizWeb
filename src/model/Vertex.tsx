@@ -44,7 +44,7 @@ export class Vertex {
     // modify them unless you know what you are doing.
 
     // Radius of the vertex.
-    static readonly radius = 0.05;
+    static readonly radius = 1;
 
     // Number of horizontal divisions (latitude)
     // for the vertex sphere geometry

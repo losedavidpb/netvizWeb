@@ -20,6 +20,11 @@ const ADJACENCY_PATH = path.join(CASES_WORKPLACE, 'adjacency/');
 // Read
 // --------------------------------------
 
+function load_test_graph(filePath: string): Graph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new AdjacencyGraph(content);
+}
+
 function attach_point(v0: Vertex, v1: Vertex): void {
     v0.attachPoint(v1);
     v0.updateDegree();
@@ -30,7 +35,7 @@ test('AdjacencyGraph::read() : Empty graph', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_empty.txt');
     fs.writeFileSync(filePath, '');
 
-    const graph = new AdjacencyGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix: number[][] = [];
@@ -48,7 +53,7 @@ test('AdjacencyGraph::read() : Empty graph', () => {
 
 test('AdjacencyGraph::read() : Matrix 1x1', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_1x1.txt');
-    const graph = new AdjacencyGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix: number[][] = [[0]];
@@ -66,31 +71,34 @@ test('AdjacencyGraph::read() : Matrix 1x1', () => {
 
 test('AdjacencyGraph::read() : Non-simetric Matrix whit invalid ncols', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_invalid_ncol.txt');
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
 
-    expect(() => { new AdjacencyGraph(filePath) }).toThrow(
+    expect(() => { new AdjacencyGraph(content) }).toThrow(
         "InvalidAdjacencyMatrix :: Adjacency Matrix must be simetric"
     );
 });
 
 test('AdjacencyGraph::read() : Non-simetric Matrix whit invalid nrows', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_invalid_nrow.txt');
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
 
-    expect(() => { new AdjacencyGraph(filePath) }).toThrow(
+    expect(() => { new AdjacencyGraph(content) }).toThrow(
         "InvalidAdjacencyMatrix :: Adjacency Matrix must be simetric"
     );
 });
 
 test('AdjacencyGraph::read() : Matrix whit invalid values', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_invalid_values.txt');
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
 
-    expect(() => { new AdjacencyGraph(filePath) }).toThrow(
+    expect(() => { new AdjacencyGraph(content) }).toThrow(
         "InvalidAdjacencyMatrix :: Adjacency Matrix must have binary values"
     );
 });
 
 test('AdjacencyGraph::read() : Matrix 3x3', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_3x3.txt');
-    const graph = new AdjacencyGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix = [
@@ -117,7 +125,7 @@ test('AdjacencyGraph::read() : Matrix 3x3', () => {
 
 test('AdjacencyGraph::read() : Matrix 6x6', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_6x6.txt');
-    const graph = new AdjacencyGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix = [

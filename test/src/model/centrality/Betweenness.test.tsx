@@ -33,6 +33,11 @@ class MockupBetweenness extends Centrality {
     }
 }
 
+function load_test_graph(filePath: string): Graph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new AdjacencyGraph(content);
+}
+
 // --------------------------------------
 // apply
 // --------------------------------------
@@ -53,8 +58,8 @@ test('Betweenness::apply() : Empty graph', () => {
     fs.writeFileSync(filePath, '');
 
     const centrality = new MockupBetweenness();
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     centrality.apply(graph);
 
     // Expected Vertices
@@ -67,8 +72,8 @@ test('Betweenness::apply() : 1x1 graph', () => {
     const filePath = path.join(DEGREE_CENTRALITY, 'test_betweenness_1x1.txt');
 
     const centrality = new MockupBetweenness();
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     centrality.apply(graph);
 
     // Expected Vertices
@@ -83,8 +88,8 @@ test('Betweenness::apply() : 3x3 graph', () => {
     const filePath = path.join(DEGREE_CENTRALITY, 'test_betweenness_3x3.txt');
 
     const centrality = new MockupBetweenness();
-    const graph = new AdjacencyGraph(filePath);
 
+    const graph = load_test_graph(filePath);
     centrality.apply(graph);
 
     // Expected Vertices

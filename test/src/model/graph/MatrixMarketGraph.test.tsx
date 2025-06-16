@@ -34,11 +34,16 @@ function error_message(): string {
 // Read
 // --------------------------------------
 
+function load_test_graph(filePath: string): Graph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new MatrixMarketGraph(content);
+}
+
 test('MatrixMarketGraph::read() : Empty graph', () => {
     const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_empty.mtx');
     fs.writeFileSync(filePath, '');
 
-    const graph = new MatrixMarketGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix: number[][] = [];
@@ -56,22 +61,28 @@ test('MatrixMarketGraph::read() : Empty graph', () => {
 
 test('MatrixMarketGraph::read() : No Coordinate', () => {
     const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_no_coordinate.mtx');
-    expect(() => { new MatrixMarketGraph(filePath); }).toThrow(error_message());
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+
+    expect(() => { new MatrixMarketGraph(content); }).toThrow(error_message());
 });
 
 test('MatrixMarketGraph::read() : No Pattern', () => {
     const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_no_pattern.mtx');
-    expect(() => { new MatrixMarketGraph(filePath); }).toThrow(error_message());
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+
+    expect(() => { new MatrixMarketGraph(content); }).toThrow(error_message());
 });
 
 test('MatrixMarketGraph::read() : No Symmetric', () => {
     const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_no_symmetric.mtx');
-    expect(() => { new MatrixMarketGraph(filePath); }).toThrow(error_message());
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+
+    expect(() => { new MatrixMarketGraph(content); }).toThrow(error_message());
 });
 
 test('MatrixMarketGraph::read() : 6 edges', () => {
     const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_6.mtx');
-    const graph = new MatrixMarketGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix = [
@@ -105,7 +116,7 @@ test('MatrixMarketGraph::read() : 6 edges', () => {
 
 test('MatrixMarketGraph::read() : 12 edges', () => {
     const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_10.mtx');
-    const graph = new MatrixMarketGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix = [

@@ -1,6 +1,18 @@
 import type { Graph } from './Graph';
 
 /**
+ * Available centrality types
+ */
+export const CentralityType = {
+    Betweenness: "Betweenness",
+    DegreeCentrality: "DegreeCentrality",
+    DistanceCentrality: "DistanceCentrality"
+} as const;
+
+// Derive a union type from the values
+export type CentralityType = typeof CentralityType[keyof typeof CentralityType];
+
+/**
  * Centrality :: Representation of a centrality algorithm
  *
  * @author losedavidpb <losedavidpb@gmail.com>

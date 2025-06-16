@@ -13,12 +13,13 @@ export default defineConfig({
                 '**/main.tsx',
                 '**/App.tsx',
                 '**/gui',
+                '**/controller',
+                'src/model/graph/mmio.tsx',
                 'eslint.config.js',
                 'eslint.style.cjs',
                 'vite.config.ts',
                 'vitest.config.ts',
                 '**/vite-env.d.ts',
-                'src/model/graph/mmio.tsx'
             ]
         },
         exclude: [

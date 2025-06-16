@@ -34,6 +34,11 @@ class MockupDistanceCentrality extends Centrality {
     }
 }
 
+function load_test_graph(filePath: string): Graph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new AdjacencyGraph(content);
+}
+
 // --------------------------------------
 // apply
 // --------------------------------------
@@ -63,7 +68,7 @@ test('DistanceCentrality::apply() : Empty graph', () => {
     fs.writeFileSync(filePath, '');
 
     const centrality = new MockupDistanceCentrality();
-    const graph = new AdjacencyGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Vertices
     const expectedVertices: Vertex[] = [];
@@ -77,7 +82,7 @@ test('DistanceCentrality::apply() : 1x1 graph', () => {
     const filePath = path.join(DEGREE_CENTRALITY, 'test_distance_1x1.txt');
 
     const centrality = new MockupDistanceCentrality();
-    const graph = new AdjacencyGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Vertices
     const expectedVertices: Vertex[] = [
@@ -96,7 +101,7 @@ test('DistanceCentrality::apply() : 3x3 graph', () => {
     const filePath = path.join(DEGREE_CENTRALITY, 'test_distance_3x3.txt');
 
     const centrality = new MockupDistanceCentrality();
-    const graph = new AdjacencyGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Vertices
     const expectedVertices: Vertex[] = [

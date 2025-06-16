@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import type { Vertex } from "./Vertex";
+import type { JSX } from 'react';
 
 /**
  * Graph :: Representation of a graph
@@ -59,10 +60,8 @@ export abstract class Graph {
      * Draw the graph
      */
     /* v8 ignore next 5 */
-    draw(): void {
-        this.vertices?.map((vertex) => {
-            vertex.draw();
-        });
+    draw(): JSX.Element[] {
+        return this.vertices?.map(vertex => vertex.draw()) ?? null;
     }
 
     /**

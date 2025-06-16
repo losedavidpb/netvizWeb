@@ -1,6 +1,18 @@
 import type { Graph } from "./Graph";
 
 /**
+ * Available algorithm types
+ */
+export const AlgorithmType = {
+    FruchtermanReingold: "FruchtermanReingold",
+    SimpleForceDirected: "SimpleForceDirected",
+    MultiForce: "MultiForce"
+} as const;
+
+// Derive a union type from the values
+export type AlgorithmType = typeof AlgorithmType[keyof typeof AlgorithmType];
+
+/**
  * Algorithm :: Representation of an algorithm
  *
  * @author losedavidpb <losedavidpb@gmail.com>

@@ -13,23 +13,23 @@ export class GraphFactoryMethod {
      * Create an graph based on its type
      *
      * @param line line of the file
-     * @param filename filename of the graph
+     * @param content content of the graph
      * @returns algorithm
      */
-    static createGraph(line: string, filename: string): Graph {
+    static createGraph(line: string, content: string): Graph {
         // Edge Graph
         if (line.length <= 4) {
-            return new EdgeGraph(filename);
+            return new EdgeGraph(content);
         }
 
         // Matrix Market Graph
         else if (line.substring(0, 14) === "%%MatrixMarket") {
-            return new AdjacencyGraph(filename);
+            return new MatrixMarketGraph(content);
         }
 
         // Adjacency Graph
         else if (line.length > 3 && (line.substring(0, 1) === "0" || line.substring(0, 1) === "1")) {
-            return new MatrixMarketGraph(filename);
+            return new AdjacencyGraph(content);
         }
 
         else {

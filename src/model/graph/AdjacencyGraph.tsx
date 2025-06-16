@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-
 import { Graph } from "../Graph";
 import { Vertex } from '../Vertex';
 
@@ -9,9 +7,7 @@ import { Vertex } from '../Vertex';
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export class AdjacencyGraph extends Graph {
-    protected read(filePath: string): void {
-        const content = fs.readFileSync(filePath, 'utf-8');
-
+    protected read(content: string): void {
         if (content !== '') {
             const lines = content.split(/\r?\n/);
             let [nrow, ncol] = [-1, -1];

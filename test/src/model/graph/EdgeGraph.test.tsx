@@ -22,6 +22,11 @@ function attach_point(v0: Vertex, v1: Vertex): void {
     v1.updateDegree();
 }
 
+function load_test_graph(filePath: string): Graph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new EdgeGraph(content);
+}
+
 // --------------------------------------
 // Constructor
 // --------------------------------------
@@ -76,7 +81,7 @@ test('EdgeGraph::read() : Empty graph', () => {
     const filePath = path.join(EDGE_PATH, 'test_edg_empty.txt');
     fs.writeFileSync(filePath, '');
 
-    const graph = new EdgeGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix: number[][] = [];
@@ -94,23 +99,25 @@ test('EdgeGraph::read() : Empty graph', () => {
 
 test('EdgeGraph::read() : Edges of more than two vertices', () => {
     const filePath = path.join(EDGE_PATH, 'test_edg_invalid_ncol.txt');
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
 
-    expect(() => { new EdgeGraph(filePath) }).toThrow(
+    expect(() => { new EdgeGraph(content) }).toThrow(
         "InvalidEdge :: Edges can only have two linked vertices"
     );
 });
 
 test('EdgeGraph::read() : Edges with invalid values', () => {
     const filePath = path.join(EDGE_PATH, 'test_edg_invalid_values.txt');
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
 
-    expect(() => { new EdgeGraph(filePath) }).toThrow(
+    expect(() => { new EdgeGraph(content) }).toThrow(
         "InvalidToken: 'a' is not a number"
     );
 });
 
 test('EdgeGraph::read() : 3 edges', () => {
     const filePath = path.join(EDGE_PATH, 'test_edg_3.txt');
-    const graph = new EdgeGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix = [
@@ -138,7 +145,7 @@ test('EdgeGraph::read() : 3 edges', () => {
 
 test('EdgeGraph::read() : 6 edges', () => {
     const filePath = path.join(EDGE_PATH, 'test_edg_6.txt');
-    const graph = new EdgeGraph(filePath);
+    const graph = load_test_graph(filePath);
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix = [
