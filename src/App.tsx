@@ -1,21 +1,19 @@
-import { GraphCanvas } from "./gui/GraphCanvas";
-import { Toolbox } from "./gui/Toolbox";
+import { useEffect, useState, type JSX } from "react";
+import { GLWindow } from "./gui/GLWindow";
 
 /**
  * Execute the React application
  *
  * @returns HTML content
  */
-function App() {
+function App(): JSX.Element {
+  const [window, setWindow] = useState<JSX.Element | null>(null);
+  useEffect(() => setWindow(GLWindow.init().render()), []);
+
   return (
     <div className="container-fluid vh-100 p-0">
       <div className="row g-0 h-100">
-        <div className="col-auto">
-          <Toolbox />
-        </div>
-        <div className="col bg-light">
-          <GraphCanvas />
-        </div>
+        {window}
       </div>
     </div>
   );
