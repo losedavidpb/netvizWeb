@@ -50,10 +50,10 @@ export class Edge {
                         this.getBase().getPos(),
                         this.getConnect().getPos()
                     ]}
-                    vertexColors={[
-                        this.getBase().getColour(),
-                        this.getConnect().getColour()
-                    ]}
+                    //vertexColors={[
+                    //    this.getBase().getColour(),
+                    //    this.getConnect().getColour()
+                    //]}
                     color={
                         this.getColour().getHex()
                     }

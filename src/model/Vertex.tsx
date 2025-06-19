@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { Billboard, Text } from '@react-three/drei';
 
 import { Edge } from './Edge';
+import { Graph } from './Graph';
 
 /**
  * Vertex :: Representation of a vertex
@@ -26,6 +27,7 @@ export class Vertex {
 
     private level: number;
     private degree: number;
+
     private vertexNumber: number;
 
     private edges: Edge[];
@@ -212,10 +214,10 @@ export class Vertex {
                 {/* Render the text based on the radius */}
                 <Billboard position={[this.getPos().x, this.getPos().y - Vertex.radius, this.getPos().z]}>
                     <Text
-                        color="black"
+                        color="white"
                         anchorX="center"
                         anchorY="top"
-                        fontSize={0.1}
+                        fontSize={2}
                     >
                         {this.text}
                     </Text>
@@ -480,6 +482,42 @@ export class Vertex {
 
         const edge = new Edge(this, vertex);
         this.edges.push(edge);
+    }
+
+    /**
+     * Check if the mouse pointer is over the vertex
+     *
+     * @param mousePos position of the mouse
+     * @returns if the mouse is over the vertex
+     */
+    isPointerOver(mousePos: THREE.Vector2): boolean {
+        const canvas = Graph.renderer.domElement;
+
+        // Project centre
+        const center = this.pos.clone().project(Graph.camera);
+        const centerX = (center.x + 1) / 2 * canvas.width;
+        const centerY = (1 - center.y) / 2 * canvas.height;
+
+        // Project edge point
+        const edgeWorld = this.pos.clone().add(new THREE.Vector3(Vertex.radius, 0, 0));
+        const screenEdge = edgeWorld.project(Graph.camera);
+        const edgeX = (screenEdge.x + 1) / 2 * canvas.width;
+        const edgeY = (1 - screenEdge.y) / 2 * canvas.height;
+
+        const maxMouseDistance = Math.hypot(centerX - edgeX, centerY - edgeY);
+        const pointerDistance = Math.hypot(centerX - mousePos.x, centerY - mousePos.y);
+
+        return pointerDistance < maxMouseDistance;
+    }
+
+    /**
+     * Get the depth of the vertex
+     *
+     * @returns depth of the vertex
+     */
+    getDepth(): number {
+        const projected = this.pos.clone().project(Graph.camera);
+        return (projected.z + 1) / 2;
     }
 
     /**

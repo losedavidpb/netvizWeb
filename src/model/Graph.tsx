@@ -28,8 +28,6 @@ export abstract class Graph {
     // WebGL renderer used to draw the scene
     static renderer: THREE.WebGLRenderer;
 
-    //private algorithm: Algorithm;
-
     protected vertices: Vertex[];
     protected edgeList: number[][];
     protected adjacencyMatrix: number[][];
@@ -115,6 +113,16 @@ export abstract class Graph {
     }
 
     /**
+     * Compute bounding box of the graph
+     */
+    getBoundingBox(): THREE.Box3 {
+        const box = new THREE.Box3();
+        this.vertices.forEach(v => box.expandByPoint(v.getPos()));
+
+        return box;
+    }
+
+    /**
      * Get the number of vertices
      *
      * @returns number of vertices
@@ -130,6 +138,15 @@ export abstract class Graph {
      */
     getVertices(): Vertex[] {
         return this.vertices;
+    }
+
+    /**
+     * Get the number of edges
+     *
+     * @returns number of edges
+     */
+    getNumEdges(): number {
+        return this.edgeList.length;
     }
 
     /**
