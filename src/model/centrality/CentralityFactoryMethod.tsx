@@ -1,4 +1,4 @@
-import type { Centrality, CentralityType } from "../Centrality";
+import { Centrality, CentralityType } from "../Centrality";
 import { Betweenness } from "./Betweenness";
 import { DegreeCentrality } from "./DegreeCentrality";
 import { DistanceCentrality } from "./DistanceCentrality";
@@ -17,9 +17,15 @@ export class CentralityFactoryMethod {
      */
     static createCentrality(type: CentralityType): Centrality {
         switch (type) {
-            case 'Betweenness': return new Betweenness();
-            case 'DegreeCentrality': return new DegreeCentrality();
-            case 'DistanceCentrality': return new DistanceCentrality();
+            case CentralityType.Betweenness:
+                return new Betweenness();
+
+            case CentralityType.DegreeCentrality:
+                return new DegreeCentrality();
+
+            case CentralityType.DistanceCentrality:
+                return new DistanceCentrality();
+
             default:
                 throw new Error(
                     "InvalidCentrality :: Passed centrality is not supported"

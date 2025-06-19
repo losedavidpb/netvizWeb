@@ -1,4 +1,4 @@
-import type { Graph } from "../Graph";
+import { Graph } from "../Graph";
 import { FruchtermanReingold } from "./FruchtermanReingold";
 import { MultiForce } from "./MultiForce";
 import { SimpleForceDirected } from "./SimpleForceDirected";
@@ -19,9 +19,15 @@ export class AlgorithmFactoryMethod {
      */
     static createAlgorithm(type: AlgorithmType, graph: Graph): Algorithm {
         switch (type) {
-            case "FruchtermanReingold": return new FruchtermanReingold(graph);
-            case "MultiForce": return new MultiForce(graph);
-            case "SimpleForceDirected": return new SimpleForceDirected(graph);
+            case AlgorithmType.FruchtermanReingold:
+                return new FruchtermanReingold(graph);
+
+            case AlgorithmType.MultiForce:
+                return new MultiForce(graph);
+
+            case AlgorithmType.SimpleForceDirected:
+                return new SimpleForceDirected(graph);
+
             default:
                 throw new Error(
                     "InvalidAlgorithm :: Passed algorithm is not supported"
