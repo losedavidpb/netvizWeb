@@ -3,7 +3,7 @@ import type { Command } from "../Command";
 import { GraphFactoryMethod } from '../../model/graph/GraphFactoryMethod';
 
 /**
- * LoadGraph :: Command to load the graph
+ * LoadGraph :: Command to load graphs
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
@@ -33,7 +33,6 @@ export class LoadGraph implements Command {
 
             const graph = GraphFactoryMethod.createGraph(line, content);
             this.window.setGraph(graph);
-
             this.window.refresh();
         }
     }
