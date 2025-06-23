@@ -27,8 +27,9 @@ export class SaveGraph implements Command {
     // --------------------------------
 
     private window: GLWindow;
-    private filename: string;
-    private fileType: FileType;
+
+    private filename: string = '';
+    private fileType: FileType = FileType.ADJACENCY;
 
     /**
      * Constructor for SaveGraph
@@ -37,8 +38,6 @@ export class SaveGraph implements Command {
      */
     constructor(window: GLWindow) {
         this.window = window;
-        this.filename = '';
-        this.fileType = FileType.ADJACENCY;
     }
 
     /**
@@ -63,11 +62,11 @@ export class SaveGraph implements Command {
     execute(): void {
         if (this.filename !== '') {
             switch (this.fileType) {
-                case FileType.ADJACENCY: this.save_adjacency(); break;
-                case FileType.EDGELIST: this.save_edges(); break;
+                case FileType.ADJACENCY: this.save_adjacency();         break;
+                case FileType.EDGELIST: this.save_edges();              break;
                 case FileType.MATRIX_MARKET: this.save_matrix_market(); break;
-                case FileType.PNG: this.save_PNG(); break;
-                case FileType.SVG: this.save_SVG(); break;
+                case FileType.PNG: this.save_PNG();                     break;
+                case FileType.SVG: this.save_SVG();                     break;
             }
         }
     }
@@ -77,12 +76,16 @@ export class SaveGraph implements Command {
     // --------------------------------
 
     private set_filetype(): void {
-        switch (this.get_ext()) {
-            case 'adj': this.fileType = FileType.ADJACENCY; break;
-            case 'edg': this.fileType = FileType.EDGELIST; break;
+        function get_ext(filename: string): string {
+            return filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
+        }
+
+        switch (get_ext(this.filename)) {
+            case 'adj': this.fileType = FileType.ADJACENCY;     break;
+            case 'edg': this.fileType = FileType.EDGELIST;      break;
             case 'mtx': this.fileType = FileType.MATRIX_MARKET; break;
-            case 'png': this.fileType = FileType.PNG; break;
-            case 'svg': this.fileType = FileType.SVG; break;
+            case 'png': this.fileType = FileType.PNG;           break;
+            case 'svg': this.fileType = FileType.SVG;           break;
             default:    // Default file
                 this.filename += '.adj';
                 this.fileType = FileType.ADJACENCY;
@@ -90,13 +93,10 @@ export class SaveGraph implements Command {
         }
 
         // Add .txt to provide support with previous files
+        // for adjacency and edges file types
         if (this.fileType === FileType.ADJACENCY || this.fileType === FileType.EDGELIST) {
             this.filename += '.txt';
         }
-    }
-
-    private get_ext(): string {
-        return this.filename.slice(((this.filename.lastIndexOf('.') - 1) >>> 0) + 2);
     }
 
     private save_SVG(): void {

@@ -35,6 +35,15 @@ export abstract class Algorithm {
     }
 
     /**
+     * Get the graph of the algorithm
+     *
+     * @returns graph
+     */
+    getGraph(): Graph {
+        return this.graph;
+    }
+
+    /**
      * Executes the algorithm to the graph
      */
     abstract apply(): void;

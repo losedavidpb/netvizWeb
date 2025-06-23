@@ -2,7 +2,7 @@ import { Graph } from "../Graph";
 import { Vertex } from "../Vertex";
 
 /**
- * EdgeGraph :: Representation of an edge graph
+ * EdgeGraph :: Graph based on the edge list
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
@@ -44,7 +44,7 @@ export class EdgeGraph extends Graph {
             const lines = content.split(/\r?\n/);
 
             // Prepare edges and find the number of vertices
-            lines?.map((line: string) => {
+            lines.map((line: string) => {
                 if (line.length > 1) {
                     let tokens = Graph.split(line);
 
@@ -70,13 +70,13 @@ export class EdgeGraph extends Graph {
         let numVertices = 0;
 
         // Prepare edges and find the number of vertices
-        for (let i = 0; i < this.edgeList.length; ++i) {
-            if (this.edgeList[i][0] > numVertices) {
-                numVertices = this.edgeList[i][0];
+        for (const [base, connect] of this.edgeList) {
+            if (base > numVertices) {
+                numVertices = base;
             }
 
-            if (this.edgeList[i][1] > numVertices) {
-                numVertices = this.edgeList[i][1];
+            if (connect > numVertices) {
+                numVertices = connect;
             }
         }
 
@@ -97,11 +97,10 @@ export class EdgeGraph extends Graph {
         // Prepare the vertices and adjacency matrix
         // based on the connections
         for (let k = 0; k < this.edgeList.length; ++k) {
-            let k0 = this.edgeList[k][0];
-            let k1 = this.edgeList[k][1];
+            const k0 = this.edgeList[k][0];
+            const k1 = this.edgeList[k][1];
 
             this.vertices[k0].attachPoint(this.vertices[k1]);
-
             this.vertices[k0].updateDegree();
             this.vertices[k1].updateDegree();
 
@@ -114,7 +113,7 @@ export class EdgeGraph extends Graph {
         // Update the edges based on the adjacency matrix
         for (let i = 0; i < numVertices; ++i) {
             for (let j = i; j < numVertices; ++j) {
-                if (this.adjacencyMatrix[i][j] == 1) {
+                if (this.adjacencyMatrix[i][j] === 1) {
                     this.edgeList.push([i, j]);
                 }
             }

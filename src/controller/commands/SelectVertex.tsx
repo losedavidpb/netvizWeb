@@ -16,7 +16,7 @@ export class SelectVertex implements Command {
     // --------------------------------
 
     private window: GLWindow;
-    private mousePosition: THREE.Vector2 | null;
+    private mousePosition: THREE.Vector2 | undefined;
 
     /**
      * Constructor for SelectVertex
@@ -25,7 +25,6 @@ export class SelectVertex implements Command {
      */
     constructor(window: GLWindow) {
         this.window = window;
-        this.mousePosition = null;
     }
 
     /**
@@ -41,7 +40,7 @@ export class SelectVertex implements Command {
     execute(): void {
         const graph = this.window.getGraph();
 
-        if (graph !== undefined && this.mousePosition !== null) {
+        if (graph !== undefined && this.mousePosition !== undefined) {
             const pointerOver = this.get_pointer_over(graph.getVertices(), this.mousePosition);
             if (pointerOver.length === 0) return;
 

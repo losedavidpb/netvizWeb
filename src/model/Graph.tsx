@@ -1,7 +1,8 @@
 import * as THREE from 'three';
+import type { JSX } from 'react';
+import React from 'react';
 
 import type { Vertex } from "./Vertex";
-import type { JSX } from 'react';
 
 /**
  * Graph :: Representation of a graph
@@ -11,12 +12,10 @@ import type { JSX } from 'react';
 export abstract class Graph {
 
     // --------------------------------
-    // Properties
+    // Static
     // --------------------------------
 
-    // TODO: Shouldn't be located somewhere else?
-    //
-    // Flag to indicate whether the class is being tested or not
+    // Flag to indicate whether the class is being tested or not.
     static testMode: boolean;
 
     // Scene in which all objects are rendered
@@ -28,9 +27,13 @@ export abstract class Graph {
     // WebGL renderer used to draw the scene
     static renderer: THREE.WebGLRenderer;
 
-    protected vertices: Vertex[];
-    protected edgeList: number[][];
-    protected adjacencyMatrix: number[][];
+    // --------------------------------
+    // Properties
+    // --------------------------------
+
+    protected vertices: Vertex[] = [];
+    protected edgeList: number[][] = [];
+    protected adjacencyMatrix: number[][] = [];
 
     /**
      * Constructor for Graph
@@ -45,10 +48,6 @@ export abstract class Graph {
             }
         }
 
-        this.vertices = [];
-        this.edgeList = [];
-        this.adjacencyMatrix = [];
-
         if (filePath !== undefined) {
             this.read(filePath);
         }
@@ -59,7 +58,11 @@ export abstract class Graph {
      */
     /* v8 ignore next 5 */
     draw(): JSX.Element[] {
-        return this.vertices?.map(vertex => vertex.draw()) ?? null;
+        return this.vertices.map((vertex, i) =>
+            <React.Fragment key={i}>
+                {vertex.draw()}
+            </React.Fragment>
+        );
     }
 
     /**
@@ -67,7 +70,7 @@ export abstract class Graph {
      */
     /* v8 ignore next 5 */
     update(): void {
-        this.vertices?.map((vertex) => {
+        this.vertices.map((vertex) => {
             vertex.update();
         });
     }
@@ -87,13 +90,13 @@ export abstract class Graph {
     static split(input: string): number[] {
         if (input.trim().length === 0) return [];
 
-        const tokens = input.trim().split(/\s+/);
-
-        return tokens.map(token => {
-            let num = parseInt(token, 10);
+        return input.trim().split(/\s+/).map(token => {
+            const num = parseInt(token, 10);
 
             if (isNaN(num)) {
-                throw new Error(`InvalidToken: '${token}' is not a number`);
+                throw new Error(
+                    `InvalidToken: '${token}' is not a number`
+                );
             }
 
             return num;

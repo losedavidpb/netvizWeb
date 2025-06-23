@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
-import * as THREE from 'three';
+import React from 'react';
 import { Billboard, Text } from '@react-three/drei';
+import * as THREE from 'three';
 
 import { Edge } from './Edge';
 import { Graph } from './Graph';
@@ -13,31 +14,6 @@ import { Graph } from './Graph';
 export class Vertex {
 
     // --------------------------------
-    // Properties
-    // --------------------------------
-
-    private selected: boolean;
-
-    private pos: THREE.Vector3;
-    private force: THREE.Vector3;
-    private velocity: THREE.Vector3;
-    private colour: THREE.Color;
-
-    private text: string;
-
-    private level: number;
-    private degree: number;
-
-    private vertexNumber: number;
-
-    private edges: Edge[];
-    private attachedPoints: Vertex[];
-
-    private vertices: number[];
-    private colours: number[];
-    private indices: number[];
-
-    // --------------------------------
     // Static
     // --------------------------------
 
@@ -46,15 +22,50 @@ export class Vertex {
     // modify them unless you know what you are doing.
 
     // Radius of the vertex.
-    static readonly radius = 1;
+    static readonly radius: number = 1;
 
     // Number of horizontal divisions (latitude)
     // for the vertex sphere geometry
-    static readonly rings = 12;
+    static readonly rings: number = 12;
 
     // Number of vertical divisions (longitude)
     // for the vertex sphere geometry
-    static readonly sectors = 12;
+    static readonly sectors: number = 12;
+
+    // Size of the vertex for spherical dimensions
+    static readonly size: number = Vertex.rings * Vertex.sectors * 3;
+
+    // Step size between rings
+    static readonly ringStep: number = 1.0 / (Vertex.rings - 1);
+
+    // Step size between sectors
+    static readonly sectorStep: number = 1.0 / (Vertex.sectors - 1);
+
+    // --------------------------------
+    // Properties
+    // --------------------------------
+
+    private selected: boolean = false;
+
+    private pos: THREE.Vector3 = new THREE.Vector3();
+    private force: THREE.Vector3 = new THREE.Vector3();
+    private velocity: THREE.Vector3 = new THREE.Vector3();
+    private colour: THREE.Color = new THREE.Color();
+
+    private text: string = "";
+
+    private level: number = 0;
+    private degree: number = 0;
+    private vertexNumber: number = 0;
+
+    private edges: Edge[] = [];
+    private attachedPoints: Vertex[] = [];
+
+    // Spherical rendering
+    private positions: number[] = new Array(Vertex.size).fill(0);
+    private colours: number[] = new Array(Vertex.size).fill(0);
+    private indices: number[] = new Array(Vertex.size).fill(0);
+    private geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
     /**
      * Constructor for Vertex
@@ -64,81 +75,48 @@ export class Vertex {
      * @param offsetZ offset for Z-coord
      */
     constructor(offsetX: number, offsetY: number, offsetZ: number) {
-        this.selected = false;
-
-        this.pos = new THREE.Vector3(offsetX, offsetY, offsetZ);
-
-        this.force = new THREE.Vector3();
-        this.velocity = new THREE.Vector3();
-        this.colour = new THREE.Color();
-
-        this.edges = [];
-        this.attachedPoints = [];
-
-        this.text = "";
-
-        this.level = 0;
-        this.degree = 0;
-        this.vertexNumber = 0;
-
-        let size = Vertex.rings * Vertex.sectors;
-        this.vertices = new Array(size * 3).fill(0);
-        this.colours = new Array(size * 3).fill(1);
-        this.indices = new Array(size * 4).fill(0);
-
-        // Update the vertex
+        this.setPos({ x: offsetX, y: offsetY, z: offsetZ });
         this.update();
     }
 
     /**
      * Update the vertex
      */
-
-    // TODO: Implement tests if necessary
     update(): void {
-        // Open mutex
-
-        const RINGS = 1.0 / (Vertex.rings - 1);
-        const SECTORS = 1.0 / (Vertex.sectors - 1);
-
-        let vertIndex = 0;
-        let indIndex = 0;
-        let colIndex = 0;
+        let [vIndx, colIndx, indIndx] = [0, 0, 0];
 
         for (let r = 0; r < Vertex.rings; r++) {
+            const polarAngle = Math.PI * r * Vertex.ringStep;
+            const y = Math.sin(-(Math.PI / 2) + polarAngle);
+
             for (let s = 0; s < Vertex.sectors; s++) {
-                const x = Math.cos(2 * Math.PI * s * SECTORS) * Math.sin(Math.PI * r * RINGS);
-                const y = Math.sin(-(Math.PI / 2) + Math.PI * r * RINGS);
-                const z = Math.sin(2 * Math.PI * s * SECTORS) * Math.sin(Math.PI * r * RINGS);
+                const azimuthalAngle = 2 * Math.PI * s * Vertex.sectorStep;
+                const sinAzimuthalAngle = Math.sin(polarAngle);
 
-                this.vertices[vertIndex++] = this.pos.x + x * Vertex.radius;
-                this.vertices[vertIndex++] = this.pos.y + y * Vertex.radius;
-                this.vertices[vertIndex++] = this.pos.z + z * Vertex.radius;
+                const x = Math.cos(azimuthalAngle) * sinAzimuthalAngle;
+                const z = Math.sin(azimuthalAngle) * sinAzimuthalAngle;
 
-                this.colours[colIndex++] = this.colour.r;
-                this.colours[colIndex++] = this.colour.g;
-                this.colours[colIndex++] = this.colour.b;
+                this.positions[vIndx++] = this.pos.x + x * Vertex.radius;
+                this.positions[vIndx++] = this.pos.y + y * Vertex.radius;
+                this.positions[vIndx++] = this.pos.z + z * Vertex.radius;
+
+                this.colours[colIndx++] = this.colour.r;
+                this.colours[colIndx++] = this.colour.g;
+                this.colours[colIndx++] = this.colour.b;
+
+                if (r < Vertex.rings - 1 && s < Vertex.sectors - 1) {
+                    this.indices[indIndx++] = r * Vertex.sectors + s;
+                    this.indices[indIndx++] = r * Vertex.sectors * (s + 1);
+                    this.indices[indIndx++] = (r + 1) * Vertex.sectors + (s + 1);
+                    this.indices[indIndx++] = (r + 1) * Vertex.sectors + s;
+                }
             }
         }
 
-        for (let r = 0; r < Vertex.rings - 1; r++) {
-            for (let s = 0; s < Vertex.sectors - 1; s++) {
-                this.indices[indIndex++] = r * Vertex.sectors + s;
-                this.indices[indIndex++] = r * Vertex.sectors * (s + 1);
-                this.indices[indIndex++] = (r + 1) * Vertex.sectors + (s + 1);
-                this.indices[indIndex++] = (r + 1) * Vertex.sectors + s;
-            }
-        }
-
-        // TODO: Include implementation if necessary
-        // Update edges if any
-        /*if (this.edges.length > 0) {
-            for (let i = 0; i < this.edges.length; ++i) {
-                this.edges[i].update();
-            }
-        }*/
-
-        // Close mutex
+        this.geometry = new THREE.BufferGeometry();
+        this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
+        this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colours, 3));
+        this.geometry.setIndex(this.indices);
     }
 
     /**
@@ -148,24 +126,11 @@ export class Vertex {
      */
     /* v8 ignore next 52 */
     draw(): JSX.Element {
-        // Open mutex
-
-        // Set up the geometry of the vertex
-        const geometry = new THREE.BufferGeometry();
-
-        // Position and colour of the vertex
-        geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.vertices, 3));
-        geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colours, 3));
-
-        // Index buffer to specify the order in which vertices
-        // are connected to form faces
-        geometry.setIndex(this.indices);
-
         return (
             <>
                 {/* Additional wireframe if vertex is selected */}
                 {this.selected && (
-                    <points geometry={geometry}>
+                    <points geometry={this.geometry}>
                         <pointsMaterial
                             vertexColors
                             size={0.1 * Vertex.radius}
@@ -177,7 +142,7 @@ export class Vertex {
                 )}
 
                 {/* Render the solid vertex */}
-                <points geometry={geometry}>
+                <points geometry={this.geometry}>
                     <pointsMaterial
                         vertexColors
                         size={0.1 * Vertex.radius}
@@ -187,17 +152,17 @@ export class Vertex {
                     />
                 </points>
 
-                {/* Render all connected edges, if any */}
-                {this.edges?.map((edge) => (
-                    edge.draw?.() ?? null
-                ))}
-
                 {/* Render the text label */}
-                {this.text != "" && this.drawText()}
+                {this.text !== "" && this.drawText()}
+
+                {/* Render all connected edges, if any */}
+                {this.edges.map((edge, i) => (
+                    <React.Fragment key={i}>
+                        {edge.draw()}
+                    </React.Fragment>
+                ))}
             </>
         );
-
-        // Close mutex
     }
 
     /**
@@ -205,14 +170,15 @@ export class Vertex {
      *
      * @returns text component
      */
-    /* v8 ignore next 26 */
+    /* v8 ignore next 18 */
     drawText(): JSX.Element {
-        // Open mutex
-
         return (
             <>
-                {/* Render the text based on the radius */}
-                <Billboard position={[this.getPos().x, this.getPos().y - Vertex.radius, this.getPos().z]}>
+                <Billboard position={[
+                    this.pos.x,
+                    this.pos.y - Vertex.radius,
+                    this.pos.z
+                ]}>
                     <Text
                         color="white"
                         anchorX="center"
@@ -222,15 +188,8 @@ export class Vertex {
                         {this.text}
                     </Text>
                 </Billboard>
-
-                {/* Render the text of all connected edges, if any */}
-                {this.edges?.map((edge) => (
-                    edge.drawText?.() ?? null
-                ))}
             </>
         );
-
-        // Close mutex
     }
 
     /**
@@ -338,7 +297,6 @@ export class Vertex {
      * @param B B-component (blue)
      */
     setColour(R: number, G: number, B: number): void {
-        // Check that passed RGB is valid
         if (!(R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255)) {
             throw new Error('InvalidRGB :: Passed colour is invalid');
         }
@@ -444,13 +402,7 @@ export class Vertex {
      * @returns edges
      */
     getEdges(): Edge[] {
-        let edges = [];
-
-        for (let i = 0; i < this.edges.length; i++) {
-            edges.push(this.edges[i]);
-        }
-
-        return edges;
+        return [...this.edges];
     }
 
     /**
@@ -459,13 +411,7 @@ export class Vertex {
      * @returns attached points
      */
     getAttachedPoints(): Vertex[] {
-        let attachedPoints = [];
-
-        for (let i = 0; i < this.attachedPoints.length; i++) {
-            attachedPoints.push(this.attachedPoints[i]);
-        }
-
-        return attachedPoints;
+        return [...this.attachedPoints];
     }
 
     /**
@@ -474,14 +420,12 @@ export class Vertex {
      * @param vertex vertex to attach
      */
     attachPoint(vertex: Vertex): void {
-        if (vertex == this || this.attachedPoints.find(v => v === vertex)) {
+        if (vertex === this || this.attachedPoints.find(v => v === vertex)) {
             throw new Error('InvalidVertex :: Vertex cannot be attached');
         }
 
         this.attachedPoints.push(vertex);
-
-        const edge = new Edge(this, vertex);
-        this.edges.push(edge);
+        this.edges.push(new Edge(this, vertex));
     }
 
     /**
@@ -494,12 +438,12 @@ export class Vertex {
         const canvas = Graph.renderer.domElement;
 
         // Project centre
-        const center = this.pos.clone().project(Graph.camera);
+        const center = this.getPos().project(Graph.camera);
         const centerX = (center.x + 1) / 2 * canvas.width;
         const centerY = (1 - center.y) / 2 * canvas.height;
 
         // Project edge point
-        const edgeWorld = this.pos.clone().add(new THREE.Vector3(Vertex.radius, 0, 0));
+        const edgeWorld = this.getPos().add(new THREE.Vector3(Vertex.radius, 0, 0));
         const screenEdge = edgeWorld.project(Graph.camera);
         const edgeX = (screenEdge.x + 1) / 2 * canvas.width;
         const edgeY = (1 - screenEdge.y) / 2 * canvas.height;
@@ -516,8 +460,7 @@ export class Vertex {
      * @returns depth of the vertex
      */
     getDepth(): number {
-        const projected = this.pos.clone().project(Graph.camera);
-        return (projected.z + 1) / 2;
+        return (this.getPos().project(Graph.camera).z + 1) / 2;
     }
 
     /**
@@ -537,15 +480,17 @@ export class Vertex {
         clone_obj.level = this.getLevel();
         clone_obj.degree = this.getDegree();
         clone_obj.vertexNumber = this.getVertexNumber();
-
-        for (let i = 0; i < this.edges.length; i++) {
-            const connect = this.attachedPoints[i].clone();
-
-            clone_obj.attachedPoints.push(connect);
-            clone_obj.edges.push(new Edge(clone_obj, connect));
-        }
+        clone_obj.attachedPoints = this.getAttachedPoints();
+        clone_obj.edges = this.getEdges();
 
         clone_obj.update();
         return clone_obj;
     }
+
+    // --------------------------------
+    // Private
+    // --------------------------------
+
+    /* v8 ignore next 28 */
+
 }

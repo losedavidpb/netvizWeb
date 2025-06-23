@@ -3,12 +3,11 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 // Declaration of a collapsible list
 interface CollapsibleList {
-    options: string[];                              // Available options
-    defaultText: string;                            // Default option
-    onOptionSelect: (option: string) => void;       // Function to be executed when an option is selected
+    options: string[];
+    defaultText: string;
+    onOptionSelect: (option: string) => void;
 }
 
-// CollapsibleList
 const CollapsibleList: React.FC<CollapsibleList> = ({ options, defaultText, onOptionSelect }) => {
     const [isListOpen, setIsListOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<string>(defaultText);

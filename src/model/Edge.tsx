@@ -18,8 +18,8 @@ export class Edge {
     private base: Vertex;
     private connect: Vertex;
 
-    private text: string;
-    private colour: THREE.Color;
+    private text: string = "";
+    private colour: THREE.Color = new THREE.Color();
 
     /**
      * Constructor for Edge
@@ -30,9 +30,6 @@ export class Edge {
     constructor(base: Vertex, connect: Vertex) {
         this.base = base;
         this.connect = connect;
-
-        this.text = "";
-        this.colour = new THREE.Color();
     }
 
     /**
@@ -72,15 +69,12 @@ export class Edge {
      */
     /* v8 ignore next 25 */
     drawText(): JSX.Element {
-        // Open mutex
-
-        let position = this.getBase().getPos();
+        const position = this.getBase().getPos();
         position.add(this.getConnect().getPos());
         position.divideScalar(2);
 
         return (
             <>
-                {/* Render the text based on the radius */}
                 <Billboard position={position}>
                     <Text
                         color="black"
@@ -93,8 +87,6 @@ export class Edge {
                 </Billboard>
             </>
         );
-
-        // Close mutex
     }
 
     /**
@@ -170,7 +162,6 @@ export class Edge {
      * @param B B-component (blue)
      */
     setColour(R: number, G: number, B: number): void {
-        // Check that passed RGB is valid
         if (!(R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255)) {
             throw new Error('InvalidRGB :: Passed colour is invalid');
         }
@@ -184,10 +175,7 @@ export class Edge {
     * @returns clone of the edge
     */
     clone(): Edge {
-        const clone_obj = new Edge(
-            this.base.clone(), this.connect.clone()
-        );
-
+        const clone_obj = new Edge(this.base.clone(), this.connect.clone());
         clone_obj.colour = this.getColour();
         clone_obj.text = this.getText();
 

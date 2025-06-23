@@ -2,11 +2,12 @@ import { Algorithm } from "../Algorithm";
 import type { Vertex } from "../Vertex";
 
 /**
- * SimpleForceDirected :: Representation of a SimpleForceDirected algorithm
+ * SimpleForceDirected :: SimpleForceDirected algorithm
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export class SimpleForceDirected extends Algorithm {
+
     apply(): void {
         const vertices = this.graph.getVertices();
 
@@ -31,7 +32,7 @@ export class SimpleForceDirected extends Algorithm {
 
     private apply_forces(vertices: Vertex[]): void {
         for (let i = 0; i < vertices.length; ++i) {
-            let v = vertices[i];
+            const v = vertices[i];
 
             v.setForce({ x: 0, y: 0, z: 0 });
 
@@ -43,61 +44,66 @@ export class SimpleForceDirected extends Algorithm {
 
     private update_positions(vertices: Vertex[]): void {
         for (let i = 0; i < vertices.length; ++i) {
-            let v = vertices[i];
+            const v = vertices[i];
+            const pos = v.getPos();
+            const velocity = v.getVelocity();
 
             v.setPos({
-                x: v.getPos().x + v.getVelocity().x,
-                y: v.getPos().y + v.getVelocity().y
+                x: pos.x + velocity.x,
+                y: pos.y + velocity.y
             });
         }
     }
 
     private apply_repulsion(i: number, v: Vertex, vertices: Vertex[]): void {
-        let pos_v = v.getPos();
+        const pos_v = v.getPos();
 
         for (let j = 0; j < vertices.length; ++j) {
             if (i == j) continue;
 
-            let u = vertices[j];
-            let pos_u = u.getPos();
+            const u = vertices[j];
+            const pos_u = u.getPos();
 
             const rsq = .25 * (
                 (pos_v.x - pos_u.x) * (pos_v.x - pos_u.x) +
                 (pos_v.y - pos_u.y) * (pos_v.y - pos_u.y)
             );
 
-            let forceV = v.getForce();
+            const force_v = v.getForce();
 
             v.setForce({
-                x: forceV.x + 10 * ((pos_v.x - pos_u.x) / rsq),
-                y: forceV.y + 10 * ((pos_v.y - pos_u.y) / rsq),
+                x: force_v.x + 10 * ((pos_v.x - pos_u.x) / rsq),
+                y: force_v.y + 10 * ((pos_v.y - pos_u.y) / rsq),
             });
         }
     }
 
     private apply_attraction(i: number, v: Vertex, vertices: Vertex[]): void {
-        let adjacency_matrix = this.graph.getAdjacencyMatrix();
-        let pos_v = v.getPos();
+        const adjacency_matrix = this.graph.getAdjacencyMatrix();
+        const pos_v = v.getPos();
 
         for (let j = 0; j < vertices.length; ++j) {
             if (adjacency_matrix[i][j] === 1) {
-                let u = vertices[j];
-                let pos_u = u.getPos();
+                const u = vertices[j];
+                const pos_u = u.getPos();
 
-                let forceV = v.getForce();
+                const force_v = v.getForce();
 
                 v.setForce({
-                    x: forceV.x + 4 * (pos_u.x - pos_v.x),
-                    y: forceV.y + 4 * (pos_u.y - pos_v.y)
+                    x: force_v.x + 4 * (pos_u.x - pos_v.x),
+                    y: force_v.y + 4 * (pos_u.y - pos_v.y)
                 });
             }
         }
     }
 
     private apply_cooling(v: Vertex): void {
+        const velocity = v.getVelocity();
+        const force = v.getForce();
+
         v.setVelocity({
-            x: (v.getVelocity().x + v.getForce().x) * 0.01,
-            y: (v.getVelocity().y + v.getForce().y) * 0.01,
+            x: (velocity.x + force.x) * 0.01,
+            y: (velocity.y + force.y) * 0.01,
         });
     }
 
@@ -114,11 +120,12 @@ export class SimpleForceDirected extends Algorithm {
     /* v8 ignore next 13 */
     private check_duplications(vertices: Vertex[]): void {
         for (let i = 0; i < vertices.length; ++i) {
-            let v_pos = vertices[i].getPos();
+            const v_pos = vertices[i].getPos();
 
             for (let j = 0; j < vertices.length; ++j) {
-                let u_pos = vertices[j].getPos();
+                const u_pos = vertices[j].getPos();
 
+                // TODO: Should I throw an error?
                 if (v_pos.x === u_pos.x && i != j && v_pos.y === u_pos.y) {
                     console.log(`Warning: duplicate positions generated @ ${i}\n`);
                 }

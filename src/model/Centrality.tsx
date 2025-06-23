@@ -41,18 +41,18 @@ export abstract class Centrality {
         if (s !== 0) {
             h /= 60;
 
-            let i = Math.floor(h);
-            let f = h - i;
-            let p = v * (1 - s);
-            let q = v * (1 - s * f);
-            let t = v * (1 - s * (1 - f));
+            const i = Math.floor(h);
+            const f = h - i;
+            const p = v * (1 - s);
+            const q = v * (1 - s * f);
+            const t = v * (1 - s * (1 - f));
 
             switch (i) {
-                case 0: r = v; g = t; b = p; break;
-                case 1: r = q; g = v; b = p; break;
-                case 2: r = p; g = v; b = t; break;
-                case 3: r = p; g = q; b = v; break;
-                case 4: r = t; g = p; b = v; break;
+                case 0: r = v; g = t; b = p;  break;
+                case 1: r = q; g = v; b = p;  break;
+                case 2: r = p; g = v; b = t;  break;
+                case 3: r = p; g = q; b = v;  break;
+                case 4: r = t; g = p; b = v;  break;
                 default: r = v; g = p; b = q; break;
             }
         }
@@ -80,7 +80,7 @@ export abstract class Centrality {
     // Private
     // --------------------------------
 
-    static in_range(x: number, min: number, max: number): boolean {
+    private static in_range(x: number, min: number, max: number): boolean {
         return x >= min && x <= max;
     }
 }

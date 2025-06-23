@@ -8,16 +8,18 @@ import { Vertex } from '../model/Vertex';
 import { CentralityFactoryMethod } from '../model/centrality/CentralityFactoryMethod';
 import { AlgorithmFactoryMethod } from '../model/algorithm/AlgorithmFactoryMethod';
 import { AlgorithmType } from '../model/Algorithm';
+import { Algorithm } from '../model/Algorithm'
 import { CentralityType } from '../model/Centrality';
 
 /**
- * Widget :: Representation of a widget
+ * Widget :: Toolbox of the GLWindow
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export class Widget extends Component<{}, {
     visible: boolean,
-    algorithm: AlgorithmType,
+    algorithmType: AlgorithmType,
+    algorithm: Algorithm | null,
     centrality: CentralityType,
     fileInputRef: React.RefObject<HTMLInputElement | null>,
     nodeText: string,
@@ -25,6 +27,7 @@ export class Widget extends Component<{}, {
     edgeText: string,
     edgeColour: THREE.Color
 }> {
+
     /**
      * Constructor for Widget
      *
@@ -35,7 +38,8 @@ export class Widget extends Component<{}, {
 
         this.state = {
             visible: true,
-            algorithm: "FruchtermanReingold",
+            algorithmType: "FruchtermanReingold",
+            algorithm: null,
             centrality: "DegreeCentrality",
             fileInputRef: React.createRef(),
             nodeText: '',
@@ -57,7 +61,7 @@ export class Widget extends Component<{}, {
      * Apply the algorithm to the graph
      */
     applyAlgorithm(): void {
-        this.apply_algorithm(this.state.algorithm);
+        this.apply_algorithm(this.state.algorithmType);
     }
 
     /**
@@ -65,6 +69,46 @@ export class Widget extends Component<{}, {
      */
     applyColoration(): void {
         this.apply_centrality(this.state.centrality);
+    }
+
+    /**
+     * Update the text of the selected node
+     *
+     * @param text text to be updated
+     */
+    updateTextNode(text: string): void {
+        this.setState({ nodeText: text });
+        this.update_text_node(text);
+    }
+
+    /**
+     * Update the color of the selected node
+     *
+     * @param color color to be updated
+     */
+    updateColorNode(color: string): void {
+        this.setState({ nodeColour: new THREE.Color(color) });
+        this.update_color_node(color);
+    }
+
+    /**
+     * Update the text of the selected edge
+     *
+     * @param text text to be updated
+     */
+    updateTextEdge(text: string): void {
+        this.setState({ nodeText: text });
+        this.update_text_edge(text);
+    }
+
+    /**
+     * Update the color of the selected edge
+     *
+     * @param color color to be updated
+     */
+    updateColorEdge(color: string): void {
+        this.setState({ nodeColour: new THREE.Color(color) });
+        this.update_color_edge(color);
     }
 
     /**
@@ -143,20 +187,14 @@ export class Widget extends Component<{}, {
                                 className="form-control mb-2"
                                 value={this.state.nodeText}
                                 placeholder=""
-                                onChange={(e) => {
-                                    this.setState({ nodeText: e.target.value });
-                                    this.update_text_node(e.target.value);
-                                }}
+                                onChange={(e) => this.updateTextNode(e.target.value)}
                             />
                             <input
                                 type="color"
                                 name="color_node"
                                 className="form-control mb-2"
                                 value={'#' + this.state.nodeColour.getHexString()}
-                                onChange={(e) => {
-                                    this.setState({ nodeColour: new THREE.Color(e.target.value) });
-                                    this.update_color_node(e.target.value);
-                                }}
+                                onChange={(e) => this.updateColorNode(e.target.value)}
                             />
                         </div>
                         <div>
@@ -167,20 +205,14 @@ export class Widget extends Component<{}, {
                                 className="form-control mb-2"
                                 value={this.state.edgeText}
                                 placeholder=""
-                                onChange={(e) => {
-                                    this.setState({ edgeText: e.target.value });
-                                    this.update_text_edge(e.target.value);
-                                }}
+                                onChange={(e) => this.updateTextEdge(e.target.value)}
                             />
                             <input
                                 type="color"
                                 name="color_edge"
                                 className="form-control mb-2"
                                 value={'#' + this.state.edgeColour.getHexString()}
-                                onChange={(e) => {
-                                    this.setState({ edgeColour: new THREE.Color(e.target.value) });
-                                    this.update_color_edge(e.target.value);
-                                }}
+                                onChange={(e) => this.updateColorEdge(e.target.value)}
                             />
                         </div>
                     </div>
@@ -199,7 +231,6 @@ export class Widget extends Component<{}, {
 
         if (files !== null && files.length === 1) {
             const file = files[0];
-
             const reader = new FileReader();
 
             reader.onload = (e) => {
@@ -215,26 +246,30 @@ export class Widget extends Component<{}, {
     }
 
     private export_file(): void {
-        let filename = prompt("Enter name of the new file", "Untitled");
-        filename = filename === null ? 'Untitled' : filename;
+        let filename = prompt("Enter name of the new file", "Untitled.adj");
+        filename = filename === null ? 'Untitled.adj' : filename;
 
         const window = GLWindow.init();
         window.saveFile(filename);
     }
 
     private apply_algorithm(name: AlgorithmType): void {
-        const window = GLWindow.init();
-        const graph = window.getGraph();
+        const graph = GLWindow.init().getGraph();
 
         if (graph !== undefined) {
-            this.setState({ algorithm: name });
-            AlgorithmFactoryMethod.createAlgorithm(name, graph).apply();
+            const { algorithmType, algorithm } = this.state;
+
+            if (algorithm !== null && algorithm?.getGraph() !== graph || algorithm === null || algorithmType !== name) {
+                const newAlgorithm = AlgorithmFactoryMethod.createAlgorithm(name, graph);
+                this.setState({ algorithmType: name, algorithm: newAlgorithm }, () => newAlgorithm.apply());
+            } else {
+                algorithm.apply();
+            }
         }
     }
 
     private apply_centrality(name: CentralityType): void {
-        const window = GLWindow.init();
-        const graph = window.getGraph();
+        const graph = GLWindow.init().getGraph();
 
         if (graph !== undefined) {
             this.setState({ centrality: name });
@@ -243,13 +278,11 @@ export class Widget extends Component<{}, {
     }
 
     private refresh_graph(): void {
-        const window = GLWindow.init();
-        window.refresh();
+        GLWindow.init().refresh();
     }
 
     private update_text_node(text: string): void {
-        const window = GLWindow.init();
-        const selectedNode = window.getSelectedNode();
+        const selectedNode = GLWindow.init().getSelectedNode();
 
         if (selectedNode !== null) {
             selectedNode.setText(text);
@@ -258,8 +291,7 @@ export class Widget extends Component<{}, {
 
     private update_color_node(colour: string): void {
         if (colour.length > 1) {
-            const window = GLWindow.init();
-            const selected_node = window.getSelectedNode();
+            const selected_node = GLWindow.init().getSelectedNode();
 
             if (selected_node !== null) {
                 const RGB = Widget.hexToRGB(colour);

@@ -3,7 +3,7 @@ import type { Graph } from "../Graph";
 import type { Vertex } from "../Vertex";
 
 /**
- * Betweenness :: Representation of a Betweenness algorithm
+ * Betweenness :: Centrality based on the betweenness
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
@@ -17,7 +17,7 @@ export class Betweenness extends Centrality {
     private tree: number[][] = [];
 
     apply(graph: Graph): void {
-        let vertices = graph.getVertices();
+        const vertices = graph.getVertices();
         this.vals = new Array(vertices.length).fill(0);
 
         this.init_centrality(graph, vertices)
@@ -41,13 +41,13 @@ export class Betweenness extends Centrality {
 
     private apply_centrality(vertices: Vertex[]): void {
         if (vertices.length !== 0) {
-            let [max, min] = this.get_max_min(vertices);
+            const [max, min] = this.get_max_min(vertices);
 
             for (let i = 0; i < vertices.length; ++i) {
-                let x = max == min ? 0 : Centrality.normalize(this.vals[i], max, min);
-                let h = (1 - x) * 240;
+                const x = max === min ? 0 : Centrality.normalize(this.vals[i], max, min);
+                const h = (1 - x) * 240;
 
-                let [r, g, b] = Centrality.HSVtoRGB(h, 1, 1);
+                const [r, g, b] = Centrality.HSVtoRGB(h, 1, 1);
                 vertices[i].setColour(r, g, b);
             }
         }
@@ -65,13 +65,13 @@ export class Betweenness extends Centrality {
     }
 
     private build_tree(graph: Graph): void {
-        let adj_matrix = graph.getAdjacencyMatrix();
+        const adj_matrix = graph.getAdjacencyMatrix();
         this.tree = [];
 
         for (let i = 0; i < adj_matrix.length; ++i) {
-            let localTree = [];
+            const localTree = [];
 
-            for (let j = 0; j < adj_matrix[0].length; ++j) {
+            for (let j = 0; j < adj_matrix[i].length; ++j) {
                 if (adj_matrix[i][j] === 1) {
                     localTree.push(j);
                 }
@@ -82,25 +82,23 @@ export class Betweenness extends Centrality {
     }
 
     private breadth_first_search(vertices: Vertex[], v: number, u: number): void {
-        const visited = new Array(vertices.length).fill(0);
-        visited[v] = 1;
-
         const queue: number[] = [v];
         const links: [number, number][] = [];
 
-        let queue_index = 1;
-        let i = v;
-        let found = false;
+        const visited = new Array(vertices.length).fill(0);
+        visited[v] = 1;
+
+        let [indx, i, found] = [1, v, false];
 
         while (!found) {
             found = this.bfs_adjacents(i, visited, queue, links, u);
 
-            if (visited[queue[queue_index]] != 1 && !found) {
-                visited[queue[queue_index]] = 1;
-                i = queue[queue_index];
+            if (visited[queue[indx]] != 1 && !found) {
+                visited[queue[indx]] = 1;
+                i = queue[indx];
             }
 
-            queue_index++;
+            indx++;
         }
 
         this.mark_path_from_links(links, v, u);
@@ -108,7 +106,7 @@ export class Betweenness extends Centrality {
 
     private bfs_adjacents(i: number, visited: number[], queue: number[], links: [number, number][], u: number): boolean {
         for (let j = 0; j < this.tree[i].length; ++j) {
-            let x = this.tree[i][j];
+            const x = this.tree[i][j];
 
             if (visited[x] !== 1 && !queue.includes(x)) queue.push(x);
 

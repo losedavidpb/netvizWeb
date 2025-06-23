@@ -13,9 +13,10 @@ export class RefreshGraph implements Command {
     // --------------------------------
 
     private window: GLWindow;
-    private applyAlgorithm: boolean;
-    private applyColoration: boolean;
-    private callback: () => void;
+
+    private applyAlgorithm: boolean = true;
+    private applyColoration: boolean = true;
+    private callback: () => void = () => { };
 
     /**
      * Constructor for RefreshGraph
@@ -24,9 +25,6 @@ export class RefreshGraph implements Command {
      */
     constructor(window: GLWindow) {
         this.window = window;
-        this.applyAlgorithm = true;
-        this.applyColoration = true;
-        this.callback = () => { };
     }
 
     /**

@@ -15,8 +15,9 @@ export class DragVertex implements Command {
     // --------------------------------
 
     private window: GLWindow;
-    private mouseDiff: THREE.Vector2 | null;
-    private translateZ: number;
+
+    private mouseDiff: THREE.Vector2 | undefined;
+    private translateZ: number = -1;
 
     /**
      * Constructor for DragVertex
@@ -25,8 +26,6 @@ export class DragVertex implements Command {
      */
     constructor(window: GLWindow) {
         this.window = window;
-        this.mouseDiff = null;
-        this.translateZ = -1;
     }
 
     /**
@@ -48,7 +47,7 @@ export class DragVertex implements Command {
     }
 
     execute(): void {
-        if (this.mouseDiff !== null && this.translateZ !== -1) {
+        if (this.mouseDiff !== undefined && this.translateZ !== -1) {
             const selectedNode = this.window.getSelectedNode();
 
             if (selectedNode !== null) {

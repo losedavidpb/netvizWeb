@@ -2,18 +2,19 @@ import { Graph } from "../Graph";
 import { Vertex } from '../Vertex';
 
 /**
- * AdjacencyGraph :: Representation of an adjacency graph
+ * AdjacencyGraph :: Graph based on the adjacency matrix
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export class AdjacencyGraph extends Graph {
+
     protected read(content: string): void {
         if (content !== '') {
             const lines = content.split(/\r?\n/);
             let [nrow, ncol] = [-1, -1];
 
             // Prepare vertices and edges
-            lines?.map((line) => {
+            lines.map((line) => {
                 if (line.length >= 1) {
                     const tokens = Graph.split(line);
 
@@ -58,14 +59,11 @@ export class AdjacencyGraph extends Graph {
             // Update the vertices based on the adjacency matrix
             for (let i = 0; i < this.vertices.length; ++i) {
                 for (let j = i; j < this.vertices.length; ++j) {
-                    //if (j == i) continue; // Vertices don't connect to themselves
-
-                    if (this.adjacencyMatrix[i][j] == 1) {
+                    if (this.adjacencyMatrix[i][j] === 1) {
                         // Vertices can't connect to themselves
                         if (j == i) continue;
 
                         this.vertices[i].attachPoint(this.vertices[j]);
-
                         this.vertices[i].updateDegree();
                         this.vertices[j].updateDegree();
                     }
@@ -77,7 +75,7 @@ export class AdjacencyGraph extends Graph {
             // Update the edges based on the adjacency matrix
             for (let i = 0; i < this.vertices.length; ++i) {
                 for (let j = 0; j < i; ++j) {
-                    if (this.adjacencyMatrix[i][j] == 1) {
+                    if (this.adjacencyMatrix[i][j] === 1) {
                         this.edgeList.push([j, i]);
                     }
                 }
