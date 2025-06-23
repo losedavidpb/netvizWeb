@@ -159,7 +159,7 @@ export class Widget extends Component<{}, {
                     />
 
                     <CollapsibleList
-                        options={['Degree Centrality', 'Distance Centrality', 'Betweenness Centrality']}
+                        options={['Degree Centrality', 'Distance Centrality', 'Betweenness']}
                         defaultText="Degree Centrality"
                         onOptionSelect={(e) => {
                             const opt = e.replace(/\s+/g, '') as CentralityType;
