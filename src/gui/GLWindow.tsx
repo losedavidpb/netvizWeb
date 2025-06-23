@@ -241,28 +241,37 @@ export class GLWindow {
      *
      * @param filename filename of the screenshot
      */
-    // TODO: Fix this method since it is not really working
     svgScreenshot = (filename: string) => {
         if (this.graph !== undefined && filename !== '') {
             const svg_filename = filename.endsWith('.svg') ? filename : `${filename}.svg`;
-            const [width, height] = this.getSize();
 
-            const svgRenderer = new SVGRenderer();
-            svgRenderer.setSize(width, height);
+            window.focus();
 
-            document.body.appendChild(svgRenderer.domElement);
-            svgRenderer.render(Graph.scene, Graph.camera);
+            Graph.renderer.render(Graph.scene, Graph.camera);
 
-            const svgElement = svgRenderer.domElement as SVGSVGElement;
-            const svgData = new XMLSerializer().serializeToString(svgElement);
-            const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+            const canvas = Graph.renderer.domElement;
+            const imageData = canvas.toDataURL("image/png");
+
+            // Create SVG with embedded PNG image
+            const svgContent = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
+                    <rect width="100%" height="100%" fill="black" />
+                    <image href="${imageData}" width="${canvas.width}" height="${canvas.height}" />
+                </svg>
+            `;
+
+            const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
 
             const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
+            link.href = url;
             link.download = svg_filename;
             link.click();
+
+            URL.revokeObjectURL(url);
         }
     };
+
 
     /**
      * Toggle the view of the widget
