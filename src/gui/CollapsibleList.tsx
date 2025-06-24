@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
-// Declaration of a collapsible list
 interface CollapsibleList {
     options: string[];
     defaultText: string;

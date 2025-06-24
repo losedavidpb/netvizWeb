@@ -23,6 +23,21 @@ export class Config {
     // this setting here, but modify it in the test files instead
     static testMode: boolean = false;
 
+    // Name of the application
+    static readonly name: string = "NetvizWeb";
+
+    // Version of the application
+    static readonly version: string = "v1.0.0";
+
+    // Author of the application
+    static readonly author: string = "David Parreño Barbuzano";
+
+    // Contact of the author
+    static readonly contact: string = "losedavidpb@gmail.com";
+
+    // Footer of the application
+    static readonly footer: string = `${Config.name} (${Config.version}) - ${Config.author} <${Config.contact}>`;
+
     // --------------------------------
     // WebGL
     // --------------------------------

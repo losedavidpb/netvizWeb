@@ -211,6 +211,7 @@ export class Widget extends Component<{}, {
                         </div>
                     </div>
                     <hr></hr>
+                    <Footer text={Config.footer} />
                 </div>
             );
         }
@@ -381,3 +382,25 @@ export class Widget extends Component<{}, {
         };
     }
 }
+
+// --------------------------------
+// Components
+// --------------------------------
+
+const Footer: React.FC<{ text: string }> = ({ text }) => {
+    return (
+        <footer style={{
+            backgroundColor: 'black',
+            color: 'white',
+            fontSize: '0.8rem',
+            padding: '0.5rem 1rem',
+            textAlign: 'center',
+            position: 'fixed',
+            bottom: 0,
+            width: '100%',
+            zIndex: 1000,
+        }}>
+            {text}
+        </footer>
+    );
+};
