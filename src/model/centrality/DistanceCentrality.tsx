@@ -50,11 +50,13 @@ export class DistanceCentrality extends Centrality {
             const [max, min] = this.get_max_min(vertices, distances);
 
             for (let i = 0; i < vertices.length; ++i) {
-                const x = max === min ? 0 : Centrality.normalize(distances[i], max, min);
-                const h = (1 - x) * 240;
+                if (!vertices[i].isSelected()) {
+                    const x = max === min ? 0 : Centrality.normalize(distances[i], max, min);
+                    const h = (1 - x) * 240;
 
-                const [r, g, b] = Centrality.HSVtoRGB(h, 1, 1);
-                vertices[i].setColour(r, g, b);
+                    const [r, g, b] = Centrality.HSVtoRGB(h, 1, 1);
+                    vertices[i].setColour(r, g, b);
+                }
             }
         }
     }
