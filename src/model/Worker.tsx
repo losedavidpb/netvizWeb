@@ -51,7 +51,7 @@ export class TaskRunner {
     private async run_loop(): Promise<void> {
         while (!this.endThread) {
             this.apply();
-            await this.sleep(10);
+            await this.sleep(0);
         }
     }
 

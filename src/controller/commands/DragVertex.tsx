@@ -54,11 +54,11 @@ export class DragVertex implements Command {
                 const pos = selectedNode.getPos();
 
                 selectedNode.setPos({
-                    x: pos.x - this.mouseDiff.x * .2 * this.translateZ,
-                    y: pos.y + this.mouseDiff.y * .2 * this.translateZ
+                    x: pos.x - this.mouseDiff.x * 0.05 * this.translateZ,
+                    y: pos.y + this.mouseDiff.y * 0.05 * this.translateZ
                 });
 
-                this.window.refresh(true, false);
+                this.window.refresh(false, false);
             }
         }
     }

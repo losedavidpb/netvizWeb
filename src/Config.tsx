@@ -136,8 +136,8 @@ export class Config {
         state: boolean;
         handler: () => void;
     }> = {
-        left:   { button: 1, state: false, handler: () => { } },
-        middle: { button: 0, state: false, handler: () => { } },
+        left:   { button: 0, state: false, handler: () => { } },
+        middle: { button: 1, state: false, handler: () => { } },
         right:  { button: 2, state: false, handler: () => { } },
     };
 
