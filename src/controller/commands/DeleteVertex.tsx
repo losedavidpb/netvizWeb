@@ -76,6 +76,8 @@ export class DeleteVertex implements Command {
         const selectedVertex = this.selectedNode as Vertex;
 
         this.window.setSelectedNode(null);
+        this.window.setSelectedEdgeIndex(-1);
+
         this.window.updateColorNode(new THREE.Color());
         this.window.updateTextNode('');
         this.window.updateTextEdge('');

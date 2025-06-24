@@ -45,8 +45,6 @@ export class NameByIndex implements Command {
                     const connect = edges[k].getConnect();
 
                     edges[k].setText(base.getText() + ' - ' + connect.getText());
-
-                    // TODO: Selected edges?
                 }
             }
 
