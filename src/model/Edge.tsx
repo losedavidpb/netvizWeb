@@ -77,10 +77,10 @@ export class Edge {
             <>
                 <Billboard position={position}>
                     <Text
-                        color="black"
+                        color="white"
                         anchorX="center"
                         anchorY="top"
-                        fontSize={0.1}
+                        fontSize={2}
                     >
                         {this.text}
                     </Text>
@@ -162,7 +162,7 @@ export class Edge {
      * @param B B-component (blue)
      */
     setColour(R: number, G: number, B: number): void {
-        if (!(R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255)) {
+        if (!(R >= 0 && R <= 1 && G >= 0 && G <= 1 && B >= 0 && B <= 1)) {
             throw new Error('InvalidRGB :: Passed colour is invalid');
         }
 
