@@ -100,7 +100,7 @@ export class Widget extends Component<{}, {
      * @param text text to be updated
      */
     updateTextEdge(text: string): void {
-        this.setState({ nodeText: text });
+        this.setState({ edgeText: text });
         this.update_text_edge(text);
     }
 
@@ -110,7 +110,7 @@ export class Widget extends Component<{}, {
      * @param color color to be updated
      */
     updateColorEdge(color: string): void {
-        this.setState({ nodeColour: new THREE.Color(color) });
+        this.setState({ edgeColour: new THREE.Color(color) });
         this.update_color_edge(color);
     }
 
@@ -313,12 +313,8 @@ export class Widget extends Component<{}, {
                 const u = edges[selectedEdgeIndex][0];
                 const v = edges[selectedEdgeIndex][1];
 
-                const setEdgeText = (i: number): void => {
-                    vertices[v].getEdges()[i].setText(text);
-                }
-
-                if (!Widget.set_edge_text_colour(setEdgeText, u, vertices)) {
-                    Widget.set_edge_text_colour(setEdgeText, v, vertices);
+                if (!Widget.set_edge_text(u, v, vertices, text)) {
+                    Widget.set_edge_text(v, u, vertices, text);
                 }
             }
         }
@@ -339,25 +335,35 @@ export class Widget extends Component<{}, {
                     const u = edges[selectedEdgeIndex][0];
                     const v = edges[selectedEdgeIndex][1];
 
-                    const setEdgeColour = (i: number): void => {
-                        const RGB = Widget.hexToRGB(colour);
-                        vertices[v].getEdges()[i].setColour(RGB.r, RGB.g, RGB.b);
-                    };
-
-                    if (!Widget.set_edge_text_colour(setEdgeColour, u, vertices)) {
-                        Widget.set_edge_text_colour(setEdgeColour, v, vertices);
+                    if (!Widget.set_edge_colour(u, v, vertices, colour)) {
+                        Widget.set_edge_colour(v, u, vertices, colour);
                     }
                 }
             }
         }
     }
 
-    private static set_edge_text_colour(func: (i: number) => void, v: number, vertices: Vertex[]): boolean {
-        const attachedPoints = vertices[v].getAttachedPoints();
+    private static set_edge_text(from: number, to: number, vertices: Vertex[], text: string): boolean {
+        const attachedPoints = vertices[from].getAttachedPoints();
 
         for (let i = 0; i < attachedPoints.length; ++i) {
-            if (attachedPoints[i].getVertexNumber() === v) {
-                func(i);
+            if (attachedPoints[i].getVertexNumber() === to) {
+                vertices[from].getEdges()[i].setText(text);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static set_edge_colour(from: number, to: number, vertices: Vertex[], colour: string): boolean {
+        const attachedPoints = vertices[from].getAttachedPoints();
+
+        for (let i = 0; i < attachedPoints.length; ++i) {
+            if (attachedPoints[i].getVertexNumber() === to) {
+                const RGB = Widget.hexToRGB(colour);
+                console.log(RGB.r + ", " + RGB.g + ", " + RGB.b);
+                vertices[from].getEdges()[i].setColour(RGB.r, RGB.g, RGB.b);
                 return true;
             }
         }
@@ -369,9 +375,9 @@ export class Widget extends Component<{}, {
         const bigint = parseInt(hex.replace(/^#/, ''), 16);
 
         return {
-            r: (bigint >> 16) & 255,
-            g: (bigint >> 8) & 255,
-            b: bigint & 255
+            r: ((bigint >> 16) & 255) / 255,
+            g: ((bigint >> 8) & 255) / 255,
+            b: (bigint & 255) / 255
         };
     }
 }

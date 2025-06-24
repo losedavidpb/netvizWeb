@@ -4,6 +4,7 @@ import { GLWindow } from "../../gui/GLWindow";
 import { EdgeGraph } from "../../model/graph/EdgeGraph";
 import type { Vertex } from "../../model/Vertex";
 import type { Command } from "../Command";
+import type { Graph } from '../../model/Graph';
 
 /**
  * DeleteVertex :: Command to delete the selected vertex
@@ -54,13 +55,10 @@ export class DeleteVertex implements Command {
                 }
 
                 const tempGraph = graph;
-                const oldVertices = tempGraph.getVertices();
-
                 const newGraph = new EdgeGraph(undefined, newEdges);
-                const newVertices = newGraph.getVertices();
 
                 const f = (i: number) => (i < deleteNode ? i : i + 1);
-                this.update_graph(oldVertices, newVertices, f);
+                this.update_graph(tempGraph, newGraph, f);
 
                 this.window.setGraph(newGraph);
                 this.window.refresh();
@@ -72,19 +70,33 @@ export class DeleteVertex implements Command {
     // Private
     // --------------------------------
 
-    private update_graph(old_v: Vertex[], new_v: Vertex[], f: (i: number) => number): void {
+    private update_graph(oldGraph: Graph, newGraph: Graph, f: (i: number) => number): void {
+        const old_v = oldGraph.getVertices();
+        const new_v = newGraph.getVertices();
+        const selectedVertex = this.selectedNode as Vertex;
+
         this.window.setSelectedNode(null);
         this.window.updateColorNode(new THREE.Color());
         this.window.updateTextNode('');
+        this.window.updateTextEdge('');
+        this.window.updateColorEdge(new THREE.Color());
 
-        for (let i = 0; i < new_v.length; ++i) {
+        for (let i = 0; i < new_v.length; i++) {
             const oldPos = old_v[f(i)].getPos();
             const [r, g, b] = old_v[f(i)].getColour();
 
             new_v[i].setPos({ x: oldPos.x, y: oldPos.y, z: oldPos.z });
             new_v[i].setText(old_v[f(i)].getText());
             new_v[i].setColour(r, g, b);
+            new_v[i].detachPoint(selectedVertex);
             new_v[i].setSelected(false);
+
+            const old_edg = old_v[f(i)].getEdges();
+            const new_edg = new_v[i].getEdges();
+
+            for (let k = 0; k < new_edg.length; k++) {
+                new_edg[k].setText(old_edg[k].getText());
+            }
         }
     }
 }

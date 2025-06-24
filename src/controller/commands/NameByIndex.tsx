@@ -37,6 +37,19 @@ export class NameByIndex implements Command {
                 }
             }
 
+            for (let j = 0; j < vertices.length; ++j) {
+                const edges = vertices[j].getEdges();
+
+                for (let k = 0; k < edges.length; k++) {
+                    const base = edges[k].getBase();
+                    const connect = edges[k].getConnect();
+
+                    edges[k].setText(base.getText() + ' - ' + connect.getText());
+
+                    // TODO: Selected edges?
+                }
+            }
+
             this.window.refresh(false, false);
         }
     }

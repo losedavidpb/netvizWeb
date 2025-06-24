@@ -263,7 +263,6 @@ export class GLWindow {
         }
     };
 
-
     /**
      * Toggle the view of the widget
      */

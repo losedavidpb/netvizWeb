@@ -60,20 +60,22 @@ export class SelectEdge implements Command {
             this.window.refresh(false, true);
             let edgeBetween = false;
 
-            for (let i = 0; i < graph.getNumEdges(); ++i) {
+            for (let i = 0; i < graph.getNumEdges(); i++) {
                 edgeBetween = this.is_edge_between(edges[i], selectedVertexNumber, secondVertex);
 
                 if (edgeBetween) {
                     this.window.setSelectedEdgeIndex(i);
-                    secondVertex.setSelected(true);
+                    //secondVertex.setSelected(true);
                     break;
                 }
             }
 
             if (edgeBetween) {
                 const [u, v] = edges[this.window.getSelectedEdgeIndex()];
-                this.update_edge_details(vertices, u, v);
-                this.update_edge_details(vertices, v, u);
+
+                if (!this.update_edge_details(vertices, u, v)) {
+                    this.update_edge_details(vertices, v, u);
+                }
             }
 
             this.window.refresh(false, false);
@@ -127,14 +129,17 @@ export class SelectEdge implements Command {
         );
     }
 
-    private update_edge_details(vertices: Vertex[], v: number, u: number): void {
+    private update_edge_details(vertices: Vertex[], v: number, u: number): boolean {
         const attachedPoints_v = vertices[v].getAttachedPoints();
 
         for (let i = 0; i < attachedPoints_v.length; ++i) {
             if (attachedPoints_v[i].getVertexNumber() === u) {
                 this.window.updateTextEdge(vertices[v].getEdges()[i].getText());
                 this.window.updateColorEdge(vertices[v].getEdges()[i].getColour());
+                return true;
             }
         }
+
+        return false;
     }
 }
