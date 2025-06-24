@@ -102,15 +102,16 @@ export class Vertex {
             <>
                 {/* Additional wireframe if vertex is selected */}
                 {this.selected && (
-                    <points geometry={this.geometry}>
-                        <pointsMaterial
-                            vertexColors
-                            size={0.1 * Config.radius}
-                            polygonOffset
-                            polygonOffsetFactor={-1.0}
-                            polygonOffsetUnits={-1.0}
+                    <mesh position={this.getPos()}>
+                        <sphereGeometry args={[1.5 * Config.radius, 16, 16]} />
+                        <meshBasicMaterial
+                            color="yellow"
+                            wireframe
+                            transparent
+                            opacity={0.5}
+                            depthWrite={false}
                         />
-                    </points>
+                    </mesh>
                 )}
 
                 {/* Render the solid vertex */}
@@ -269,7 +270,7 @@ export class Vertex {
      * @param B B-component (blue)
      */
     setColour(R: number, G: number, B: number): void {
-        if (!(R >= 0 && R <= 255 && G >= 0 && G <= 255 && B >= 0 && B <= 255)) {
+        if (!(R >= 0 && R <= 1 && G >= 0 && G <= 1 && B >= 0 && B <= 1)) {
             throw new Error('InvalidRGB :: Passed colour is invalid');
         }
 
@@ -392,12 +393,21 @@ export class Vertex {
      * @param vertex vertex to attach
      */
     attachPoint(vertex: Vertex): void {
-        if (vertex === this || this.attachedPoints.find(v => v === vertex)) {
+        if (vertex === this) {
             throw new Error('InvalidVertex :: Vertex cannot be attached');
         }
 
         this.attachedPoints.push(vertex);
         this.edges.push(new Edge(this, vertex));
+    }
+
+    detachPoint(vertex: Vertex): void {
+        if (vertex === this) {
+            throw new Error('InvalidVertex :: Vertex cannot be detached');
+        }
+
+        this.attachedPoints = this.attachedPoints.filter(item => item !== vertex);
+        this.edges = this.edges.filter(item => item.getConnect() !== vertex);
     }
 
     /**
