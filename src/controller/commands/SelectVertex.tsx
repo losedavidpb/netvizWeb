@@ -40,7 +40,7 @@ export class SelectVertex implements Command {
     execute(): void {
         const graph = this.window.getGraph();
 
-        if (graph !== undefined && this.mousePosition !== undefined) {
+        if (graph !== null && this.mousePosition !== undefined) {
             const pointerOver = this.get_pointer_over(graph.getVertices(), this.mousePosition);
             if (pointerOver.length === 0) return;
 

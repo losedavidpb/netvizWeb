@@ -7,13 +7,14 @@ import { SimpleForceDirected } from '../../../../src/model/algorithm/SimpleForce
 import { AdjacencyGraph } from '../../../../src/model/graph/AdjacencyGraph';
 import { Graph } from '../../../../src/model/Graph';
 import type { Vertex } from '../../../../src/model/Vertex';
+import { Config } from '../../../../src/Config';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
 
 // Enable test mode to avoid WebGL dependencies
-Graph.testMode = true;
+Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const SIMPLE_FORCE_DIRECTED = path.join(CASES_WORKPLACE, 'simple_force_directed');

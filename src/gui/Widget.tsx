@@ -9,7 +9,8 @@ import { CentralityFactoryMethod } from '../model/centrality/CentralityFactoryMe
 import { AlgorithmFactoryMethod } from '../model/algorithm/AlgorithmFactoryMethod';
 import { AlgorithmType } from '../model/Algorithm';
 import { Algorithm } from '../model/Algorithm'
-import { CentralityType } from '../model/Centrality';
+import { Centrality, CentralityType } from '../model/Centrality';
+import { Config } from '../Config';
 
 /**
  * Widget :: Toolbox of the GLWindow
@@ -20,7 +21,8 @@ export class Widget extends Component<{}, {
     visible: boolean,
     algorithmType: AlgorithmType,
     algorithm: Algorithm | null,
-    centrality: CentralityType,
+    centralityType: CentralityType,
+    centrality: Centrality | null,
     fileInputRef: React.RefObject<HTMLInputElement | null>,
     nodeText: string,
     nodeColour: THREE.Color,
@@ -38,9 +40,10 @@ export class Widget extends Component<{}, {
 
         this.state = {
             visible: true,
-            algorithmType: "FruchtermanReingold",
+            algorithmType: Config.defaultAlgorithm,
             algorithm: null,
-            centrality: "DegreeCentrality",
+            centralityType: Config.defaultCentrality,
+            centrality: null,
             fileInputRef: React.createRef(),
             nodeText: '',
             nodeColour: new THREE.Color(),
@@ -68,7 +71,7 @@ export class Widget extends Component<{}, {
      * Apply the coloration to the graph
      */
     applyColoration(): void {
-        this.apply_centrality(this.state.centrality);
+        this.apply_centrality(this.state.centralityType);
     }
 
     /**
@@ -167,15 +170,6 @@ export class Widget extends Component<{}, {
                             this.refresh_graph();
                         }}
                     />
-
-                    <div className="d-flex flex-column mb-3">
-                        <button
-                            className="btn btn-light btn-outline-primary mb-2"
-                            onClick={() => this.refresh_graph()}
-                        >
-                            Refresh Graph
-                        </button>
-                    </div>
                     <hr></hr>
 
                     <div>
@@ -246,17 +240,16 @@ export class Widget extends Component<{}, {
     }
 
     private export_file(): void {
-        let filename = prompt("Enter name of the new file", "Untitled.adj");
-        filename = filename === null ? 'Untitled.adj' : filename;
+        let filename = prompt("Enter name of the new file", Config.defaultExportFile);
+        filename = filename === null ? Config.defaultExportFile : filename;
 
-        const window = GLWindow.init();
-        window.saveFile(filename);
+        GLWindow.init().saveFile(filename);
     }
 
     private apply_algorithm(name: AlgorithmType): void {
         const graph = GLWindow.init().getGraph();
 
-        if (graph !== undefined) {
+        if (graph !== null) {
             const { algorithmType, algorithm } = this.state;
 
             if (algorithm !== null && algorithm?.getGraph() !== graph || algorithm === null || algorithmType !== name) {
@@ -271,9 +264,15 @@ export class Widget extends Component<{}, {
     private apply_centrality(name: CentralityType): void {
         const graph = GLWindow.init().getGraph();
 
-        if (graph !== undefined) {
-            this.setState({ centrality: name });
-            CentralityFactoryMethod.createCentrality(name).apply(graph);
+        if (graph !== null) {
+            const { centralityType, centrality } = this.state;
+
+            if (centrality === null || centralityType !== name) {
+                const newCentrality = CentralityFactoryMethod.createCentrality(name);
+                this.setState({ centralityType: name, centrality: newCentrality }, () => newCentrality.apply(graph));
+            } else {
+                centrality.apply(graph);
+            }
         }
     }
 
@@ -308,7 +307,7 @@ export class Widget extends Component<{}, {
             const graph = window.getGraph();
             const edges = graph?.getEdges();
 
-            if (graph !== undefined && edges !== undefined) {
+            if (graph !== null && edges !== undefined) {
                 const vertices = graph.getVertices();
 
                 const u = edges[selectedEdgeIndex][0];
@@ -334,7 +333,7 @@ export class Widget extends Component<{}, {
                 const graph = window.getGraph();
                 const edges = graph?.getEdges();
 
-                if (graph !== undefined && edges !== undefined) {
+                if (graph !== null && edges !== undefined) {
                     const vertices = graph.getVertices();
 
                     const u = edges[selectedEdgeIndex][0];

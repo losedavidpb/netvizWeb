@@ -6,13 +6,14 @@ import { Graph } from '../../../../src/model/Graph';
 import { AdjacencyGraph } from '../../../../src/model/graph/AdjacencyGraph';
 import { MultiForce } from '../../../../src/model/algorithm/MultiForce';
 import type { Vertex } from '../../../../src/model/Vertex';
+import { Config } from '../../../../src/Config';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
 
 // Enable test mode to avoid WebGL dependencies
-Graph.testMode = true;
+Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const MULTI_FORCE = path.join(CASES_WORKPLACE, 'multi_force');

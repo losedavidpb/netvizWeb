@@ -26,7 +26,7 @@ export class NameByIndex implements Command {
     execute(): void {
         const graph = this.window.getGraph();
 
-        if (graph !== undefined) {
+        if (graph !== null) {
             const vertices = graph.getVertices();
 
             for (let j = 0; j < vertices.length; ++j) {

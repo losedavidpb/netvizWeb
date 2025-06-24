@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import type { JSX } from 'react';
 import React from 'react';
 
-import type { Vertex } from "./Vertex";
+import { Vertex } from "./Vertex";
+import { Config } from '../Config';
 
 /**
  * Graph :: Representation of a graph
@@ -10,22 +11,6 @@ import type { Vertex } from "./Vertex";
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export abstract class Graph {
-
-    // --------------------------------
-    // Static
-    // --------------------------------
-
-    // Flag to indicate whether the class is being tested or not.
-    static testMode: boolean;
-
-    // Scene in which all objects are rendered
-    static scene: THREE.Scene;
-
-    // Camera used to view the scene
-    static camera: THREE.Camera;
-
-    // WebGL renderer used to draw the scene
-    static renderer: THREE.WebGLRenderer;
 
     // --------------------------------
     // Properties
@@ -42,8 +27,8 @@ export abstract class Graph {
      */
     constructor(filePath?: string) {
         /* v8 ignore next 5 */
-        if (!Graph.testMode) {
-            if (Graph.scene == null || Graph.camera == null || Graph.renderer == null) {
+        if (!Config.testMode) {
+            if (Config.scene == null || Config.camera == null || Config.renderer == null) {
                 throw new Error('NullError :: THREE.js has not been initialised yet');
             }
         }

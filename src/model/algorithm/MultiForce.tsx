@@ -90,7 +90,7 @@ export class MultiForce extends Algorithm {
         const vertices = this.graph.getVertices();
 
         for (let j = 0; j < vertices.length; ++j) {
-            vertices[j].setPos({ x: 1, y: 1, z: -9999990 });
+            vertices[j].setPos({ x: 1, y: 1, z: 0 });
         }
     }
 

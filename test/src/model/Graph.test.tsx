@@ -1,13 +1,14 @@
 import { test, expect } from 'vitest';
 
 import { Graph } from '../../../src/model/Graph';
+import { Config } from '../../../src/Config';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
 
 // Enable testing to avoid WebGL checks
-Graph.testMode = true;
+Config.testMode = true;
 
 // Mockup graph to test non-abstract methods
 class MockGraph extends Graph {

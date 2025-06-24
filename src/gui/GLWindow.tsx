@@ -1,13 +1,10 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
-import { SVGRenderer } from 'three/examples/jsm/Addons.js';
 import { createRef, useEffect, type JSX, type RefObject } from 'react';
 import * as THREE from 'three';
 
 import { Graph } from '../model/Graph';
 import { Vertex } from '../model/Vertex';
-import { Betweenness } from '../model/centrality/Betweenness';
-import { CommandMap } from '../controller/CommandMap';
 import { Widget } from './Widget';
 import { LoadGraph } from '../controller/commands/LoadGraph';
 import { RefreshGraph } from '../controller/commands/RefreshGraph';
@@ -19,12 +16,14 @@ import { DragVertex } from '../controller/commands/DragVertex';
 import { DeleteVertex } from '../controller/commands/DeleteVertex';
 import { DeleteEdge } from '../controller/commands/DeleteEdge';
 import { TaskRunner } from '../model/Worker';
+import { Config } from '../Config';
 
 /**
- * GLWindow :: Representation of a GLWindow
+ * GLWindow :: Main window of the app
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
+// TODO: Check that the deleted code is not needed
 export class GLWindow {
 
     // --------------------------------
@@ -34,52 +33,16 @@ export class GLWindow {
     private static instance: GLWindow;
 
     private algorithmRunner: TaskRunner | undefined;
+    private colorationRunner: TaskRunner | undefined;
     private firstIteration: boolean = true;
 
-    private size: THREE.Vector2;
-    private widgetRef: RefObject<Widget | null>;
+    private widgetRef: RefObject<Widget | null> = createRef<Widget>();
 
     private content: string = '';
-    private graph: Graph | undefined;
+    private graph: Graph | null = null;
 
-    private selectedNode: Vertex | null;
-    private selectedEdgeIndex: number;
-
-    private commands: CommandMap = new CommandMap();
-
-    private pitch: number = 0;
-    private yaw: number = 0;
-
-    private translate: THREE.Vector3;
-
-    private mouse: THREE.Vector2;
-    private mouseDiff: THREE.Vector2;
-
-    private mouseRIGHT: boolean = false;
-    private mouseMIDDLE: boolean = false;
-    private mouseLEFT: boolean = false;
-
-    private keyCTRL: boolean = false;
-    private keySHIFT: boolean = false;
-
-    private constructor(width: number, height: number) {
-        this.size = new THREE.Vector2(width, height);
-        this.widgetRef = createRef<Widget>();
-
-        this.selectedNode = null;
-        this.selectedEdgeIndex = -1;
-
-        this.translate = new THREE.Vector3(0, 0, 1);
-        this.mouse = new THREE.Vector2(0, 0);
-        this.mouseDiff = new THREE.Vector2();
-
-        this.init_threads();
-        this.init_commands();
-    }
-
-    // --------------------------------
-    // Init
-    // --------------------------------
+    private selectedNode: Vertex | null = null;
+    private selectedEdgeIndex: number = -1;
 
     /**
      * Get the instance of the window
@@ -88,10 +51,53 @@ export class GLWindow {
      */
     static init(): GLWindow {
         if (GLWindow.instance === undefined) {
-            GLWindow.instance = new GLWindow(1280, 720);
+            GLWindow.instance = new GLWindow();
         }
 
         return GLWindow.instance;
+    }
+
+    // --------------------------------
+    // Constructor
+    // --------------------------------
+
+    // Avoid multiple instances
+    private constructor() {
+        this.init_commands();
+        this.init_key_bindings();
+        this.init_mouse_bindings();
+        this.init_threads();
+    }
+
+    private init_commands(): void {
+        Config.commands.add('LoadGraph', new LoadGraph(this));
+        Config.commands.add('SaveGraph', new SaveGraph(this));
+        Config.commands.add('DeleteVertex', new DeleteVertex(this));
+        Config.commands.add('DeleteEdge', new DeleteEdge(this));
+        Config.commands.add('RefreshGraph', new RefreshGraph(this));
+        Config.commands.add('DragVertex', new DragVertex(this));
+        Config.commands.add('SelectEdge', new SelectEdge(this));
+        Config.commands.add('SelectVertex', new SelectVertex(this));
+        Config.commands.add('NameByIndex', new NameByIndex(this));
+    }
+
+    private init_key_bindings(): void {
+        Config.setKeyHandler('toogleToolbox', () => this.toggleWidget());
+        Config.setKeyHandler('nameByIndex', () => this.nameByIndex());
+        Config.setKeyHandler('pngScreenshot', () => this.pngScreenshot(Config.defaultPNG));
+        Config.setKeyHandler('svgScreenshot', () => this.svgScreenshot(Config.defaultSVG));
+        Config.setKeyHandler('deleteVertex', () => this.deleteVertex());
+        Config.setKeyHandler('deleteEdge', () => this.deleteEdge());
+    }
+
+    private init_mouse_bindings(): void {
+        Config.setMousehandler('right', () => {
+            if (Config.keyBindings['select'].state) {
+                this.selectEdge(Config.mousePos.x, Config.mousePos.y);
+            } else {
+                this.selectVertex(Config.mousePos.x, Config.mousePos.y);
+            }
+        });
     }
 
     private init_threads(): void {
@@ -107,28 +113,13 @@ export class GLWindow {
                 }
             }
         });
-    }
 
-    private init_commands(): void {
-        this.commands = new CommandMap();
-        this.commands.add('LoadGraph', new LoadGraph(this));
-        this.commands.add('SaveGraph', new SaveGraph(this));
-        this.commands.add('DeleteVertex', new DeleteVertex(this));
-        this.commands.add('DeleteEdge', new DeleteEdge(this));
-        this.commands.add('RefreshGraph', new RefreshGraph(this));
-        this.commands.add('DragVertex', new DragVertex(this));
-        this.commands.add('SelectEdge', new SelectEdge(this));
-        this.commands.add('SelectVertex', new SelectVertex(this));
-        this.commands.add('NameByIndex', new NameByIndex(this));
-    }
-
-    /**
-     * Get the size of the window
-     *
-     * @returns size of the window
-     */
-    getSize(): THREE.Vector2 {
-        return new THREE.Vector2(this.size.x, this.size.y);
+        this.colorationRunner = new TaskRunner(() => {
+            if (this.widgetRef.current !== null) {
+                this.widgetRef.current.applyColoration();
+                this.refresh(false, true);
+            }
+        });
     }
 
     /**
@@ -154,7 +145,7 @@ export class GLWindow {
      *
      * @returns graph
      */
-    getGraph(): Graph | undefined {
+    getGraph(): Graph | null {
         return this.graph;
     }
 
@@ -209,7 +200,7 @@ export class GLWindow {
      * @param callback callback for react
      */
     setUpdateCallback(callback: () => void): void {
-        const cmd = this.commands.get('RefreshGraph') as RefreshGraph;
+        const cmd = Config.commands.get('RefreshGraph') as RefreshGraph;
         cmd.setCallback(callback);
     }
 
@@ -224,9 +215,9 @@ export class GLWindow {
 
             window.focus();
 
-            Graph.renderer.render(Graph.scene, Graph.camera);
+            Config.renderer.render(Config.scene, Config.camera);
 
-            const canvas = Graph.renderer.domElement;
+            const canvas = Config.renderer.domElement;
             const image = canvas.toDataURL("image/png");
 
             const link = document.createElement("a");
@@ -247,9 +238,9 @@ export class GLWindow {
 
             window.focus();
 
-            Graph.renderer.render(Graph.scene, Graph.camera);
+            Config.renderer.render(Config.scene, Config.camera);
 
-            const canvas = Graph.renderer.domElement;
+            const canvas = Config.renderer.domElement;
             const imageData = canvas.toDataURL("image/png");
 
             // Create SVG with embedded PNG image
@@ -286,7 +277,7 @@ export class GLWindow {
      * Load a graph based on the graph file path
      */
     loadGraph(): void {
-        this.commands.execute('LoadGraph');
+        Config.commands.execute('LoadGraph');
     }
 
     /**
@@ -295,7 +286,7 @@ export class GLWindow {
      * @param filename filename for the graph
      */
     saveFile(filename: string): void {
-        const cmd = this.commands.get('SaveGraph') as SaveGraph;
+        const cmd = Config.commands.get('SaveGraph') as SaveGraph;
         cmd.setFilename(filename);
         cmd.execute();
     }
@@ -307,7 +298,7 @@ export class GLWindow {
      * @param mouseY y-coord of the mouse
      */
     selectVertex(mouseX: number, mouseY: number): void {
-        const cmd = this.commands.get('SelectVertex') as SelectVertex;
+        const cmd = Config.commands.get('SelectVertex') as SelectVertex;
         cmd.setMousePosition(mouseX, mouseY);
         cmd.execute();
     }
@@ -319,7 +310,7 @@ export class GLWindow {
      * @param mouseY y-coord of the mouse
      */
     selectEdge(mouseX: number, mouseY: number): void {
-        const cmd = this.commands.get('SelectEdge') as SelectEdge;
+        const cmd = Config.commands.get('SelectEdge') as SelectEdge;
         cmd.setMousePosition(mouseX, mouseY);
         cmd.execute();
     }
@@ -328,7 +319,7 @@ export class GLWindow {
      * Name the vertices of the graph based on their index
      */
     nameByIndex(): void {
-        this.commands.execute('NameByIndex');
+        Config.commands.execute('NameByIndex');
     }
 
     /**
@@ -338,7 +329,7 @@ export class GLWindow {
      * @param translateZ Z-coord of the translate vector
      */
     dragVertex(mouseDiff: THREE.Vector2, translateZ: number): void {
-        const cmd = this.commands.get('DragVertex') as DragVertex;
+        const cmd = Config.commands.get('DragVertex') as DragVertex;
         cmd.setMouseDiff(mouseDiff);
         cmd.setTranslateZ(translateZ);
         cmd.execute();
@@ -348,7 +339,7 @@ export class GLWindow {
      * Delete the selected vertex
      */
     deleteVertex(): void {
-        const cmd = this.commands.get('DeleteVertex') as DeleteVertex;
+        const cmd = Config.commands.get('DeleteVertex') as DeleteVertex;
         cmd.setSelectedNode(this.selectedNode);
         cmd.execute();
 
@@ -359,20 +350,18 @@ export class GLWindow {
      * Delete the selected edge
      */
     deleteEdge(): void {
-        const cmd = this.commands.get('DeleteEdge') as DeleteEdge;
+        const cmd = Config.commands.get('DeleteEdge') as DeleteEdge;
         cmd.setSelectedEdge(this.selectedEdgeIndex);
         cmd.execute();
 
         this.selectedEdgeIndex = -1;
     }
 
-
-
     /**
      * Refresh the current graph
      */
     refresh(applyAlgorithm: boolean = true, applyColoration: boolean = true): void {
-        const cmd = this.commands.get('RefreshGraph') as RefreshGraph;
+        const cmd = Config.commands.get('RefreshGraph') as RefreshGraph;
 
         cmd.setApplyAlgorithm(applyAlgorithm);
         cmd.setApplyColoration(applyColoration);
@@ -440,8 +429,8 @@ export class GLWindow {
      * Apply the selected centrality algorithm
      */
     applyColoration(): void {
-        if (this.widgetRef.current !== null) {
-            this.widgetRef.current.applyColoration();
+        if (this.colorationRunner) {
+            this.colorationRunner.start();
         }
     }
 
@@ -453,202 +442,26 @@ export class GLWindow {
             <div
                 className="w-100 h-100"
                 tabIndex={0}
-                onKeyDown={this.keyPressedEvent}
-                onKeyUp={this.keyReleasedEvent}
+                onKeyDown={(event) => Config.keyPressed(event.key)}
+                onKeyUp={(event) => Config.keyReleased(event.key)}
             >
                 <Canvas
                     gl={{ antialias: true }}
-                    onWheel={this.scrollEvent}
-                    onMouseDown={this.mousePressedEvent}
-                    onMouseUp={this.mouseReleasedEvent}
-                    onMouseMove={this.mousePositionEvent}
+                    onMouseDown={(event) => Config.mousePressed(event)}
+                    onMouseUp={(event) => Config.mouseReleased(event)}
+                    onMouseMove={(event) => Config.mousePosition(event)}
                     onContextMenu={e => e.preventDefault()}
                     onCreated={({ scene, camera, gl }) => {
-                        Graph.scene = scene;
-                        Graph.camera = camera;
-                        Graph.renderer = gl;
+                        Config.scene = scene;
+                        Config.camera = camera;
+                        Config.renderer = gl;
                     }}
                 >
-                    <GraphScene
-                        graph={this.graph}
-                        pitch={this.pitch}
-                        yaw={this.yaw}
-                    />
+                    <GraphScene graph={this.graph} />
                 </Canvas>
                 <Widget ref={this.widgetRef} />
             </div>
         );
-    }
-
-    // --------------------------------
-    // Private
-    // --------------------------------
-
-    private scrollEvent = (event: React.WheelEvent) => {
-        const window = GLWindow.init();
-        window.translate.z += (event.deltaY / 20) * window.translate.z;
-
-        if (window.translate.z < 0.12) {
-            window.translate.z = 0.12;
-        }
-    };
-
-    private mousePressedEvent = (event: React.MouseEvent) => {
-        const window = GLWindow.init();
-
-        // Right Button
-        if (event.button === 2) {
-            window.mouseRIGHT = true;
-            console.log(window.keySHIFT);
-            if (window.keySHIFT) {
-                this.selectEdge(event.clientX, event.clientY);
-            } else {
-                this.selectVertex(event.clientX, event.clientY);
-            }
-        }
-
-        // Left button
-        if (event.button === 0) {
-            window.mouseLEFT = true;
-        }
-
-        // Middle button
-        if (event.button === 1) {
-            window.mouseMIDDLE = true;
-        }
-    };
-
-    private mouseReleasedEvent = (event: React.MouseEvent) => {
-        const window = GLWindow.init();
-
-        // Right Button
-        if (event.button === 2) {
-            window.mouseRIGHT = false;
-        }
-
-        // Left button
-        if (event.button === 0) {
-            window.mouseLEFT = false;
-        }
-
-        // Middle button
-        if (event.button === 1) {
-            window.mouseMIDDLE = false;
-        }
-    };
-
-    private mousePositionEvent = (event: React.MouseEvent) => {
-        const window = GLWindow.init();
-        const [width, _] = window.getSize();
-
-        window.mouseDiff.x = window.mouse.x - event.clientX;
-        window.mouseDiff.y = window.mouse.y - event.clientY;
-
-        if (window.mouseMIDDLE) {
-            window.yaw += (event.clientX - window.mouse.x) / 8;
-            window.pitch += (event.clientY - window.mouse.y) / 8;
-        }
-
-        if (window.mouseLEFT && !window.keyCTRL) {
-            window.translate.x += ((event.clientX - window.mouse.x) / width) * window.translate.z;
-            window.translate.y += ((window.mouse.y - event.clientY) / width) * window.translate.z;
-        }
-
-        window.mouse = new THREE.Vector2(
-            event.clientX, event.clientY
-        );
-
-        if (window.mouseLEFT && window.keyCTRL) {
-            window.dragVertex(window.mouseDiff, window.translate.z);
-        }
-    };
-
-    private keyPressedEvent = (event: React.KeyboardEvent) => {
-        const window = GLWindow.init();
-
-        console.log(event.key);
-
-        if (event.key.toLowerCase() === 't') {
-            window.toggleWidget();
-        }
-
-        if (event.key.toLowerCase() === 'n') {
-            window.nameByIndex();
-        }
-
-        if (event.key === 'F5') {
-            window.pngScreenshot("DefaultPng.png");
-        }
-
-        if (event.key === 'F6') {
-            window.svgScreenshot("DefaultSVG.svg");
-        }
-
-        if (event.key.toLowerCase() === 'b') {
-            if (window.graph !== undefined) {
-                new Betweenness().apply(window.graph);
-            }
-        }
-
-        if (event.key === 'Delete') {
-            if (window.graph !== undefined) {
-                if (window.graph.getNumVertices() > 1) {
-                    window.deleteVertex();
-                }
-            }
-        }
-
-        if (event.key === 'Insert') {
-            if (window.graph !== undefined) {
-                if (window.graph.getNumVertices() > 1) {
-                    window.deleteEdge();
-                }
-            }
-        }
-
-        if (event.key === 'Control') {
-            window.keyCTRL = true;
-        }
-
-        if (event.key === 'Shift') {
-            window.keySHIFT = true;
-        }
-
-        window.move_graph_with_keys(event);
-    };
-
-    private keyReleasedEvent = (event: React.KeyboardEvent) => {
-        const window = GLWindow.init();
-
-        if (event.key === 'Control') {
-            window.keyCTRL = false;
-        }
-
-        if (event.key === 'Shift') {
-            window.keySHIFT = false;
-        }
-
-        window.move_graph_with_keys(event);
-    };
-
-    private move_graph_with_keys(event: React.KeyboardEvent): void {
-        const window = GLWindow.init();
-
-        if (event.key === 'ArrowLeft') {
-            window.translate.x -= .01;
-        }
-
-        if (event.key === 'ArrowRight') {
-            window.translate.x += .01;
-        }
-
-        if (event.key === 'ArrowDown') {
-            window.translate.y -= .01;
-        }
-
-        if (event.key === 'ArrowUp') {
-            window.translate.y += .01;
-        }
     }
 }
 
@@ -656,11 +469,11 @@ export class GLWindow {
 // Components
 // --------------------------------
 
-const GraphScene = ({ graph, yaw, pitch, }: { graph: Graph | undefined, yaw: number, pitch: number }) => {
+const GraphScene = ({ graph }: { graph: Graph | null }) => {
     const { camera, gl, size } = useThree();
 
     useEffect(() => {
-        if (!graph) return;
+        if (graph === null) return;
 
         const pers_camera = camera as THREE.PerspectiveCamera;
         const bounds = graph.getBoundingBox();
@@ -672,16 +485,10 @@ const GraphScene = ({ graph, yaw, pitch, }: { graph: Graph | undefined, yaw: num
         const distance = max_dim / (2 * Math.tan(fov / 2));
         const position = new THREE.Vector3(0, 0, center.z + distance * 1.5);
 
-        const pitch_rad = THREE.MathUtils.degToRad(pitch);
-        const yaw_rad = THREE.MathUtils.degToRad(yaw);
-        const rotation = new THREE.Euler(pitch_rad, yaw_rad, 0, "YXZ");
-
-        position.applyEuler(rotation).add(center);
-
         pers_camera.position.copy(position);
         pers_camera.lookAt(center);
         pers_camera.updateProjectionMatrix();
-    }, [graph, yaw, pitch]);
+    }, [graph]);
 
     useFrame(() => {
         gl.setSize(size.width, size.height);

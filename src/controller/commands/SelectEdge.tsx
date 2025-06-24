@@ -9,6 +9,7 @@ import type { Command } from "../Command";
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
+// TODO: Fix it cos it's not working
 export class SelectEdge implements Command {
 
     // --------------------------------
@@ -41,7 +42,7 @@ export class SelectEdge implements Command {
     execute(): void {
         const graph = this.window.getGraph();
 
-        if (graph !== undefined && this.mousePosition !== null) {
+        if (graph !== null && this.mousePosition !== null) {
             const vertices = graph.getVertices();
 
             const pointerOver = this.get_pointer_over(vertices, this.mousePosition);

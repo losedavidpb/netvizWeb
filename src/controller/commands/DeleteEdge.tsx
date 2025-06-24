@@ -7,6 +7,7 @@ import type { Command } from "../Command";
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
+// TODO: Fix it cos it's not working
 export class DeleteEdge implements Command {
 
     // --------------------------------
@@ -39,7 +40,7 @@ export class DeleteEdge implements Command {
         if (this.selectedEdge !== -1) {
             const graph = this.window.getGraph();
 
-            if (graph !== undefined) {
+            if (graph !== null && graph.getNumVertices() > 1) {
                 const newEdges = graph.getEdges().filter((_, i) =>
                     i != this.selectedEdge
                 );

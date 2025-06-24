@@ -1,3 +1,4 @@
+import { Config } from "../../Config";
 import type { GLWindow } from "../../gui/GLWindow";
 import type { Command } from "../Command";
 
@@ -29,7 +30,7 @@ export class SaveGraph implements Command {
     private window: GLWindow;
 
     private filename: string = '';
-    private fileType: FileType = FileType.ADJACENCY;
+    private fileType: FileType = Config.defaultFileType;
 
     /**
      * Constructor for SaveGraph
@@ -87,8 +88,8 @@ export class SaveGraph implements Command {
             case 'png': this.fileType = FileType.PNG;           break;
             case 'svg': this.fileType = FileType.SVG;           break;
             default:    // Default file
-                this.filename += '.adj';
-                this.fileType = FileType.ADJACENCY;
+                this.filename += Config.defaultExtension;
+                this.fileType = Config.defaultFileType;
             break;
         }
 
@@ -110,7 +111,7 @@ export class SaveGraph implements Command {
     private save_edges(): void {
         const graph = this.window.getGraph();
 
-        if (graph !== undefined) {
+        if (graph !== null) {
             const edges = graph.getEdges();
             let content = '';
 
@@ -125,7 +126,7 @@ export class SaveGraph implements Command {
     private save_adjacency(): void {
         const graph = this.window.getGraph();
 
-        if (graph !== undefined) {
+        if (graph !== null) {
             const adjacency_matrix = graph.getAdjacencyMatrix();
             const num_vertices = graph.getNumVertices();
 
@@ -147,7 +148,7 @@ export class SaveGraph implements Command {
     private save_matrix_market(): void {
         const graph = this.window.getGraph();
 
-        if (graph !== undefined) {
+        if (graph !== null) {
             const edges = graph.getEdges();
             const num_edges = graph.getNumEdges();
             const num_vertices = graph.getNumVertices();

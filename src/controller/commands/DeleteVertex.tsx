@@ -43,7 +43,7 @@ export class DeleteVertex implements Command {
             const deleteNode = this.selectedNode.getVertexNumber();
             const graph = this.window.getGraph();
 
-            if (graph !== undefined) {
+            if (graph !== null && graph.getNumVertices() > 1) {
                 const newEdges = graph.getEdges().filter(edge =>
                     edge[0] !== deleteNode && edge[1] !== deleteNode
                 );

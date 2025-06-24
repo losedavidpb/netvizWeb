@@ -4,7 +4,7 @@ import { Billboard, Text } from '@react-three/drei';
 import * as THREE from 'three';
 
 import { Edge } from './Edge';
-import { Graph } from './Graph';
+import { Config } from '../Config';
 
 /**
  * Vertex :: Representation of a vertex
@@ -12,34 +12,6 @@ import { Graph } from './Graph';
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export class Vertex {
-
-    // --------------------------------
-    // Static
-    // --------------------------------
-
-    // The following properties have been thoroughly tested and are
-    // considered to be the best configuration for vertices. Do not
-    // modify them unless you know what you are doing.
-
-    // Radius of the vertex.
-    static readonly radius: number = 1;
-
-    // Number of horizontal divisions (latitude)
-    // for the vertex sphere geometry
-    static readonly rings: number = 12;
-
-    // Number of vertical divisions (longitude)
-    // for the vertex sphere geometry
-    static readonly sectors: number = 12;
-
-    // Size of the vertex for spherical dimensions
-    static readonly size: number = Vertex.rings * Vertex.sectors * 3;
-
-    // Step size between rings
-    static readonly ringStep: number = 1.0 / (Vertex.rings - 1);
-
-    // Step size between sectors
-    static readonly sectorStep: number = 1.0 / (Vertex.sectors - 1);
 
     // --------------------------------
     // Properties
@@ -62,9 +34,9 @@ export class Vertex {
     private attachedPoints: Vertex[] = [];
 
     // Spherical rendering
-    private positions: number[] = new Array(Vertex.size).fill(0);
-    private colours: number[] = new Array(Vertex.size).fill(0);
-    private indices: number[] = new Array(Vertex.size).fill(0);
+    private positions: number[] = new Array(Config.size).fill(0);
+    private colours: number[] = new Array(Config.size).fill(0);
+    private indices: number[] = new Array(Config.size).fill(0);
     private geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
     /**
@@ -85,30 +57,30 @@ export class Vertex {
     update(): void {
         let [vIndx, colIndx, indIndx] = [0, 0, 0];
 
-        for (let r = 0; r < Vertex.rings; r++) {
-            const polarAngle = Math.PI * r * Vertex.ringStep;
+        for (let r = 0; r < Config.rings; r++) {
+            const polarAngle = Math.PI * r * Config.ringStep;
             const y = Math.sin(-(Math.PI / 2) + polarAngle);
 
-            for (let s = 0; s < Vertex.sectors; s++) {
-                const azimuthalAngle = 2 * Math.PI * s * Vertex.sectorStep;
+            for (let s = 0; s < Config.sectors; s++) {
+                const azimuthalAngle = 2 * Math.PI * s * Config.sectorStep;
                 const sinAzimuthalAngle = Math.sin(polarAngle);
 
                 const x = Math.cos(azimuthalAngle) * sinAzimuthalAngle;
                 const z = Math.sin(azimuthalAngle) * sinAzimuthalAngle;
 
-                this.positions[vIndx++] = this.pos.x + x * Vertex.radius;
-                this.positions[vIndx++] = this.pos.y + y * Vertex.radius;
-                this.positions[vIndx++] = this.pos.z + z * Vertex.radius;
+                this.positions[vIndx++] = this.pos.x + x * Config.radius;
+                this.positions[vIndx++] = this.pos.y + y * Config.radius;
+                this.positions[vIndx++] = this.pos.z + z * Config.radius;
 
                 this.colours[colIndx++] = this.colour.r;
                 this.colours[colIndx++] = this.colour.g;
                 this.colours[colIndx++] = this.colour.b;
 
-                if (r < Vertex.rings - 1 && s < Vertex.sectors - 1) {
-                    this.indices[indIndx++] = r * Vertex.sectors + s;
-                    this.indices[indIndx++] = r * Vertex.sectors * (s + 1);
-                    this.indices[indIndx++] = (r + 1) * Vertex.sectors + (s + 1);
-                    this.indices[indIndx++] = (r + 1) * Vertex.sectors + s;
+                if (r < Config.rings - 1 && s < Config.sectors - 1) {
+                    this.indices[indIndx++] = r * Config.sectors + s;
+                    this.indices[indIndx++] = r * Config.sectors * (s + 1);
+                    this.indices[indIndx++] = (r + 1) * Config.sectors + (s + 1);
+                    this.indices[indIndx++] = (r + 1) * Config.sectors + s;
                 }
             }
         }
@@ -133,7 +105,7 @@ export class Vertex {
                     <points geometry={this.geometry}>
                         <pointsMaterial
                             vertexColors
-                            size={0.1 * Vertex.radius}
+                            size={0.1 * Config.radius}
                             polygonOffset
                             polygonOffsetFactor={-1.0}
                             polygonOffsetUnits={-1.0}
@@ -145,7 +117,7 @@ export class Vertex {
                 <points geometry={this.geometry}>
                     <pointsMaterial
                         vertexColors
-                        size={0.1 * Vertex.radius}
+                        size={0.1 * Config.radius}
                         polygonOffset
                         polygonOffsetFactor={-2.5}
                         polygonOffsetUnits={-2.5}
@@ -176,7 +148,7 @@ export class Vertex {
             <>
                 <Billboard position={[
                     this.pos.x,
-                    this.pos.y - Vertex.radius,
+                    this.pos.y - Config.radius,
                     this.pos.z
                 ]}>
                     <Text
@@ -435,16 +407,16 @@ export class Vertex {
      * @returns if the mouse is over the vertex
      */
     isPointerOver(mousePos: THREE.Vector2): boolean {
-        const canvas = Graph.renderer.domElement;
+        const canvas = Config.renderer.domElement;
 
         // Project centre
-        const center = this.getPos().project(Graph.camera);
+        const center = this.getPos().project(Config.camera);
         const centerX = (center.x + 1) / 2 * canvas.width;
         const centerY = (1 - center.y) / 2 * canvas.height;
 
         // Project edge point
-        const edgeWorld = this.getPos().add(new THREE.Vector3(Vertex.radius, 0, 0));
-        const screenEdge = edgeWorld.project(Graph.camera);
+        const edgeWorld = this.getPos().add(new THREE.Vector3(Config.radius, 0, 0));
+        const screenEdge = edgeWorld.project(Config.camera);
         const edgeX = (screenEdge.x + 1) / 2 * canvas.width;
         const edgeY = (1 - screenEdge.y) / 2 * canvas.height;
 
@@ -460,7 +432,7 @@ export class Vertex {
      * @returns depth of the vertex
      */
     getDepth(): number {
-        return (this.getPos().project(Graph.camera).z + 1) / 2;
+        return (this.getPos().project(Config.camera).z + 1) / 2;
     }
 
     /**
@@ -486,11 +458,4 @@ export class Vertex {
         clone_obj.update();
         return clone_obj;
     }
-
-    // --------------------------------
-    // Private
-    // --------------------------------
-
-    /* v8 ignore next 28 */
-
 }
