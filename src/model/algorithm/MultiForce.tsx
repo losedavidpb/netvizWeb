@@ -1,3 +1,4 @@
+import { Config } from "../../Config";
 import { Algorithm } from "../Algorithm";
 import { Graph } from "../Graph";
 import { Vertex } from "../Vertex";
@@ -115,7 +116,7 @@ export class MultiForce extends Algorithm {
                 const yDist = (pos_v.y - pos_u.y);
                 let dist = Math.sqrt((xDist * xDist) + (yDist * yDist));
 
-                if (dist < 0.00000000002) dist = 0.00000000002;
+                if (dist < 0.00000000002 || isNaN(dist)) dist = 0.00000000002;
 
                 const repulsion = this.k * this.k / dist;
                 const forceV = v.getForce();
@@ -140,7 +141,7 @@ export class MultiForce extends Algorithm {
             const yDist = (pos_v.y - pos_u.y);
             let dist = Math.sqrt((xDist * xDist) + (yDist * yDist));
 
-            if (dist < 0.00000000002) dist = 0.00000000002;
+            if (dist < 0.00000000002 || isNaN(dist)) dist = 0.00000000002;
 
             const attraction = dist * dist / this.k;
             const forceV = v.getForce();
@@ -212,8 +213,8 @@ export class MultiForce extends Algorithm {
             const aux = (2 * Math.PI * this.edgeIndex) / connectedNodes.length;
 
             vertex_a.setPos({
-                x: vertex_a.getPos().x + Math.cos(aux) * Vertex.radius,
-                y: vertex_a.getPos().y + Math.sin(aux) * Vertex.radius,
+                x: vertex_a.getPos().x + Math.cos(aux) * Config.radius,
+                y: vertex_a.getPos().y + Math.sin(aux) * Config.radius,
                 z: 0
             });
 

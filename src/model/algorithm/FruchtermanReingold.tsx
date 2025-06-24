@@ -92,7 +92,7 @@ export class FruchtermanReingold extends Algorithm {
                 let dist = Math.sqrt((xDist * xDist) + (yDist * yDist));
 
                 /* v8 ignore next 1 */
-                if (dist < 0.00000000002) dist = 0.00000000002;
+                if (dist < 0.00000000002 || isNaN(dist)) dist = 0.00000000002;
 
                 const repulsion = this.k * this.k / dist;
                 const force_v = v.getForce();
@@ -118,7 +118,7 @@ export class FruchtermanReingold extends Algorithm {
             let dist = Math.sqrt((xDist * xDist) + (yDist * yDist));
 
             /* v8 ignore next 1 */
-            if (dist < 0.00000000002) dist = 0.00000000002;
+            if (dist < 0.00000000002 || isNaN(dist)) dist = 0.00000000002;
 
             const attraction = dist * dist / this.k;
             const force_v = v.getForce();
