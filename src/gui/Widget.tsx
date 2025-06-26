@@ -248,29 +248,29 @@ export class Widget extends Component<{}, {
         GLWindow.init().saveFile(filename);
     }
 
-    private apply_algorithm(name: AlgorithmType): void {
+    private async apply_algorithm(name: AlgorithmType): Promise<void> {
         const graph = GLWindow.init().getGraph();
 
         if (graph !== null) {
             const { algorithmType, algorithm } = this.state;
 
             if (algorithm !== null && algorithm?.getGraph() !== graph || algorithm === null || algorithmType !== name) {
-                const newAlgorithm = AlgorithmFactoryMethod.createAlgorithm(name, graph);
-                this.setState({ algorithmType: name, algorithm: newAlgorithm }, () => newAlgorithm.apply());
+                const newAlgorithm = await AlgorithmFactoryMethod.createAlgorithm(name, graph);
+                this.setState({ algorithmType: name, algorithm:  newAlgorithm }, () => newAlgorithm.apply());
             } else {
                 algorithm.apply();
             }
         }
     }
 
-    private apply_centrality(name: CentralityType): void {
+    private async apply_centrality(name: CentralityType): Promise<void> {
         const graph = GLWindow.init().getGraph();
 
         if (graph !== null) {
             const { centralityType, centrality } = this.state;
 
             if (centrality === null || centralityType !== name) {
-                const newCentrality = CentralityFactoryMethod.createCentrality(name);
+                const newCentrality = await CentralityFactoryMethod.createCentrality(name);
                 this.setState({ centralityType: name, centrality: newCentrality }, () => newCentrality.apply(graph));
             } else {
                 centrality.apply(graph);
