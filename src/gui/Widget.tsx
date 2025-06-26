@@ -11,6 +11,7 @@ import { AlgorithmType } from '../model/Algorithm';
 import { Algorithm } from '../model/Algorithm'
 import { Centrality, CentralityType } from '../model/Centrality';
 import { Config } from '../Config';
+import { Footer } from './Footer';
 
 /**
  * Widget :: Toolbox of the GLWindow
@@ -382,25 +383,3 @@ export class Widget extends Component<{}, {
         };
     }
 }
-
-// --------------------------------
-// Components
-// --------------------------------
-
-const Footer: React.FC<{ text: string }> = ({ text }) => {
-    return (
-        <footer style={{
-            backgroundColor: 'black',
-            color: 'white',
-            fontSize: '0.8rem',
-            padding: '0.5rem 1rem',
-            textAlign: 'center',
-            position: 'fixed',
-            bottom: 0,
-            width: '100%',
-            zIndex: 1000,
-        }}>
-            {text}
-        </footer>
-    );
-};
