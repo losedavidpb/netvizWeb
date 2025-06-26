@@ -15,28 +15,28 @@ Config.testMode = true;
 // Create Centrality
 // --------------------------------------
 
-test('CentralityFactoryMethod::createCentrality() : Betweenness', async () => {
+test('CentralityFactoryMethod::createCentrality() : Betweenness', () => {
     const type = CentralityType.Betweenness;
 
-    const algorithm = await CentralityFactoryMethod.createCentrality(type);
+    const algorithm = CentralityFactoryMethod.createCentrality(type);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('Betweenness');
 });
 
-test('CentralityFactoryMethod::createCentrality() : DegreeCentrality', async () => {
+test('CentralityFactoryMethod::createCentrality() : DegreeCentrality', () => {
     const type = CentralityType.DegreeCentrality;
 
-    const algorithm = await CentralityFactoryMethod.createCentrality(type);
+    const algorithm = CentralityFactoryMethod.createCentrality(type);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('DegreeCentrality');
 });
 
-test('CentralityFactoryMethod::createCentrality() : DistanceCentrality', async () => {
+test('CentralityFactoryMethod::createCentrality() : DistanceCentrality', () => {
     const type = CentralityType.DistanceCentrality;
 
-    const algorithm = await CentralityFactoryMethod.createCentrality(type);
+    const algorithm = CentralityFactoryMethod.createCentrality(type);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('DistanceCentrality');
@@ -45,7 +45,7 @@ test('CentralityFactoryMethod::createCentrality() : DistanceCentrality', async (
 test('CentralityFactoryMethod::createCentrality() : Unsupported centrality', async () => {
     const type = -1 as any;
 
-    await expect(CentralityFactoryMethod.createCentrality(type)).rejects.toThrow(
+    expect(() => { CentralityFactoryMethod.createCentrality(type); }).toThrow(
         'InvalidCentrality :: Passed centrality is not supported'
     );
 });

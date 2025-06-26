@@ -1,5 +1,8 @@
 import { Graph } from "../Graph";
 import { Algorithm, AlgorithmType } from "../Algorithm";
+import { FruchtermanReingold } from "./FruchtermanReingold";
+import { MultiForce } from "./MultiForce";
+import { SimpleForceDirected } from "./SimpleForceDirected";
 
 /**
  * AlgorithmFactoryMethod :: Factory method for algorithms
@@ -14,20 +17,17 @@ export class AlgorithmFactoryMethod {
      * @param graph graph to be used
      * @returns algorithm
      */
-    static async createAlgorithm(type: AlgorithmType, graph: Graph): Promise<Algorithm> {
+    static createAlgorithm(type: AlgorithmType, graph: Graph): Algorithm {
         switch (type) {
             case AlgorithmType.FruchtermanReingold: {
-                const { FruchtermanReingold } = await import("./FruchtermanReingold");
                 return new FruchtermanReingold(graph);
             }
 
             case AlgorithmType.MultiForce: {
-                const { MultiForce } = await import("./MultiForce");
                 return new MultiForce(graph);
             }
 
             case AlgorithmType.SimpleForceDirected: {
-                const { SimpleForceDirected } = await import("./SimpleForceDirected");
                 return new SimpleForceDirected(graph);
             }
 

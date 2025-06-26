@@ -15,21 +15,28 @@ export const GraphScene = ({ graph }: { graph: Graph | null }) => {
     const { camera, gl, size } = useThree();
 
     useEffect(() => {
-        if (graph === null) return;
+        if (graph === null || graph === undefined) return;
 
         const pers_camera = camera as THREE.PerspectiveCamera;
         const bounds = graph.getBoundingBox();
+
         const center = bounds.getCenter(new THREE.Vector3());
-        const size_center = bounds.getSize(new THREE.Vector3());
-        const max_dim = Math.max(size_center.x, size_center.y, size_center.z);
-
+        const size = bounds.getSize(new THREE.Vector3());
+        const maxDim = Math.max(size.x, size.y, size.z);
         const fov = pers_camera.fov * (Math.PI / 180);
-        const distance = max_dim / (2 * Math.tan(fov / 2));
-        const position = new THREE.Vector3(0, 0, center.z + distance * 1.5);
 
-        pers_camera.position.copy(position);
-        pers_camera.lookAt(center);
+        const distance = maxDim / (2 * Math.tan(fov / 2));
+        const offset = 1.2;
+
+        const distancePosition = new THREE.Vector3(distance, distance, distance);
+        const newPosition = center.clone().add(distancePosition.multiplyScalar(offset));
+        pers_camera.position.copy(newPosition);
+
+        pers_camera.near = 0.1;
+        pers_camera.far = distance * 10;
         pers_camera.updateProjectionMatrix();
+
+        pers_camera.lookAt(center);
     }, [graph, camera]);
 
     useFrame(() => {
@@ -43,7 +50,7 @@ export const GraphScene = ({ graph }: { graph: Graph | null }) => {
             <ambientLight />
             <pointLight position={[10, 10, 10]} />
             <OrbitControls />
-            {graph ? graph.draw() : null}
+            {graph !== null ? graph.draw() : null}
         </>
     );
 };

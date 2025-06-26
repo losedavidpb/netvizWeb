@@ -16,31 +16,31 @@ Config.testMode = true;
 // Create Algorithm
 // --------------------------------------
 
-test('AlgorithmFactoryMethod::createAlgorithm() : FruchtermanReingold', async () => {
+test('AlgorithmFactoryMethod::createAlgorithm() : FruchtermanReingold', () => {
     const type = AlgorithmType.FruchtermanReingold;
     const graph = new AdjacencyGraph('');
 
-    const algorithm = await AlgorithmFactoryMethod.createAlgorithm(type, graph);
+    const algorithm = AlgorithmFactoryMethod.createAlgorithm(type, graph);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('FruchtermanReingold');
 });
 
-test('AlgorithmFactoryMethod::createAlgorithm() : MultiForce', async () => {
+test('AlgorithmFactoryMethod::createAlgorithm() : MultiForce', () => {
     const type = AlgorithmType.MultiForce;
     const graph = new AdjacencyGraph('');
 
-    const algorithm = await AlgorithmFactoryMethod.createAlgorithm(type, graph);
+    const algorithm = AlgorithmFactoryMethod.createAlgorithm(type, graph);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('MultiForce');
 });
 
-test('AlgorithmFactoryMethod::createAlgorithm() : SimpleForceDirected', async () => {
+test('AlgorithmFactoryMethod::createAlgorithm() : SimpleForceDirected', () => {
     const type = AlgorithmType.SimpleForceDirected;
     const graph = new AdjacencyGraph('');
 
-    const algorithm = await AlgorithmFactoryMethod.createAlgorithm(type, graph);
+    const algorithm = AlgorithmFactoryMethod.createAlgorithm(type, graph);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('SimpleForceDirected');
@@ -50,7 +50,7 @@ test('AlgorithmFactoryMethod::createAlgorithm() : Unsupported algorithm', async 
     const type = -1 as any;
     const graph = new AdjacencyGraph('');
 
-    await expect(AlgorithmFactoryMethod.createAlgorithm(type, graph)).rejects.toThrow(
+    expect(() => { AlgorithmFactoryMethod.createAlgorithm(type, graph); }).toThrow(
         'InvalidAlgorithm :: Passed algorithm is not supported'
     );
 });
