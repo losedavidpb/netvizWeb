@@ -24,6 +24,17 @@ function load_test_graph(filePath: string): Graph {
     return new AdjacencyGraph(content);
 }
 
+// Clone the vertices of the graph
+function get_init_vertices(graph: Graph): Vertex[] {
+    const init_vertices: Vertex[] = [];
+
+    for (let vertex of graph.getVertices()) {
+        init_vertices.push(vertex.clone());
+    }
+
+    return init_vertices;
+}
+
 // Check that vertices are placed as expected
 function test_placement(vertices: Vertex[], exp_v: number): void {
     expect(vertices.length).toBe(exp_v);
@@ -63,6 +74,23 @@ function test_place(vertices: Vertex[], exp_v: number, edges: number[][], exp_e:
     }
 
     expect(placed).toBeGreaterThan(0);
+}
+
+// Check that the vertices have moved after apply
+function test_apply_effect(vertices: Vertex[], init_vtx: Vertex[]): void {
+    expect(init_vtx.length).toBe(vertices.length);
+
+    for (let i = 0; i < vertices.length; i++) {
+        const old_pos = init_vtx[i].getPos();
+        const new_pos = vertices[i].getPos();
+
+        const moved = old_pos.x !== new_pos.x || old_pos.y !== new_pos.y;
+        expect(moved).toBe(true);
+
+        expect(Number.isFinite(new_pos.x)).toBe(true);
+        expect(Number.isFinite(new_pos.y)).toBe(true);
+        expect(new_pos.z).toBe(0);
+    }
 }
 
 // --------------------------------------
@@ -188,12 +216,61 @@ test('MultiForce::apply() : 1x1 graph', () => {
 
     const graph = load_test_graph(filePath);
     const algorithm = new MultiForce(graph);
+
+    const init_vtx = graph.getVertices();
     algorithm.apply();
 
     const vertices = graph.getVertices();
-    test_placement(vertices, 1);
+
+    expect(vertices.length).toBe(init_vtx.length);
+    expect(vertices.length).toBe(1);
+
+    expect(vertices[0].getPos().equals(init_vtx[0].getPos())).toBe(true);
 });
 
-// ......
-// TODO: Include tests for 3x3 and 6x6 graphs
-// ......
+test('MultiForce::apply() : 3x3 graph', () => {
+    const filePath = path.join(MULTI_FORCE, 'test_multi_force_3x3.txt');
+
+    const graph = load_test_graph(filePath);
+    const init_vtx = get_init_vertices(graph);
+    const algorithm = new MultiForce(graph);
+
+    algorithm.apply();
+
+    const vertices = graph.getVertices();
+
+    test_apply_effect(vertices, init_vtx);
+});
+
+test('MultiForce::apply() : 6x6 graph', () => {
+    const filePath = path.join(MULTI_FORCE, 'test_multi_force_6x6.txt');
+
+    const graph = load_test_graph(filePath);
+    let init_vtx = get_init_vertices(graph);
+    const algorithm = new MultiForce(graph);
+
+    algorithm.apply();
+
+    const vertices = graph.getVertices();
+
+    test_apply_effect(vertices, init_vtx);
+});
+
+test('MultiForce::apply() : edgeIndex >= edges.length', () => {
+    const filePath = path.join(MULTI_FORCE, 'test_multi_force_3x3.txt');
+    const graph = load_test_graph(filePath);
+    const algorithm = new MultiForce(graph);
+
+    (algorithm as any).edgeIndex = graph.getEdges().length + 10;
+    expect(() => algorithm.apply()).not.toThrow();
+
+    const vertices = graph.getVertices();
+
+    for (const vertex of vertices) {
+        const pos = vertex.getPos();
+
+        expect(Number.isFinite(pos.x)).toBe(true);
+        expect(Number.isFinite(pos.y)).toBe(true);
+        expect(pos.z).toBe(0);
+    }
+});
