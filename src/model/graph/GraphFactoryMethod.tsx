@@ -1,7 +1,4 @@
 import { Graph } from "../Graph";
-import { AdjacencyGraph } from "./AdjacencyGraph";
-import { EdgeGraph } from "./EdgeGraph";
-import { MatrixMarketGraph } from "./MatrixMarketGraph";
 
 /**
  * GraphFactoryMethod :: Factory method for graphs
@@ -16,22 +13,26 @@ export class GraphFactoryMethod {
      * @param content content of the graph
      * @returns algorithm
      */
-    static createGraph(line: string, content: string): Graph {
-        // Edge Graph
-        if (line.length <= 4) {
-            return new EdgeGraph(content);
-        }
-
+    static async createGraph(line: string, content: string): Promise<Graph> {
         // Matrix Market Graph
-        else if (line.substring(0, 14) === "%%MatrixMarket") {
+        if (line.length >= 14 && line.substring(0, 14) === "%%MatrixMarket") {
+            const { MatrixMarketGraph } = await import("./MatrixMarketGraph");
             return new MatrixMarketGraph(content);
         }
 
+        // Edge Graph
+        else if (line.length <= 4) {
+            const { EdgeGraph } = await import("./EdgeGraph");
+            return new EdgeGraph(content);
+        }
+
         // Adjacency Graph
-        else if (line.length > 3 && (line.substring(0, 1) === "0" || line.substring(0, 1) === "1")) {
+        else if (line.length > 0 && (line.substring(0, 1) === "0" || line.substring(0, 1) === "1")) {
+            const { AdjacencyGraph } = await import("./AdjacencyGraph");
             return new AdjacencyGraph(content);
         }
 
+        // Unsupported graph
         else {
             throw new Error(
                 "InvalidGraph :: Passed graph is not supported"

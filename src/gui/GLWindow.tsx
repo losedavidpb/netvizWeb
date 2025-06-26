@@ -446,9 +446,9 @@ export class GLWindow {
             >
                 <Canvas
                     gl={{ antialias: true }}
-                    onMouseDown={(event) => Config.mousePressed(event)}
-                    onMouseUp={(event) => Config.mouseReleased(event)}
-                    onMouseMove={(event) => Config.mousePosition(event)}
+                    onMouseDown={(event) => Config.mousePressed(this, event)}
+                    onMouseUp={(event) => Config.mouseReleased(this, event)}
+                    onMouseMove={(event) => Config.mousePosition(this, event)}
                     onContextMenu={e => e.preventDefault()}
                     onCreated={({ scene, camera, gl }) => {
                         Config.scene = scene;

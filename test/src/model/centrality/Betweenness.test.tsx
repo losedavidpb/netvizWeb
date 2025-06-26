@@ -7,13 +7,14 @@ import { AdjacencyGraph } from '../../../../src/model/graph/AdjacencyGraph';
 import { Betweenness } from '../../../../src/model/centrality/Betweenness';
 import { Vertex } from '../../../../src/model/Vertex';
 import { Centrality } from '../../../../src/model/Centrality';
+import { Config } from '../../../../src/Config';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
 
 // Enable testing to avoid WebGL checks
-Graph.testMode = true;
+Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const DEGREE_CENTRALITY = path.join(CASES_WORKPLACE, 'betweenness/');
@@ -33,25 +34,37 @@ class MockupBetweenness extends Centrality {
     }
 }
 
+// Load the graph to be tested
 function load_test_graph(filePath: string): Graph {
     const content = fs.readFileSync(filePath, 'utf-8').trim();
     return new AdjacencyGraph(content);
 }
 
-// --------------------------------------
-// apply
-// --------------------------------------
+// Check whether the vertices are as expected
+function test_vertices(graph: Graph, expected: Vertex[]): void {
+    expect(graph.getVertices().length).toBe(expected.length);
 
+    graph.getVertices().forEach((v, i) => {
+        expect(v.equals(expected[i])).toBe(true);
+    });
+}
+
+// Attach the point to the first vertex
 function attach_point(v0: Vertex, v1: Vertex): void {
     v0.attachPoint(v1);
     v0.updateDegree();
     v1.updateDegree();
 }
 
-function set_colour(expectedVertices: Vertex[], i: number, h: number, s: number, v: number): void {
+// Set the expected colour of the vertex
+function set_colour(expected: Vertex[], i: number, h: number, s: number, v: number): void {
     const [r, g, b] = MockupBetweenness.HSVtoRGB(h, s, v);
-    expectedVertices[i].setColour(r, g, b);
+    expected[i].setColour(r, g, b);
 }
+
+// --------------------------------------
+// apply
+// --------------------------------------
 
 test('Betweenness::apply() : Empty graph', () => {
     const filePath = path.join(DEGREE_CENTRALITY, 'test_betweenness_empty.txt');
@@ -65,7 +78,7 @@ test('Betweenness::apply() : Empty graph', () => {
     // Expected Vertices
     const expectedVertices: Vertex[] = [];
 
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
+    test_vertices(graph, expectedVertices);
 });
 
 test('Betweenness::apply() : 1x1 graph', () => {
@@ -80,8 +93,7 @@ test('Betweenness::apply() : 1x1 graph', () => {
     const expectedVertices: Vertex[] = [new Vertex(0, 0, 0)];
     set_colour(expectedVertices, 0, 240, 1, 1);
 
-    expect(graph.getVertices().length).toBe(expectedVertices.length);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
+    test_vertices(graph, expectedVertices);
 });
 
 test('Betweenness::apply() : 3x3 graph', () => {
@@ -104,6 +116,5 @@ test('Betweenness::apply() : 3x3 graph', () => {
     set_colour(expectedVertices, 1, 240, 1, 1);
     set_colour(expectedVertices, 2, 240, 1, 1);
 
-    expect(graph.getVertices().length).toBe(expectedVertices.length);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
+    test_vertices(graph, expectedVertices);
 });

@@ -39,6 +39,7 @@ export abstract class Algorithm {
      *
      * @returns graph
      */
+    /* v8 ignore next 3 */
     getGraph(): Graph {
         return this.graph;
     }

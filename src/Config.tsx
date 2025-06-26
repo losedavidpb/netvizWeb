@@ -2,13 +2,13 @@ import * as THREE from 'three';
 
 import { FileType } from './controller/commands/SaveGraph';
 import { CommandMap } from './controller/CommandMap';
-import { GLWindow } from './gui/GLWindow';
+import type { GLWindow } from './gui/GLWindow';
 import { AlgorithmType } from './model/Algorithm';
 import { CentralityType } from './model/Centrality';
 
 /**
  * Config :: Configuration of the entire project
- *
+ *npm r
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export class Config {
@@ -159,9 +159,10 @@ export class Config {
     /**
      * Handle mouse press events
      *
+     * @param window parent window
      * @param event mouse event
      */
-    static mousePressed(event: React.MouseEvent): void {
+    static mousePressed(_: GLWindow, event: React.MouseEvent): void {
         Config.mousePos = new THREE.Vector2(event.clientX, event.clientY);
         Config.set_mouse_state(event.button, true);
     }
@@ -169,9 +170,10 @@ export class Config {
     /**
      * Handle mouse release events
      *
+     * @param window parent window
      * @param event mouse event
      */
-    static mouseReleased(event: React.MouseEvent): void {
+    static mouseReleased(_: GLWindow, event: React.MouseEvent): void {
         Config.mousePos = new THREE.Vector2(event.clientX, event.clientY);
         Config.set_mouse_state(event.button, false);
     }
@@ -179,11 +181,10 @@ export class Config {
     /**
      * Handle mouse position events
      *
+     * @param window parent window
      * @param event mouse event
      */
-    static mousePosition(event: React.MouseEvent): void {
-        const window = GLWindow.init();
-
+    static mousePosition(window: GLWindow, event: React.MouseEvent): void {
         if (Config.mouseBindings['left'].state && Config.keyBindings['dragVertex'].state) {
             const mouseDiff = new THREE.Vector2(
                 Config.mousePos.x - event.clientX,

@@ -41,7 +41,7 @@ export abstract class Graph {
     /**
      * Draw the graph
      */
-    /* v8 ignore next 5 */
+    /* v8 ignore next 7 */
     draw(): JSX.Element[] {
         return this.vertices.map((vertex, i) =>
             <React.Fragment key={i}>

@@ -18,15 +18,13 @@ Config.testMode = true;
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const MULTI_FORCE = path.join(CASES_WORKPLACE, 'multi_force');
 
+// Load the graph to be tested
 function load_test_graph(filePath: string): Graph {
     const content = fs.readFileSync(filePath, 'utf-8').trim();
     return new AdjacencyGraph(content);
 }
 
-// --------------------------------------
-// placement
-// --------------------------------------
-
+// Check that vertices are placed as expected
 function test_placement(vertices: Vertex[], exp_v: number): void {
     expect(vertices.length).toBe(exp_v);
 
@@ -35,9 +33,41 @@ function test_placement(vertices: Vertex[], exp_v: number): void {
 
         expect(pos.x).toBe(1);
         expect(pos.y).toBe(1);
-        expect(pos.z).toBe(-9999990);
+        expect(pos.z).toBe(0);
     }
 }
+
+// Check that vertices are placed as expected
+function test_place(vertices: Vertex[], exp_v: number, edges: number[][], exp_e: number): void {
+    expect(vertices.length).toBe(exp_v);
+    expect(edges.length).toBe(exp_e);
+
+    const [W, L] = [MultiForce.W, MultiForce.L];
+    let placed = 0;
+
+    for (let i = 0; i < vertices.length; ++i) {
+        const pos = vertices[i].getPos();
+
+        if (pos.z === 0) {
+            placed++;
+
+            expect(pos.x).toBeGreaterThanOrEqual(-W / 2);
+            expect(pos.x).toBeLessThan(W / 2);
+            expect(pos.y).toBeGreaterThanOrEqual(-L / 2);
+            expect(pos.y).toBeLessThan(L / 2);
+        } else {
+            expect(pos.x).toBe(1);
+            expect(pos.y).toBe(1);
+            expect(pos.z).toBe(0);
+        }
+    }
+
+    expect(placed).toBeGreaterThan(0);
+}
+
+// --------------------------------------
+// placement
+// --------------------------------------
 
 test('MultiForce::placement() : Empty graph', () => {
     const filePath = path.join(MULTI_FORCE, 'test_multi_force_empty.txt');
@@ -87,34 +117,6 @@ test('MultiForce::placement() : 6x6 graph', () => {
 // --------------------------------------
 // place
 // --------------------------------------
-
-function test_place(vertices: Vertex[], exp_v: number, edges: number[][], exp_e: number): void {
-    expect(vertices.length).toBe(exp_v);
-    expect(edges.length).toBe(exp_e);
-
-    const [W, L] = [MultiForce.W, MultiForce.L];
-    let placed = 0;
-
-    for (let i = 0; i < vertices.length; ++i) {
-        const pos = vertices[i].getPos();
-
-        if (pos.z === 0) {
-            placed++;
-
-            expect(pos.x).toBeGreaterThanOrEqual(-W / 2);
-            expect(pos.x).toBeLessThan(W / 2);
-            expect(pos.y).toBeGreaterThanOrEqual(-L / 2);
-            expect(pos.y).toBeLessThan(L / 2);
-        } else {
-            expect(pos.x).toBe(1);
-            expect(pos.y).toBe(1);
-            expect(pos.z).toBe(-9999990);
-        }
-    }
-
-    expect(placed).toBeGreaterThan(0);
-}
-
 
 test('MultiForce::place() : Empty graph', () => {
     const filePath = path.join(MULTI_FORCE, 'test_multi_force_empty.txt');

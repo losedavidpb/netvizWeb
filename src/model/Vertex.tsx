@@ -143,7 +143,7 @@ export class Vertex {
      *
      * @returns text component
      */
-    /* v8 ignore next 18 */
+    /* v8 ignore next 20 */
     drawText(): JSX.Element {
         return (
             <>
@@ -390,22 +390,19 @@ export class Vertex {
     /**
      * Attach passed vertex to the current one
      *
-     * @param vertex vertex to attach
+     * @param vertex vertex to attached
      */
     attachPoint(vertex: Vertex): void {
-        if (vertex === this) {
-            throw new Error('InvalidVertex :: Vertex cannot be attached');
-        }
-
         this.attachedPoints.push(vertex);
         this.edges.push(new Edge(this, vertex));
     }
 
+    /**
+     * Detach passed vertex from the current one
+     *
+     * @param vertex vertex to be detached
+     */
     detachPoint(vertex: Vertex): void {
-        if (vertex === this) {
-            throw new Error('InvalidVertex :: Vertex cannot be detached');
-        }
-
         this.attachedPoints = this.attachedPoints.filter(item => item !== vertex);
         this.edges = this.edges.filter(item => item.getConnect() !== vertex);
     }
@@ -416,6 +413,7 @@ export class Vertex {
      * @param mousePos position of the mouse
      * @returns if the mouse is over the vertex
      */
+    /* v8 ignore next 19 */
     isPointerOver(mousePos: THREE.Vector2): boolean {
         const canvas = Config.renderer.domElement;
 
@@ -441,8 +439,37 @@ export class Vertex {
      *
      * @returns depth of the vertex
      */
+    /* v8 ignore next 3 */
     getDepth(): number {
         return (this.getPos().project(Config.camera).z + 1) / 2;
+    }
+
+    /**
+     * Check whether the current and the passed vertex are equal
+     *
+     * @param other vertex to compare
+     * @returns if vertices are equal
+     */
+    equals(other: unknown): boolean {
+        if (!(other instanceof Vertex)) return false;
+
+        const arraysEqual = (a: number[], b: number[]): boolean =>
+            a.length === b.length && a.every((val, i) => val === b[i]);
+
+        return (
+            this.pos.equals(other.getPos()) &&
+            this.force.equals(other.getForce()) &&
+            this.velocity.equals(other.getVelocity()) &&
+            this.colour.equals(other.getColour()) &&
+            this.text === other.getText() &&
+            this.level === other.getLevel() &&
+            this.degree === other.getDegree() &&
+            this.vertexNumber === other.getVertexNumber() &&
+            this.selected === other.isSelected() &&
+            arraysEqual(this.positions, other.positions) &&
+            arraysEqual(this.colours, other.colours) &&
+            arraysEqual(this.indices, other.indices)
+        );
     }
 
     /**
@@ -466,6 +493,8 @@ export class Vertex {
         clone_obj.edges = this.getEdges();
 
         clone_obj.update();
+        clone_obj.geometry = this.geometry;
+
         return clone_obj;
     }
 }

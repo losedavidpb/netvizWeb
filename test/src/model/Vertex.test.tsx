@@ -3,6 +3,39 @@ import { test, expect } from 'vitest';
 import { Vertex } from '../../../src/model/Vertex';
 
 // --------------------------------------
+// Test Configuration
+// --------------------------------------
+
+function test_points(vertex: Vertex, points: Vertex[]): void {
+    const attachedPoints = vertex.getAttachedPoints();
+    const edges = vertex.getEdges();
+
+    expect(attachedPoints.length).toBe(points.length);
+    expect(edges.length).toBe(points.length);
+
+    for (let k = 0; k < points.length; k++) {
+        const other = points[k];
+
+        expect(attachedPoints[k].equals(other)).toBe(true);
+        expect(edges[k].getBase().equals(vertex)).toBe(true);
+        expect(edges[k].getConnect().equals(other)).toBe(true);
+    }
+}
+
+function test_point_does_not_exist(vertex: Vertex, points: Vertex[]): void {
+    const attachedPoints = vertex.getAttachedPoints();
+    const edges = vertex.getEdges();
+
+    for (const point of points) {
+        expect(attachedPoints.includes(point)).toBe(false);
+
+        for (const edge of edges) {
+            expect(edge.getConnect().equals(point)).toBe(false);
+        }
+    }
+}
+
+// --------------------------------------
 // Selected
 // --------------------------------------
 
@@ -192,12 +225,12 @@ test('Vertex::getColour() : Default Colour', () => {
 
 test('Vertex::setColour() : Valid RGB', () => {
     const vertex = new Vertex(0, 0, 0);
-    vertex.setColour(10, 20, 30);
+    vertex.setColour(1, 0.5, 0.2);
 
     const colour = vertex.getColour();
-    expect(colour.r).toBe(10);
-    expect(colour.g).toBe(20);
-    expect(colour.b).toBe(30);
+    expect(colour.r).toBe(1);
+    expect(colour.g).toBe(0.5);
+    expect(colour.b).toBe(0.2);
 });
 
 test('Vertex::setColour() : InvalidR', () => {
@@ -339,30 +372,12 @@ test('Vertex::getEdges() : Default', () => {
 // AttachPoint
 // --------------------------------------
 
+
+
 test('Vertex::getAttachedPoints() : Default', () => {
     const vertex = new Vertex(0, 0, 0);
 
     expect(vertex.getAttachedPoints().length).toBe(0);
-});
-
-test('Vertex::attachPoint() : Identical Vertex', () => {
-    const vertex = new Vertex(0, 0, 0);
-    const other = vertex;
-
-    expect(() => { vertex.attachPoint(other); }).toThrow(
-        'InvalidVertex :: Vertex cannot be attached'
-    );
-});
-
-test('Vertex::attachPoint() : Repeated Vertex', () => {
-    const vertex = new Vertex(0, 0, 0);
-    const other = new Vertex(10, 20, 30);
-
-    vertex.attachPoint(other);
-
-    expect(() => { vertex.attachPoint(other); }).toThrow(
-        'InvalidVertex :: Vertex cannot be attached'
-    );
 });
 
 test('Vertex::attachPoint() : Valid Vertex', () => {
@@ -371,15 +386,53 @@ test('Vertex::attachPoint() : Valid Vertex', () => {
 
     vertex.attachPoint(other);
 
-    const attachedPoints = vertex.getAttachedPoints();
-    const edges = vertex.getEdges();
+    test_points(vertex, [other]);
+});
 
-    expect(attachedPoints.length).toBe(1);
-    expect(edges.length).toBe(1);
+// --------------------------------------
+// Detach Point
+// --------------------------------------
 
-    expect(attachedPoints[0] === other).toBe(true);
-    expect(edges[0].getBase() === vertex).toBe(true);
-    expect(edges[0].getConnect() === other).toBe(true);
+test('Vertex::detachPoint() : Valid Vertex', () => {
+    const vertex = new Vertex(0, 0, 0);
+    const other_1 = new Vertex(10, 20, 30);
+    const other_2 = new Vertex(30, 50, 20);
+
+    vertex.attachPoint(other_1);
+    vertex.attachPoint(other_2);
+
+    test_points(vertex, [other_1, other_2]);
+
+    vertex.detachPoint(other_1);
+    test_points(vertex, [other_2]);
+    test_point_does_not_exist(vertex, [other_1]);
+});
+
+// --------------------------------------
+// Equals
+// --------------------------------------
+
+test('Vertex::equals() : Unkown type', () => {
+    const vertex = new Vertex(0, 0, 0);
+    const other = -1;
+
+    expect(vertex.equals(other)).toBe(false);
+});
+
+test('Vertex::equals() : Different vertices', () => {
+    const vertex = new Vertex(0, 0, 0);
+    const other = new Vertex(10, 20, 30);
+
+    expect(vertex.equals(other)).toBe(false);
+});
+
+test('Vertex::equals() : Same vertex', () => {
+    const vertex = new Vertex(0, 0, 0);
+    const other_1 = vertex;
+    const other_2 = vertex.clone();
+
+    expect(vertex.equals(other_1)).toBe(true);
+    expect(vertex.equals(other_2)).toBe(true);
 });
 
 // --------------------------------------

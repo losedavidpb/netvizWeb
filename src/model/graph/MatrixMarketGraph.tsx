@@ -21,7 +21,8 @@ export class MatrixMarketGraph extends Graph {
                 );
             }
 
-            let [matcode, num_line] = ret_matcode;
+            const [matcode, line] = ret_matcode;
+            let num_line = line;
 
             if (!mmio.mm_is_coordinate(matcode) || !mmio.mm_is_pattern(matcode) || !mmio.mm_is_symmetric(matcode)) {
                 throw new Error(
@@ -61,7 +62,7 @@ export class MatrixMarketGraph extends Graph {
                 this.vertices.push(new Vertex(0, 0, 0));
                 this.adjacencyMatrix.push([]);
 
-                for (let j = 0; j < rows; ++j) {
+                for (let j = 0; j < cols; ++j) {
                     this.adjacencyMatrix[i].push(0);
                 }
             }
@@ -81,7 +82,7 @@ export class MatrixMarketGraph extends Graph {
             this.edgeList = [];
 
             for (let i = 0; i < rows; ++i) {
-                for (let j = i; j < rows; ++j) {
+                for (let j = i; j < cols; ++j) {
                     if (this.adjacencyMatrix[i][j] == 1) {
                         this.edgeList.push([i, j]);
                     }

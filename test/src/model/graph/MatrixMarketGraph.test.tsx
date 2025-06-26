@@ -3,25 +3,48 @@ import * as fs from 'fs';
 import path from 'path';
 
 import { MatrixMarketGraph } from '../../../../src/model/graph/MatrixMarketGraph';
-import { Graph } from '../../../../src/model/Graph';
 import { Vertex } from '../../../../src/model/Vertex';
+import { Config } from '../../../../src/Config';
+import type { Graph } from '../../../../src/model/Graph';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
 
 // Enable testing to avoid WebGL checks
-Graph.testMode = true;
+Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const MATRIX_MARKET_PATH = path.join(CASES_WORKPLACE, 'matrix_market/');
 
+// Load the graph to be tested
+function load_test_graph(filePath: string): MatrixMarketGraph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new MatrixMarketGraph(content);
+}
+
+// Check whether the vertices are as expected
+function test_graph(graph: Graph, expected_adj: number[][], expected_v: Vertex[], expected_edg: number[][]): void {
+    expect(graph.getAdjacencyMatrix()).toStrictEqual(expected_adj);
+
+    expect(graph.getNumEdges()).toBe(expected_edg.length);
+    expect(graph.getEdges()).toStrictEqual(expected_edg);
+
+    expect(graph.getVertices().length).toBe(expected_v.length);
+
+    graph.getVertices().forEach((v, i) => {
+        expect(v.equals(expected_v[i])).toBe(true);
+    });
+}
+
+// Attach the point to the first vertex
 function attach_point(v0: Vertex, v1: Vertex): void {
     v0.attachPoint(v1);
     v0.updateDegree();
     v1.updateDegree();
 }
 
+// Default error message
 function error_message(): string {
     return (
         "MatrixMarket :: Sorry, this application only supports graphs that are:\n" +
@@ -33,11 +56,6 @@ function error_message(): string {
 // --------------------------------------
 // Read
 // --------------------------------------
-
-function load_test_graph(filePath: string): Graph {
-    const content = fs.readFileSync(filePath, 'utf-8').trim();
-    return new MatrixMarketGraph(content);
-}
 
 test('MatrixMarketGraph::read() : Empty graph', () => {
     const filePath = path.join(MATRIX_MARKET_PATH, 'test_mm_empty.mtx');
@@ -54,9 +72,7 @@ test('MatrixMarketGraph::read() : Empty graph', () => {
     // Expected Edges
     const expectedEdges: [number, number][] = [];
 
-    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
-    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+    test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
 });
 
 test('MatrixMarketGraph::read() : No Coordinate', () => {
@@ -109,9 +125,7 @@ test('MatrixMarketGraph::read() : 6 edges', () => {
         [1, 3], [2, 3]
     ];
 
-    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
-    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+    test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
 });
 
 test('MatrixMarketGraph::read() : 12 edges', () => {
@@ -162,7 +176,5 @@ test('MatrixMarketGraph::read() : 12 edges', () => {
         [6, 9], [7, 8], [8, 9]
     ];
 
-    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
-    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+    test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
 });

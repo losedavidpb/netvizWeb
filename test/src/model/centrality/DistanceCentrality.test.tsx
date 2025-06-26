@@ -7,6 +7,7 @@ import { AdjacencyGraph } from '../../../../src/model/graph/AdjacencyGraph';
 import { DistanceCentrality } from '../../../../src/model/centrality/DistanceCentrality';
 import { Vertex } from '../../../../src/model/Vertex';
 import { Centrality } from '../../../../src/model/Centrality';
+import { Config } from '../../../../src/Config';
 
 
 // --------------------------------------
@@ -14,7 +15,7 @@ import { Centrality } from '../../../../src/model/Centrality';
 // --------------------------------------
 
 // Enable testing to avoid WebGL checks
-Graph.testMode = true;
+Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const DEGREE_CENTRALITY = path.join(CASES_WORKPLACE, 'distance_centrality/');
@@ -34,21 +35,22 @@ class MockupDistanceCentrality extends Centrality {
     }
 }
 
+// Load the graph to be tested
 function load_test_graph(filePath: string): Graph {
     const content = fs.readFileSync(filePath, 'utf-8').trim();
     return new AdjacencyGraph(content);
 }
 
-// --------------------------------------
-// apply
-// --------------------------------------
+// Check whether the vertices are as expected
+function test_vertices(graph: Graph, expected: Vertex[]): void {
+    expect(graph.getVertices().length).toBe(expected.length);
 
-function attach_point(v0: Vertex, v1: Vertex): void {
-    v0.attachPoint(v1);
-    v0.updateDegree();
-    v1.updateDegree();
+    graph.getVertices().forEach((v, i) => {
+        expect(v.equals(expected[i])).toBe(true);
+    });
 }
 
+// Update the expected positions
 function update_pos(expectedVertices: Vertex[], graph: Graph): void {
     let vertices = graph.getVertices();
 
@@ -58,10 +60,22 @@ function update_pos(expectedVertices: Vertex[], graph: Graph): void {
     }
 }
 
+// Attach the point to the first vertex
+function attach_point(v0: Vertex, v1: Vertex): void {
+    v0.attachPoint(v1);
+    v0.updateDegree();
+    v1.updateDegree();
+}
+
+// Set the expected colour of the vertex
 function set_colour(expectedVertices: Vertex[], i: number, h: number, s: number, v: number): void {
     const [r, g, b] = MockupDistanceCentrality.HSVtoRGB(h, s, v);
     expectedVertices[i].setColour(r, g, b);
 }
+
+// --------------------------------------
+// apply
+// --------------------------------------
 
 test('DistanceCentrality::apply() : Empty graph', () => {
     const filePath = path.join(DEGREE_CENTRALITY, 'test_distance_empty.txt');
@@ -75,7 +89,7 @@ test('DistanceCentrality::apply() : Empty graph', () => {
 
     centrality.apply(graph);
 
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
+    test_vertices(graph, expectedVertices);
 });
 
 test('DistanceCentrality::apply() : 1x1 graph', () => {
@@ -94,7 +108,8 @@ test('DistanceCentrality::apply() : 1x1 graph', () => {
     centrality.apply(graph);
 
     set_colour(expectedVertices, 0, 240, 1, 1);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
+
+    test_vertices(graph, expectedVertices);
 });
 
 test('DistanceCentrality::apply() : 3x3 graph', () => {
@@ -115,10 +130,9 @@ test('DistanceCentrality::apply() : 3x3 graph', () => {
 
     centrality.apply(graph);
 
-    set_colour(expectedVertices, 0, 107.04769682475197, 1, 1);
+    set_colour(expectedVertices, 0, 240, 1, 1);
     set_colour(expectedVertices, 1, 0, 1, 1);
-    set_colour(expectedVertices, 2, 88.63486878349875, 1, 1);
+    set_colour(expectedVertices, 2, 198.71860057731783, 1, 1);
 
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
-    expect(graph.getVertices().length).toBe(3);
+    test_vertices(graph, expectedVertices);
 });

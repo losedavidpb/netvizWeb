@@ -3,28 +3,45 @@ import * as fs from 'fs';
 import path from 'path';
 
 import { EdgeGraph } from '../../../../src/model/graph/EdgeGraph';
-import { Graph } from '../../../../src/model/Graph';
 import { Vertex } from '../../../../src/model/Vertex';
+import { Config } from '../../../../src/Config';
+import type { Graph } from '../../../../src/model/Graph';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
 
 // Enable testing to avoid WebGL checks
-Graph.testMode = true;
+Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const EDGE_PATH = path.join(CASES_WORKPLACE, 'edge_links/');
 
+// Load the graph to be tested
+function load_test_graph(filePath: string): EdgeGraph {
+    const content = fs.readFileSync(filePath, 'utf-8').trim();
+    return new EdgeGraph(content);
+}
+
+// Check whether the vertices are as expected
+function test_graph(graph: Graph, expected_adj: number[][], expected_v: Vertex[], expected_edg: number[][]): void {
+    expect(graph.getAdjacencyMatrix()).toStrictEqual(expected_adj);
+
+    expect(graph.getNumEdges()).toBe(expected_edg.length);
+    expect(graph.getEdges()).toStrictEqual(expected_edg);
+
+    expect(graph.getVertices().length).toBe(expected_v.length);
+
+    graph.getVertices().forEach((v, i) => {
+        expect(v.equals(expected_v[i])).toBe(true);
+    });
+}
+
+// Attach the point to the first vertex
 function attach_point(v0: Vertex, v1: Vertex): void {
     v0.attachPoint(v1);
     v0.updateDegree();
     v1.updateDegree();
-}
-
-function load_test_graph(filePath: string): Graph {
-    const content = fs.readFileSync(filePath, 'utf-8').trim();
-    return new EdgeGraph(content);
 }
 
 // --------------------------------------
@@ -68,9 +85,7 @@ test('EdgeGraph::constructor() : Graph is defined with EdgeList', () => {
         [0, 1], [0, 2], [1, 2]
     ];
 
-    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
-    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+    test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
 });
 
 // --------------------------------------
@@ -92,9 +107,7 @@ test('EdgeGraph::read() : Empty graph', () => {
     // Expected Edges
     const expectedEdges: [number, number][] = [];
 
-    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
-    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+    test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
 });
 
 test('EdgeGraph::read() : Edges of more than two vertices', () => {
@@ -138,9 +151,7 @@ test('EdgeGraph::read() : 3 edges', () => {
         [0, 1], [0, 2], [1, 2]
     ];
 
-    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
-    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+    test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
 });
 
 test('EdgeGraph::read() : 6 edges', () => {
@@ -175,7 +186,5 @@ test('EdgeGraph::read() : 6 edges', () => {
         [1, 2], [1, 5], [2, 3]
     ];
 
-    expect(graph.getAdjacencyMatrix()).toStrictEqual(expectedAdjacencyMatrix);
-    expect(graph.getVertices()).toStrictEqual(expectedVertices);
-    expect(graph.getEdges()).toStrictEqual(expectedEdges);
+    test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
 });

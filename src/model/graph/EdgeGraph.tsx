@@ -46,7 +46,7 @@ export class EdgeGraph extends Graph {
             // Prepare edges and find the number of vertices
             lines.map((line: string) => {
                 if (line.length > 1) {
-                    let tokens = Graph.split(line);
+                    const tokens = Graph.split(line);
 
                     if (!EdgeGraph.is_valid_edge(tokens)) {
                         throw new Error(

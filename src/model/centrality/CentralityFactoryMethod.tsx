@@ -1,7 +1,4 @@
 import { Centrality, CentralityType } from "../Centrality";
-import { Betweenness } from "./Betweenness";
-import { DegreeCentrality } from "./DegreeCentrality";
-import { DistanceCentrality } from "./DistanceCentrality";
 
 /**
  * CentralityFactoryMethod :: Factory method for centrality algorithms
@@ -15,15 +12,18 @@ export class CentralityFactoryMethod {
      * @param type type of algorithm
      * @returns algorithm
      */
-    static createCentrality(type: CentralityType): Centrality {
+    static async createCentrality(type: CentralityType): Promise<Centrality> {
         switch (type) {
             case CentralityType.Betweenness:
+                const { Betweenness } = await import("./Betweenness");
                 return new Betweenness();
 
             case CentralityType.DegreeCentrality:
+                const { DegreeCentrality } = await import("./DegreeCentrality");
                 return new DegreeCentrality();
 
             case CentralityType.DistanceCentrality:
+                const { DistanceCentrality } = await import("./DistanceCentrality");
                 return new DistanceCentrality();
 
             default:

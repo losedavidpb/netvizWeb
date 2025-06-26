@@ -22,7 +22,7 @@ export class DegreeCentrality extends Centrality {
         let [max, min] = [0, 999999999];
 
         for (let i = 0; i < vertices.length; ++i) {
-            let degree = vertices[i].getDegree();
+            const degree = vertices[i].getDegree();
 
             if (degree > max) max = degree;
             if (degree < min) min = degree;

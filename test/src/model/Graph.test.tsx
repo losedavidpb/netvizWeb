@@ -1,7 +1,9 @@
 import { test, expect } from 'vitest';
+import * as THREE from 'three';
 
 import { Graph } from '../../../src/model/Graph';
 import { Config } from '../../../src/Config';
+import { Vertex } from '../../../src/model/Vertex';
 
 // --------------------------------------
 // Test Configuration
@@ -12,7 +14,15 @@ Config.testMode = true;
 
 // Mockup graph to test non-abstract methods
 class MockGraph extends Graph {
-    protected read(filePath: string): void {
+    constructor(filePath?: string, vertices?: Vertex[]) {
+        super(filePath);
+
+        if (vertices !== undefined) {
+            this.vertices = vertices;
+        }
+    }
+
+    protected read(_: string): void {
         // ...
     }
 }
@@ -66,6 +76,23 @@ test('Graph::hash() : Two Different Hash Codes', () => {
     expect(Graph.hash(1, 2, 3)).not.toBe(Graph.hash(3, 2, 1));
 });
 
+// --------------------------------------
+// Get Bounding Box
+// --------------------------------------
+
+test('Graph::getBoundingBox(): Valid Position', () => {
+    const vertices = [
+        new Vertex(1, 2, 3),
+        new Vertex(-1, -2, -3),
+        new Vertex(5, 0, 1),
+    ];
+
+    const graph = new MockGraph(undefined, vertices);
+    const box = graph.getBoundingBox();
+
+    expect(box.min).toEqual(new THREE.Vector3(-1, -2, -3));
+    expect(box.max).toEqual(new THREE.Vector3(5, 2, 3));
+});
 
 // --------------------------------------
 // Vertices

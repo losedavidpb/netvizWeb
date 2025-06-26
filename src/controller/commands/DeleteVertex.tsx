@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import { GLWindow } from "../../gui/GLWindow";
 import { EdgeGraph } from "../../model/graph/EdgeGraph";
-import type { Vertex } from "../../model/Vertex";
+import { Vertex } from "../../model/Vertex";
 import type { Command } from "../Command";
 import type { Graph } from '../../model/Graph';
 

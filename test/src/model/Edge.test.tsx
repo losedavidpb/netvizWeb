@@ -105,12 +105,12 @@ test('Edge::setColour() : Valid RGB', () => {
         new Vertex(0, 0, 0)
     );
 
-    edge.setColour(10, 20, 30);
+    edge.setColour(1, 0.5, 0);
 
     const colour = edge.getColour();
-    expect(colour.r).toBe(10);
-    expect(colour.g).toBe(20);
-    expect(colour.b).toBe(30);
+    expect(colour.r).toBe(1);
+    expect(colour.g).toBe(0.5);
+    expect(colour.b).toBe(0);
 });
 
 test('Edge::setColour() : InvalidR', () => {
@@ -119,11 +119,11 @@ test('Edge::setColour() : InvalidR', () => {
         new Vertex(0, 0, 0)
     );
 
-    expect(() => edge.setColour(-1, 20, 30)).toThrow(
+    expect(() => edge.setColour(-1, 1, 1)).toThrow(
         'InvalidRGB :: Passed colour is invalid'
     );
 
-    expect(() => edge.setColour(256, 20, 30)).toThrow(
+    expect(() => edge.setColour(2, 1, 1)).toThrow(
         'InvalidRGB :: Passed colour is invalid'
     );
 });
@@ -138,7 +138,7 @@ test('Edge::setColour() : InvalidG', () => {
         'InvalidRGB :: Passed colour is invalid'
     );
 
-    expect(() => edge.setColour(10, 256, 30)).toThrow(
+    expect(() => edge.setColour(10, 2, 30)).toThrow(
         'InvalidRGB :: Passed colour is invalid'
     );
 });
@@ -153,7 +153,7 @@ test('Edge::setColour() : InvalidG', () => {
         'InvalidRGB :: Passed colour is invalid'
     );
 
-    expect(() => edge.setColour(10, 20, 256)).toThrow(
+    expect(() => edge.setColour(10, 20, 2)).toThrow(
         'InvalidRGB :: Passed colour is invalid'
     );
 });
