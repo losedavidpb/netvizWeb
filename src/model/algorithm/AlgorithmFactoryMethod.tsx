@@ -16,17 +16,20 @@ export class AlgorithmFactoryMethod {
      */
     static async createAlgorithm(type: AlgorithmType, graph: Graph): Promise<Algorithm> {
         switch (type) {
-            case AlgorithmType.FruchtermanReingold:
+            case AlgorithmType.FruchtermanReingold: {
                 const { FruchtermanReingold } = await import("./FruchtermanReingold");
                 return new FruchtermanReingold(graph);
+            }
 
-            case AlgorithmType.MultiForce:
+            case AlgorithmType.MultiForce: {
                 const { MultiForce } = await import("./MultiForce");
                 return new MultiForce(graph);
+            }
 
-            case AlgorithmType.SimpleForceDirected:
+            case AlgorithmType.SimpleForceDirected: {
                 const { SimpleForceDirected } = await import("./SimpleForceDirected");
                 return new SimpleForceDirected(graph);
+            }
 
             default:
                 throw new Error(

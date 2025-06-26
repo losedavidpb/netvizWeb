@@ -14,17 +14,20 @@ export class CentralityFactoryMethod {
      */
     static async createCentrality(type: CentralityType): Promise<Centrality> {
         switch (type) {
-            case CentralityType.Betweenness:
+            case CentralityType.Betweenness: {
                 const { Betweenness } = await import("./Betweenness");
                 return new Betweenness();
+            }
 
-            case CentralityType.DegreeCentrality:
+            case CentralityType.DegreeCentrality: {
                 const { DegreeCentrality } = await import("./DegreeCentrality");
                 return new DegreeCentrality();
+            }
 
-            case CentralityType.DistanceCentrality:
+            case CentralityType.DistanceCentrality: {
                 const { DistanceCentrality } = await import("./DistanceCentrality");
                 return new DistanceCentrality();
+            }
 
             default:
                 throw new Error(
