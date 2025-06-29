@@ -31,7 +31,7 @@ export class LoadGraph implements Command {
             const lines = content.split(/\r?\n/);
             const line = lines[0];
 
-            const graph = GraphFactoryMethod.createGraph(line, content);
+            const graph = GraphFactoryMethod.create(line, content);
             this.window.setGraph(graph);
             this.window.refresh();
         }

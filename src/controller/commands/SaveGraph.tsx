@@ -63,11 +63,11 @@ export class SaveGraph implements Command {
     execute(): void {
         if (this.filename !== '') {
             switch (this.fileType) {
-                case FileType.ADJACENCY: this.save_adjacency();         break;
-                case FileType.EDGELIST: this.save_edges();              break;
-                case FileType.MATRIX_MARKET: this.save_matrix_market(); break;
-                case FileType.PNG: this.save_PNG();                     break;
-                case FileType.SVG: this.save_SVG();                     break;
+                case FileType.ADJACENCY: this.save_text_file();             break;
+                case FileType.EDGELIST: this.save_text_file();              break;
+                case FileType.MATRIX_MARKET: this.save_text_file();         break;
+                case FileType.PNG: this.save_PNG();                         break;
+                case FileType.SVG: this.save_SVG();                         break;
             }
         }
     }
@@ -108,58 +108,11 @@ export class SaveGraph implements Command {
         this.window.pngScreenshot(this.filename);
     }
 
-    private save_edges(): void {
+    private save_text_file(): void {
         const graph = this.window.getGraph();
 
         if (graph !== null) {
-            const edges = graph.getEdges();
-            let content = '';
-
-            for (let i = 0; i < edges.length; ++i) {
-                content += edges[i][0] + ' ' + edges[i][1] + '\n';
-            }
-
-            this.save_file(content);
-        }
-    }
-
-    private save_adjacency(): void {
-        const graph = this.window.getGraph();
-
-        if (graph !== null) {
-            const adjacency_matrix = graph.getAdjacencyMatrix();
-            const num_vertices = graph.getNumVertices();
-
-            let content = '';
-
-            for (let i = 0; i < num_vertices; ++i) {
-                for (let j = 0; j < num_vertices; ++j) {
-                    content += adjacency_matrix[i][j];
-                    if (j < num_vertices - 1) content += ' ';
-                }
-
-                content += '\n';
-            }
-
-            this.save_file(content);
-        }
-    }
-
-    private save_matrix_market(): void {
-        const graph = this.window.getGraph();
-
-        if (graph !== null) {
-            const edges = graph.getEdges();
-            const num_edges = graph.getNumEdges();
-            const num_vertices = graph.getNumVertices();
-
-            let content = '%% MatrixMarket matrix coordinate pattern symmetric\n';
-            content += num_vertices + ' ' + num_vertices + ' ' + num_edges + '\n';
-
-            for (let i = 0; i < num_edges; ++i) {
-                content += edges[i][0] + ' ' + edges[i][1] + '\n';
-            }
-
+            const content = graph.toString();
             this.save_file(content);
         }
     }

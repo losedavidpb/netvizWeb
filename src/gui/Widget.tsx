@@ -255,8 +255,8 @@ export class Widget extends Component<{}, {
             const { algorithmType, algorithm } = this.state;
 
             if (algorithm !== null && algorithm?.getGraph() !== graph || algorithm === null || algorithmType !== name) {
-                const newAlgorithm = await AlgorithmFactoryMethod.createAlgorithm(name, graph);
-                this.setState({ algorithmType: name, algorithm:  newAlgorithm }, () => newAlgorithm.apply());
+                const newAlgorithm = AlgorithmFactoryMethod.create(name, graph);
+                this.setState({ algorithmType: name, algorithm: newAlgorithm }, () => newAlgorithm.apply());
             } else {
                 algorithm.apply();
             }
@@ -270,7 +270,7 @@ export class Widget extends Component<{}, {
             const { centralityType, centrality } = this.state;
 
             if (centrality === null || centralityType !== name) {
-                const newCentrality = await CentralityFactoryMethod.createCentrality(name);
+                const newCentrality = CentralityFactoryMethod.create(name);
                 this.setState({ centralityType: name, centrality: newCentrality }, () => newCentrality.apply(graph));
             } else {
                 centrality.apply(graph);

@@ -14,16 +14,15 @@ import { NameByIndex } from '../controller/commands/NameByIndex';
 import { DragVertex } from '../controller/commands/DragVertex';
 import { DeleteVertex } from '../controller/commands/DeleteVertex';
 import { DeleteEdge } from '../controller/commands/DeleteEdge';
-import { TaskRunner } from '../model/Worker';
 import { Config } from '../Config';
 import { GraphScene } from './GraphScene';
+import { TaskRunner } from '../model/Worker';
 
 /**
  * GLWindow :: Main window of the app
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
-// TODO: Check that the deleted code is not needed
 export class GLWindow {
 
     // --------------------------------
@@ -32,9 +31,8 @@ export class GLWindow {
 
     private static instance: GLWindow;
 
+    private firstIteration: boolean = false;
     private algorithmRunner: TaskRunner | undefined;
-    private colorationRunner: TaskRunner | undefined;
-    private firstIteration: boolean = true;
 
     private widgetRef: RefObject<Widget | null> = createRef<Widget>();
 
@@ -111,11 +109,7 @@ export class GLWindow {
                 if (this.firstIteration) {
                     this.firstIteration = false;
                 }
-            }
-        });
 
-        this.colorationRunner = new TaskRunner(() => {
-            if (this.widgetRef.current !== null) {
                 this.widgetRef.current.applyColoration();
                 this.refresh(false, true);
             }
@@ -428,9 +422,7 @@ export class GLWindow {
      * Apply the selected centrality algorithm
      */
     applyColoration(): void {
-        if (this.colorationRunner) {
-            this.colorationRunner.start();
-        }
+        this.widgetRef.current?.applyColoration();
     }
 
     /**
