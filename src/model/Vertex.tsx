@@ -17,6 +17,9 @@ export class Vertex {
     // Properties
     // --------------------------------
 
+    private static vertexCounter = 0;
+    private vertexNumber: number = Vertex.vertexCounter;
+
     private selected: boolean = false;
 
     private pos: THREE.Vector3 = new THREE.Vector3();
@@ -28,7 +31,6 @@ export class Vertex {
 
     private level: number = 0;
     private degree: number = 0;
-    private vertexNumber: number = 0;
 
     private edges: Edge[] = [];
     private attachedPoints: Vertex[] = [];
@@ -48,7 +50,17 @@ export class Vertex {
      */
     constructor(offsetX: number, offsetY: number, offsetZ: number) {
         this.setPos({ x: offsetX, y: offsetY, z: offsetZ });
+        this.vertexNumber = Vertex.vertexCounter++;
         this.update();
+    }
+
+    /**
+     * Get the last vertex number that was used
+     *
+     * @returns last used vertex number
+     */
+    static getLastVertexNumber(): number {
+        return Vertex.vertexCounter - 1;
     }
 
     /**
@@ -445,6 +457,23 @@ export class Vertex {
     }
 
     /**
+     * Get the hashcode of the vertex
+     *
+     * @returns vertex hashcode
+     */
+    hash(): number {
+        const json = JSON.stringify(this.toJSON());
+        let hash = 5381;
+
+        for (let i = 0; i < json.length; i++) {
+            hash = ((hash << 5) + hash) + json.charCodeAt(i);
+            hash = hash & 0xffffffff;
+        }
+
+        return hash >>> 0;
+    }
+
+    /**
      * Check whether the current and the passed vertex are equal
      *
      * @param other vertex to compare
@@ -452,24 +481,7 @@ export class Vertex {
      */
     equals(other: unknown): boolean {
         if (!(other instanceof Vertex)) return false;
-
-        const arraysEqual = (a: number[], b: number[]): boolean =>
-            a.length === b.length && a.every((val, i) => val === b[i]);
-
-        return (
-            this.pos.equals(other.getPos()) &&
-            this.force.equals(other.getForce()) &&
-            this.velocity.equals(other.getVelocity()) &&
-            this.colour.equals(other.getColour()) &&
-            this.text === other.getText() &&
-            this.level === other.getLevel() &&
-            this.degree === other.getDegree() &&
-            this.vertexNumber === other.getVertexNumber() &&
-            this.selected === other.isSelected() &&
-            arraysEqual(this.positions, other.positions) &&
-            arraysEqual(this.colours, other.colours) &&
-            arraysEqual(this.indices, other.indices)
-        );
+        return this.hash() === other.hash();
     }
 
     /**
@@ -479,6 +491,7 @@ export class Vertex {
      */
     clone(): Vertex {
         const clone_obj = new Vertex(0, 0, 0);
+        Vertex.vertexCounter--;
 
         clone_obj.selected = this.isSelected();
         clone_obj.pos = this.getPos();
@@ -496,5 +509,63 @@ export class Vertex {
         clone_obj.geometry = this.geometry;
 
         return clone_obj;
+    }
+
+    /**
+     * Convert the vertex into a JSON object
+     *
+     * Note that this method does not preserve object references for
+     * attached points or edges. Instead, it stores only the vertex
+     * numbers required to reconstruct these relationships. As such,
+     * additional processing will be necessary to fully restore the
+     * original graph structure from the resulting data.
+     *
+     * @returns JSON object
+     */
+    toJSON(): object {
+        return {
+            selected: this.selected,
+            pos: { x: this.pos.x, y: this.pos.y, z: this.pos.z },
+            force: { x: this.force.x, y: this.force.y, z: this.force.z },
+            velocity: { x: this.velocity.x, y: this.velocity.y, z: this.velocity.z },
+            colour: { r: this.colour.r, g: this.colour.g, b: this.colour.b },
+            text: this.text,
+            level: this.level,
+            degree: this.degree,
+            vertexNumber: this.vertexNumber,
+            attachedPoints: this.attachedPoints.map(v => v.getVertexNumber()),
+            edges: this.edges.map(e => ({
+                from: e.getBase().getVertexNumber(),
+                to: e.getConnect().getVertexNumber()
+            }))
+        };
+    }
+
+    /**
+     * Convert a JSON object into a vertex
+     *
+     * Note that this method does not restore object references for
+     * attached points or edges, as it relies on the simplified structure
+     * produced by {@link Vertex.toJSON}. Reconstruction of the full graph
+     * topology must be performed separately if required.
+     *
+     * @param object JSON object
+     * @returns graph
+     */
+    static fromJSON(object: any): Vertex {
+        const vertex = new Vertex(0, 0, 0);
+        Vertex.vertexCounter--;
+
+        vertex.pos = new THREE.Vector3(object.pos.x, object.pos.y, object.pos.z);
+        vertex.selected = object.selected;
+        vertex.force = new THREE.Vector3(object.force.x, object.force.y, object.force.z);
+        vertex.velocity = new THREE.Vector3(object.velocity.x, object.velocity.y, object.velocity.z);
+        vertex.colour = new THREE.Color(object.colour.r, object.colour.g, object.colour.b);
+        vertex.level = object.level;
+        vertex.degree = object.degree;
+        vertex.vertexNumber = object.vertexNumber;
+
+        vertex.update();
+        return vertex;
     }
 }

@@ -8,6 +8,21 @@ import { Vertex } from '../Vertex';
  */
 export class AdjacencyGraph extends Graph {
 
+    public toString(): string {
+        let content = '';
+
+        for (let i = 0; i < this.vertices.length; ++i) {
+            for (let j = 0; j < this.vertices.length; ++j) {
+                content += this.adjacencyMatrix[i][j];
+                if (j < this.vertices.length - 1) content += ' ';
+            }
+
+            content += '\n';
+        }
+
+        return this.vertices.length >= 1 ? content.substring(0, content.length - 1) : content;
+    }
+
     protected read(content: string): void {
         if (content !== '') {
             const lines = content.split(/\r?\n/);

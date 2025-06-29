@@ -15,7 +15,7 @@ export class CentralityFactoryMethod {
      * @param type type of algorithm
      * @returns algorithm
      */
-    static createCentrality(type: CentralityType): Centrality {
+    static create(type: CentralityType): Centrality {
         switch (type) {
             case CentralityType.Betweenness: {
                 return new Betweenness();

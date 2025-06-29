@@ -16,7 +16,7 @@ export class GraphFactoryMethod {
      * @param content content of the graph
      * @returns algorithm
      */
-    static createGraph(line: string, content: string): Graph {
+    static create(line: string, content: string): Graph {
         // Matrix Market Graph
         if (line.length >= 14 && line.substring(0, 14) === "%%MatrixMarket") {
             return new MatrixMarketGraph(content);
@@ -37,6 +37,30 @@ export class GraphFactoryMethod {
             throw new Error(
                 "InvalidGraph :: Passed graph is not supported"
             );
+        }
+    }
+
+    /**
+     * Create a empty graph based on its type
+     *
+     * @param type type of the graph
+     * @param content content of the graph
+     * @returns instance of a graph
+     */
+    static createWithType(type: string): Graph {
+        switch (type) {
+            case 'AdjacencyGraph':
+                return new AdjacencyGraph();
+            case 'EdgeGraph':
+                return new EdgeGraph();
+
+            case 'MatrixMarketGraph':
+                return new MatrixMarketGraph();
+
+            default:
+                throw new Error(
+                    "InvalidGraph :: Passed graph is not supported"
+                );
         }
     }
 }

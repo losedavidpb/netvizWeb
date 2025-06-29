@@ -87,10 +87,17 @@ test('Betweenness::apply() : 1x1 graph', () => {
     const centrality = new MockupBetweenness();
 
     const graph = load_test_graph(filePath);
+    let lastVertexNumber = Vertex.getLastVertexNumber();
+
     centrality.apply(graph);
 
     // Expected Vertices
     const expectedVertices: Vertex[] = [new Vertex(0, 0, 0)];
+
+    for (let k = expectedVertices.length - 1; k >= 0; k--) {
+        expectedVertices[k].setVertexNumber(lastVertexNumber--);
+    }
+
     set_colour(expectedVertices, 0, 240, 1, 1);
 
     test_vertices(graph, expectedVertices);
@@ -102,12 +109,18 @@ test('Betweenness::apply() : 3x3 graph', () => {
     const centrality = new MockupBetweenness();
 
     const graph = load_test_graph(filePath);
+    let lastVertexNumber = Vertex.getLastVertexNumber();
+
     centrality.apply(graph);
 
     // Expected Vertices
     const expectedVertices: Vertex[] = [
         new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0)
     ];
+
+    for (let k = expectedVertices.length - 1; k >= 0; k--) {
+        expectedVertices[k].setVertexNumber(lastVertexNumber--);
+    }
 
     attach_point(expectedVertices[0], expectedVertices[1]);
     attach_point(expectedVertices[0], expectedVertices[2]);

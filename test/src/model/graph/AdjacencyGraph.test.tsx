@@ -5,7 +5,7 @@ import path from 'path';
 import { AdjacencyGraph } from '../../../../src/model/graph/AdjacencyGraph';
 import { Vertex } from '../../../../src/model/Vertex';
 import { Config } from '../../../../src/Config';
-import type { Graph } from '../../../../src/model/Graph';
+import { Graph } from '../../../../src/model/Graph';
 
 // --------------------------------------
 // Test Configuration
@@ -17,9 +17,13 @@ Config.testMode = true;
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const ADJACENCY_PATH = path.join(CASES_WORKPLACE, 'adjacency/');
 
+// Get the content of the file
+function get_content(filePath: string): string {
+    return fs.readFileSync(filePath, 'utf-8').trim();
+}
+
 // Load the graph to be tested
-function load_test_graph(filePath: string): AdjacencyGraph {
-    const content = fs.readFileSync(filePath, 'utf-8').trim();
+function load_test_graph(content: string): AdjacencyGraph {
     return new AdjacencyGraph(content);
 }
 
@@ -45,6 +49,34 @@ function attach_point(v0: Vertex, v1: Vertex): void {
 }
 
 // --------------------------------------
+// toString
+// --------------------------------------
+
+test('AdjacencyGraph::toString(): 1x1 Graph', () => {
+    const filePath = path.join(ADJACENCY_PATH, 'test_adj_1x1.txt');
+    const content = get_content(filePath);
+    const graph = load_test_graph(content);
+
+    expect(graph.toString()).toBe(content);
+});
+
+test('AdjacencyGraph::toString(): 3x3 Graph', () => {
+    const filePath = path.join(ADJACENCY_PATH, 'test_adj_3x3.txt');
+    const content = get_content(filePath);
+    const graph = load_test_graph(content);
+
+    expect(graph.toString()).toBe(content);
+});
+
+test('AdjacencyGraph::toString(): 6x6 Graph', () => {
+    const filePath = path.join(ADJACENCY_PATH, 'test_adj_6x6.txt');
+    const content = get_content(filePath);
+    const graph = load_test_graph(content);
+
+    expect(graph.toString()).toBe(content);
+});
+
+// --------------------------------------
 // Read
 // --------------------------------------
 
@@ -52,7 +84,7 @@ test('AdjacencyGraph::read() : Empty graph', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_empty.txt');
     fs.writeFileSync(filePath, '');
 
-    const graph = load_test_graph(filePath);
+    const graph = load_test_graph(get_content(filePath));
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix: number[][] = [];
@@ -68,7 +100,8 @@ test('AdjacencyGraph::read() : Empty graph', () => {
 
 test('AdjacencyGraph::read() : Matrix 1x1', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_1x1.txt');
-    const graph = load_test_graph(filePath);
+    const graph = load_test_graph(get_content(filePath));
+    let lastVertexNumber = Vertex.getLastVertexNumber();
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix: number[][] = [[0]];
@@ -76,13 +109,17 @@ test('AdjacencyGraph::read() : Matrix 1x1', () => {
     // Expected Vertices
     const expectedVertices = [new Vertex(0, 0, 0)];
 
+    for (let k = expectedVertices.length - 1; k >= 0; k--) {
+        expectedVertices[k].setVertexNumber(lastVertexNumber--);
+    }
+
     // Expected Edges
     const expectedEdges: [number, number][] = [];
 
     test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
 });
 
-test('AdjacencyGraph::read() : Non-simetric Matrix whit invalid ncols', () => {
+test('AdjacencyGraph::read() : Non-simetric Matrix with invalid ncols', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_invalid_ncol.txt');
     const content = fs.readFileSync(filePath, 'utf-8').trim();
 
@@ -91,7 +128,7 @@ test('AdjacencyGraph::read() : Non-simetric Matrix whit invalid ncols', () => {
     );
 });
 
-test('AdjacencyGraph::read() : Non-simetric Matrix whit invalid nrows', () => {
+test('AdjacencyGraph::read() : Non-simetric Matrix with invalid nrows', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_invalid_nrow.txt');
     const content = fs.readFileSync(filePath, 'utf-8').trim();
 
@@ -100,7 +137,7 @@ test('AdjacencyGraph::read() : Non-simetric Matrix whit invalid nrows', () => {
     );
 });
 
-test('AdjacencyGraph::read() : Matrix whit invalid values', () => {
+test('AdjacencyGraph::read() : Matrix with invalid values', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_invalid_values.txt');
     const content = fs.readFileSync(filePath, 'utf-8').trim();
 
@@ -111,7 +148,8 @@ test('AdjacencyGraph::read() : Matrix whit invalid values', () => {
 
 test('AdjacencyGraph::read() : Matrix 3x3', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_3x3.txt');
-    const graph = load_test_graph(filePath);
+    const graph = load_test_graph(get_content(filePath));
+    let lastVertexNumber = Vertex.getLastVertexNumber();
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix = [
@@ -122,6 +160,10 @@ test('AdjacencyGraph::read() : Matrix 3x3', () => {
     const expectedVertices = [
         new Vertex(0, 0, 0), new Vertex(0, 0, 0), new Vertex(0, 0, 0),
     ];
+
+    for (let k = expectedVertices.length - 1; k >= 0; k--) {
+        expectedVertices[k].setVertexNumber(lastVertexNumber--);
+    }
 
     attach_point(expectedVertices[0], expectedVertices[1]);
     attach_point(expectedVertices[0], expectedVertices[2]);
@@ -136,7 +178,8 @@ test('AdjacencyGraph::read() : Matrix 3x3', () => {
 
 test('AdjacencyGraph::read() : Matrix 6x6', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_6x6.txt');
-    const graph = load_test_graph(filePath);
+    const graph = load_test_graph(get_content(filePath));
+    let lastVertexNumber = Vertex.getLastVertexNumber();
 
     // Expected Adjacency Matrix
     const expectedAdjacencyMatrix = [
@@ -151,6 +194,10 @@ test('AdjacencyGraph::read() : Matrix 6x6', () => {
         new Vertex(0, 0, 0), new Vertex(0, 0, 0),
         new Vertex(0, 0, 0), new Vertex(0, 0, 0)
     ];
+
+    for (let k = expectedVertices.length - 1; k >= 0; k--) {
+        expectedVertices[k].setVertexNumber(lastVertexNumber--);
+    }
 
     attach_point(expectedVertices[0], expectedVertices[1]);
     attach_point(expectedVertices[0], expectedVertices[2]);
@@ -167,4 +214,54 @@ test('AdjacencyGraph::read() : Matrix 6x6', () => {
     ];
 
     test_graph(graph, expectedAdjacencyMatrix, expectedVertices, expectedEdges);
+});
+
+// --------------------------------------
+// fromJSON
+// --------------------------------------
+
+test('AdjacencyGraph::fromJSON(): Valid Graph', async () => {
+    const filePath = path.join(ADJACENCY_PATH, 'test_adj_6x6.txt');
+    const graph = load_test_graph(get_content(filePath));
+    const object = graph.toJSON() as any;
+
+    const graph_obj = await Graph.fromJSON(object);
+
+    expect(graph_obj instanceof AdjacencyGraph).toBe(true);
+    expect(object.edges).toStrictEqual(graph_obj.getEdges());
+    expect(object.adjacencyMatrix).toStrictEqual(graph_obj.getAdjacencyMatrix());
+
+    for (let i = 0; i < graph_obj.getNumVertices(); i++) {
+        const vertex = graph_obj.getVertices()[i];
+        const points = vertex.getAttachedPoints();
+
+        expect(object.vertices[i].selected).toBe(vertex.isSelected());
+
+        expect(object.vertices[i].pos.x).toBe(vertex.getPos().x);
+        expect(object.vertices[i].pos.y).toBe(vertex.getPos().y);
+        expect(object.vertices[i].pos.z).toBe(vertex.getPos().z);
+
+        expect(object.vertices[i].force.x).toBe(vertex.getForce().x);
+        expect(object.vertices[i].force.y).toBe(vertex.getForce().y);
+        expect(object.vertices[i].force.z).toBe(vertex.getForce().z);
+
+        expect(object.vertices[i].velocity.x).toBe(vertex.getVelocity().x);
+        expect(object.vertices[i].velocity.y).toBe(vertex.getVelocity().y);
+        expect(object.vertices[i].velocity.z).toBe(vertex.getVelocity().z);
+
+        expect(object.vertices[i].colour.r).toBe(vertex.getColour().r);
+        expect(object.vertices[i].colour.g).toBe(vertex.getColour().g);
+        expect(object.vertices[i].colour.b).toBe(vertex.getColour().b);
+
+        expect(object.vertices[i].text).toBe(vertex.getText());
+        expect(object.vertices[i].level).toBe(vertex.getLevel());
+        expect(object.vertices[i].degree).toBe(vertex.getDegree());
+        expect(object.vertices[i].vertexNumber).toBe(vertex.getVertexNumber());
+
+        for (let j = 0; j < points.length; j++) {
+            expect(object.vertices[i].attachedPoints[j]).toBe(points[j].getVertexNumber());
+            expect(object.vertices[i].edges[j].from).toBe(vertex.getVertexNumber());
+            expect(object.vertices[i].edges[j].to).toBe(points[j].getVertexNumber());
+        }
+    }
 });

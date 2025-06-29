@@ -14,6 +14,7 @@ Config.testMode = true;
 
 // Mockup graph to test non-abstract methods
 class MockGraph extends Graph {
+
     constructor(filePath?: string, vertices?: Vertex[]) {
         super(filePath);
 
@@ -21,6 +22,8 @@ class MockGraph extends Graph {
             this.vertices = vertices;
         }
     }
+
+    toString(): string { return ''; }
 
     protected read(_: string): void {
         // ...
@@ -125,4 +128,51 @@ test('Graph::getAdjacencyMatrix() : Default Adjaceny Matrix', () => {
 
     const adjacencyMatrix = graph.getAdjacencyMatrix();
     expect(adjacencyMatrix.length).toBe(0);
+});
+
+// --------------------------------------
+// toJSON
+// --------------------------------------
+
+test('Graph::toJSON(): Valid Graph', () => {
+    const graph = new MockGraph();
+    const object = graph.toJSON() as any;
+
+    expect(object.type).toBe('MockGraph');
+    expect(object.edges).toStrictEqual(graph.getEdges());
+    expect(object.adjacencyMatrix).toStrictEqual(graph.getAdjacencyMatrix());
+
+    for (let i = 0; i < graph.getNumVertices(); i++) {
+        const vertex = graph.getVertices()[i];
+        const points = vertex.getAttachedPoints();
+
+        expect(object.vertices[i].selected).toBe(vertex.isSelected());
+
+        expect(object.vertices[i].pos.x).toBe(vertex.getPos().x);
+        expect(object.vertices[i].pos.y).toBe(vertex.getPos().y);
+        expect(object.vertices[i].pos.z).toBe(vertex.getPos().z);
+
+        expect(object.vertices[i].force.x).toBe(vertex.getForce().x);
+        expect(object.vertices[i].force.y).toBe(vertex.getForce().y);
+        expect(object.vertices[i].force.z).toBe(vertex.getForce().z);
+
+        expect(object.vertices[i].velocity.x).toBe(vertex.getVelocity().x);
+        expect(object.vertices[i].velocity.y).toBe(vertex.getVelocity().y);
+        expect(object.vertices[i].velocity.z).toBe(vertex.getVelocity().z);
+
+        expect(object.vertices[i].colour.r).toBe(vertex.getColour().r);
+        expect(object.vertices[i].colour.g).toBe(vertex.getColour().g);
+        expect(object.vertices[i].colour.b).toBe(vertex.getColour().b);
+
+        expect(object.vertices[i].text).toBe(vertex.getText());
+        expect(object.vertices[i].level).toBe(vertex.getLevel());
+        expect(object.vertices[i].degree).toBe(vertex.getDegree());
+        expect(object.vertices[i].vertexNumber).toBe(vertex.getVertexNumber());
+
+        for (let j = 0; j < points.length; j++) {
+            expect(object.vertices[i].attachedPoints[j]).toBe(points[j].getVertexNumber());
+            expect(object.vertices[i].edges[j].from).toBe(vertex.getVertexNumber());
+            expect(object.vertices[i].edges[j].to).toBe(points[j].getVertexNumber());
+        }
+    }
 });

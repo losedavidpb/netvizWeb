@@ -9,6 +9,21 @@ import { Vertex } from '../Vertex';
  */
 export class MatrixMarketGraph extends Graph {
 
+    public toString(): string {
+        let content = '%%MatrixMarket matrix coordinate pattern symmetric\n';
+        content += `${this.vertices.length} ${this.vertices.length} ${this.edgeList.length}\n`;
+
+        const sortedEdges = this.edgeList
+            .map(([from, to]) => [Math.min(from, to), Math.max(from, to)])
+            .sort(([a1, b1], [a2, b2]) => a1 - a2 || b1 - b2);
+
+        content += sortedEdges
+            .map(([from, to]) => `${from + 1} ${to + 1}`)
+            .join('\n');
+
+        return content;
+    }
+
     protected read(content: string): void {
         if (content !== '') {
             const lines = content.split(/\r?\n/);
@@ -83,7 +98,7 @@ export class MatrixMarketGraph extends Graph {
 
             for (let i = 0; i < rows; ++i) {
                 for (let j = i; j < cols; ++j) {
-                    if (this.adjacencyMatrix[i][j] == 1) {
+                    if (this.adjacencyMatrix[i][j] === 1) {
                         this.edgeList.push([i, j]);
                     }
                 }

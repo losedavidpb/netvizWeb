@@ -97,11 +97,16 @@ test('DistanceCentrality::apply() : 1x1 graph', () => {
 
     const centrality = new MockupDistanceCentrality();
     const graph = load_test_graph(filePath);
+    let lastVertexNumber = Vertex.getLastVertexNumber();
 
     // Expected Vertices
     const expectedVertices: Vertex[] = [
         new Vertex(3, 2, 10)
     ];
+
+    for (let k = expectedVertices.length - 1; k >= 0; k--) {
+        expectedVertices[k].setVertexNumber(lastVertexNumber--);
+    }
 
     update_pos(expectedVertices, graph);
 
@@ -117,11 +122,16 @@ test('DistanceCentrality::apply() : 3x3 graph', () => {
 
     const centrality = new MockupDistanceCentrality();
     const graph = load_test_graph(filePath);
+    let lastVertexNumber = Vertex.getLastVertexNumber();
 
     // Expected Vertices
     const expectedVertices: Vertex[] = [
         new Vertex(3, 4, 5), new Vertex(20, 10, 1), new Vertex(1, 1, 1)
     ];
+
+    for (let k = expectedVertices.length - 1; k >= 0; k--) {
+        expectedVertices[k].setVertexNumber(lastVertexNumber--);
+    }
 
     attach_point(expectedVertices[0], expectedVertices[1]);
     attach_point(expectedVertices[0], expectedVertices[2]);

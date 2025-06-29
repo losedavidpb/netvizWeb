@@ -339,7 +339,7 @@ test('Vertex::getVertexNumber() : Default Vertex Number', () => {
     const vertex = new Vertex(0, 0, 0);
 
     const vertexNumber = vertex.getVertexNumber();
-    expect(vertexNumber).toBe(0);
+    expect(vertexNumber).toBe(Vertex.getLastVertexNumber());
 });
 
 test('Vertex::setVertexNumber() : Valid Vertex Number', () => {
@@ -371,8 +371,6 @@ test('Vertex::getEdges() : Default', () => {
 // --------------------------------------
 // AttachPoint
 // --------------------------------------
-
-
 
 test('Vertex::getAttachedPoints() : Default', () => {
     const vertex = new Vertex(0, 0, 0);
@@ -443,4 +441,88 @@ test('Vertex::clone() : Valid Vertex', () => {
     const vertex = new Vertex(10, 20, 50);
 
     expect(vertex.clone()).toStrictEqual(vertex);
+});
+
+// --------------------------------------
+// toJSON
+// --------------------------------------
+
+test('Vertex::toJSON(): Valid Vertex', () => {
+    const vertex = new Vertex(10, 20, 50);
+    const other_1 = new Vertex(0, 0, 0);
+    const other_2 = new Vertex(0, 0, 0);
+    const points = [other_1, other_2];
+
+    vertex.attachPoint(other_1);
+    vertex.attachPoint(other_2);
+
+    const object = vertex.toJSON() as any;
+
+    expect(object.selected).toBe(vertex.isSelected());
+
+    expect(object.pos.x).toBe(vertex.getPos().x);
+    expect(object.pos.y).toBe(vertex.getPos().y);
+    expect(object.pos.z).toBe(vertex.getPos().z);
+
+    expect(object.force.x).toBe(vertex.getForce().x);
+    expect(object.force.y).toBe(vertex.getForce().y);
+    expect(object.force.z).toBe(vertex.getForce().z);
+
+    expect(object.velocity.x).toBe(vertex.getVelocity().x);
+    expect(object.velocity.y).toBe(vertex.getVelocity().y);
+    expect(object.velocity.z).toBe(vertex.getVelocity().z);
+
+    expect(object.colour.r).toBe(vertex.getColour().r);
+    expect(object.colour.g).toBe(vertex.getColour().g);
+    expect(object.colour.b).toBe(vertex.getColour().b);
+
+    expect(object.text).toBe(vertex.getText());
+    expect(object.level).toBe(vertex.getLevel());
+    expect(object.degree).toBe(vertex.getDegree());
+    expect(object.vertexNumber).toBe(vertex.getVertexNumber());
+
+    for (let i = 0; i < object.attachedPoints.length; i++) {
+        expect(object.attachedPoints[i]).toBe(points[i].getVertexNumber());
+        expect(object.edges[i].from).toBe(vertex.getVertexNumber());
+        expect(object.edges[i].to).toBe(points[i].getVertexNumber());
+    }
+});
+
+// --------------------------------------
+// fromJSON
+// --------------------------------------
+
+test('Vertex::fromJSON(): Valid Vertex', () => {
+    const vertex = new Vertex(10, 20, 50);
+    const other_1 = new Vertex(0, 0, 0);
+    const other_2 = new Vertex(0, 0, 0);
+
+    vertex.attachPoint(other_1);
+    vertex.attachPoint(other_2);
+
+    const object = vertex.toJSON() as any;
+    const vertex_obj = Vertex.fromJSON(object);
+
+    expect(vertex_obj.isSelected()).toBe(vertex.isSelected());
+
+    expect(vertex_obj.getPos().x).toBe(vertex.getPos().x);
+    expect(vertex_obj.getPos().y).toBe(vertex.getPos().y);
+    expect(vertex_obj.getPos().z).toBe(vertex.getPos().z);
+
+    expect(vertex_obj.getForce().x).toBe(vertex.getForce().x);
+    expect(vertex_obj.getForce().y).toBe(vertex.getForce().y);
+    expect(vertex_obj.getForce().z).toBe(vertex.getForce().z);
+
+    expect(vertex_obj.getVelocity().x).toBe(vertex.getVelocity().x);
+    expect(vertex_obj.getVelocity().y).toBe(vertex.getVelocity().y);
+    expect(vertex_obj.getVelocity().z).toBe(vertex.getVelocity().z);
+
+    expect(vertex_obj.getColour().r).toBe(vertex.getColour().r);
+    expect(vertex_obj.getColour().g).toBe(vertex.getColour().g);
+    expect(vertex_obj.getColour().b).toBe(vertex.getColour().b);
+
+    expect(vertex_obj.getText()).toBe(vertex.getText());
+    expect(vertex_obj.getLevel()).toBe(vertex.getLevel());
+    expect(vertex_obj.getDegree()).toBe(vertex.getDegree());
+    expect(vertex_obj.getVertexNumber()).toBe(vertex.getVertexNumber());
 });

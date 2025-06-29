@@ -17,7 +17,7 @@ export class AlgorithmFactoryMethod {
      * @param graph graph to be used
      * @returns algorithm
      */
-    static createAlgorithm(type: AlgorithmType, graph: Graph): Algorithm {
+    static create(type: AlgorithmType, graph: Graph): Algorithm {
         switch (type) {
             case AlgorithmType.FruchtermanReingold: {
                 return new FruchtermanReingold(graph);

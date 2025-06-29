@@ -15,41 +15,41 @@ Config.testMode = true;
 // Create Graph
 // --------------------------------------
 
-test('GraphFactoryMethod::createGraph() : EdgeGraph', () => {
+test('GraphFactoryMethod::create() : EdgeGraph', () => {
     const line = '1 2';
     const content = '';
 
-    const algorithm = GraphFactoryMethod.createGraph(line, content);
+    const algorithm = GraphFactoryMethod.create(line, content);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('EdgeGraph');
 });
 
-test('GraphFactoryMethod::createGraph() : MatrixMarketGraph', () => {
+test('GraphFactoryMethod::create() : MatrixMarketGraph', () => {
     const line = '%%MatrixMarket';
     const content = '';
 
-    const algorithm = GraphFactoryMethod.createGraph(line, content);
+    const algorithm = GraphFactoryMethod.create(line, content);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('MatrixMarketGraph');
 });
 
-test('GraphFactoryMethod::createGraph() : AdjacencyGraph', () => {
+test('GraphFactoryMethod::create() : AdjacencyGraph', () => {
     const line = '0 1 1';
     const content = '0 1 1\n1 0 0\n1 0 0';
 
-    const algorithm = GraphFactoryMethod.createGraph(line, content);
+    const algorithm = GraphFactoryMethod.create(line, content);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('AdjacencyGraph');
 });
 
-test('GraphFactoryMethod::createGraph() : Unsupported graph', () => {
+test('GraphFactoryMethod::create() : Unsupported graph', () => {
     const line = 'This is an invalid graph';
     const content = '';
 
-    expect(() => { GraphFactoryMethod.createGraph(line, content); }).toThrow(
+    expect(() => { GraphFactoryMethod.create(line, content); }).toThrow(
         'InvalidGraph :: Passed graph is not supported'
     );
 });

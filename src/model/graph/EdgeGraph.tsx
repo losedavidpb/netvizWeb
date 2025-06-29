@@ -34,9 +34,15 @@ export class EdgeGraph extends Graph {
         }
 
         // It is not possible to define both attributes
-        else {
-            throw new Error('InvalidParams :: Cannot define both params');
+        else if (content !== undefined && newEdgeList !== undefined) {
+            throw new Error(
+                'InvalidParams :: Cannot define both params'
+            );
         }
+    }
+
+    public toString(): string {
+        return this.edgeList.map(([from, to]) => `${from} ${to}`).join('\n');
     }
 
     protected read(content: string): void {

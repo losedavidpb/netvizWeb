@@ -16,41 +16,41 @@ Config.testMode = true;
 // Create Algorithm
 // --------------------------------------
 
-test('AlgorithmFactoryMethod::createAlgorithm() : FruchtermanReingold', () => {
+test('AlgorithmFactoryMethod::create() : FruchtermanReingold', () => {
     const type = AlgorithmType.FruchtermanReingold;
     const graph = new AdjacencyGraph('');
 
-    const algorithm = AlgorithmFactoryMethod.createAlgorithm(type, graph);
+    const algorithm = AlgorithmFactoryMethod.create(type, graph);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('FruchtermanReingold');
 });
 
-test('AlgorithmFactoryMethod::createAlgorithm() : MultiForce', () => {
+test('AlgorithmFactoryMethod::create() : MultiForce', () => {
     const type = AlgorithmType.MultiForce;
     const graph = new AdjacencyGraph('');
 
-    const algorithm = AlgorithmFactoryMethod.createAlgorithm(type, graph);
+    const algorithm = AlgorithmFactoryMethod.create(type, graph);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('MultiForce');
 });
 
-test('AlgorithmFactoryMethod::createAlgorithm() : SimpleForceDirected', () => {
+test('AlgorithmFactoryMethod::create() : SimpleForceDirected', () => {
     const type = AlgorithmType.SimpleForceDirected;
     const graph = new AdjacencyGraph('');
 
-    const algorithm = AlgorithmFactoryMethod.createAlgorithm(type, graph);
+    const algorithm = AlgorithmFactoryMethod.create(type, graph);
 
     expect(algorithm).toBeDefined();
     expect(algorithm.constructor.name).toBe('SimpleForceDirected');
 });
 
-test('AlgorithmFactoryMethod::createAlgorithm() : Unsupported algorithm', async () => {
+test('AlgorithmFactoryMethod::create() : Unsupported algorithm', async () => {
     const type = -1 as any;
     const graph = new AdjacencyGraph('');
 
-    expect(() => { AlgorithmFactoryMethod.createAlgorithm(type, graph); }).toThrow(
+    expect(() => { AlgorithmFactoryMethod.create(type, graph); }).toThrow(
         'InvalidAlgorithm :: Passed algorithm is not supported'
     );
 });

@@ -23,18 +23,18 @@ export abstract class Graph {
     /**
      * Constructor for Graph
      *
-     * @param filePath path of the file
+     * @param content content of the file
      */
-    constructor(filePath?: string) {
+    constructor(content?: string) {
         /* v8 ignore next 5 */
         if (!Config.testMode) {
             if (Config.scene == null || Config.camera == null || Config.renderer == null) {
-                throw new Error('NullError :: THREE.js has not been initialised yet');
+                //throw new Error('NullError :: THREE.js has not been initialised yet');
             }
         }
 
-        if (filePath !== undefined) {
-            this.read(filePath);
+        if (content !== undefined) {
+            this.read(content);
         }
     }
 
@@ -59,6 +59,11 @@ export abstract class Graph {
             vertex.update();
         });
     }
+
+    /**
+     * Get the string representation of the graph
+     */
+    abstract toString(): string;
 
     /**
      * Prepare the graph using the passed file
@@ -153,5 +158,81 @@ export abstract class Graph {
      */
     getAdjacencyMatrix(): number[][] {
         return this.adjacencyMatrix;
+    }
+
+    /**
+     * Check whether the current and the passed graph are equal
+     *
+     * @param other graph to compare
+     * @returns if graphs are equal
+     */
+    equals(other: unknown): boolean {
+        if (!(other instanceof Graph)) return false;
+
+        const matricesEqual = (a: number[][], b: number[][]): boolean => {
+            if (a.length !== b.length) return false;
+
+            return a.every((row, i) => {
+                if (row.length !== b[i].length) return false;
+                return row.every((val, j) => val === b[i][j]);
+            });
+        };
+
+        const verticesEqual = (a: Vertex[], b: Vertex[]): boolean =>
+            a.length === b.length && a.every((val, i) => val.equals(b[i]));
+
+
+        return (
+            verticesEqual(this.vertices, other.vertices) &&
+            matricesEqual(this.adjacencyMatrix, other.adjacencyMatrix) &&
+            matricesEqual(this.edgeList, other.edgeList)
+        );
+    }
+
+    /**
+     * Return a JSON representation of the graph
+     *
+     * @returns JSON object
+     */
+    toJSON(): object {
+        return {
+            type: this.constructor.name,
+            vertices: this.vertices.map((v) => (v.toJSON())),
+            edges: this.edgeList,
+            adjacencyMatrix: this.adjacencyMatrix,
+        };
+    }
+
+    /**
+     * Create a graph based on its JSON object
+     *
+     * @param object JSON object
+     * @returns graph
+     */
+    static async fromJSON(object: any): Promise<Graph> {
+        const { GraphFactoryMethod } = await import('./graph/GraphFactoryMethod');
+        const graph = GraphFactoryMethod.createWithType(object.type);
+
+        graph.vertices = object.vertices.map((vObj: any) => Vertex.fromJSON(vObj));
+        graph.edgeList = object.edges.map((e: any) => [e[0], e[1]]);
+        graph.adjacencyMatrix = object.adjacencyMatrix;
+
+        for (const vertex_obj of object.vertices) {
+            const vertex = graph.vertices.find(
+                (v) => v.getVertexNumber() === vertex_obj.vertexNumber
+            );
+
+            for (const point_obj of vertex_obj.attachedPoints) {
+                const point = graph.vertices.find(
+                    (v) => v.getVertexNumber() === point_obj
+                );
+
+                if (point !== undefined) {
+                    vertex?.attachPoint(point);
+                }
+            }
+        }
+
+        return graph;
     }
 }
