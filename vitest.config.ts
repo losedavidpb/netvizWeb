@@ -8,15 +8,14 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             reportsDirectory: './reports/coverage',
-            reporter: ['text', 'json', 'html'],
+            reporter: ['text', 'json', 'html', 'lcov'],
             exclude: [
                 '**/main.tsx',
                 '**/App.tsx',
                 '**/Config.tsx',
-                '**/Worker.tsx',
+                '**/TaskRunner.tsx',
                 '**/gui',
                 '**/controller',
-                '**/model/graph/mmio.tsx',
                 'eslint.config.js',
                 'eslint.style.cjs',
                 'vite.config.ts',
