@@ -9,21 +9,6 @@ import { Vertex } from '../Vertex';
  */
 export class MatrixMarketGraph extends Graph {
 
-    public toString(): string {
-        let content = '%%MatrixMarket matrix coordinate pattern symmetric\n';
-        content += `${this.vertices.length} ${this.vertices.length} ${this.edgeList.length}\n`;
-
-        const sortedEdges = this.edgeList
-            .map(([from, to]) => [Math.min(from, to), Math.max(from, to)])
-            .sort(([a1, b1], [a2, b2]) => a1 - a2 || b1 - b2);
-
-        content += sortedEdges
-            .map(([from, to]) => `${from + 1} ${to + 1}`)
-            .join('\n');
-
-        return content;
-    }
-
     protected read(content: string): void {
         if (content !== '') {
             const lines = content.split(/\r?\n/);
@@ -56,8 +41,11 @@ export class MatrixMarketGraph extends Graph {
                 );
             }
 
-            let [rows, cols, edgs] = [0, 0, 0];
-            [rows, cols, edgs, num_line] = ret_crd_size;
+            let edgs: number;
+            let dim: mmio.MM_dim;
+
+            [dim, edgs, num_line] = ret_crd_size;
+            const [rows, cols] = [dim.M, dim.N];
 
             const I = new Array(edgs).fill(0);
             const J = new Array(edgs).fill(0);
@@ -73,34 +61,63 @@ export class MatrixMarketGraph extends Graph {
                 }
             }
 
-            for (let i = 0; i < rows; ++i) {
-                this.vertices.push(new Vertex(0, 0, 0));
-                this.adjacencyMatrix.push([]);
+            this.init_adj_vertices(rows, cols);
+            this.update_adj_vertices(edgs, I, J);
+            this.update_edges(rows, cols);
+        }
+    }
 
-                for (let j = 0; j < cols; ++j) {
-                    this.adjacencyMatrix[i].push(0);
-                }
+    toString(): string {
+        let content = '%%MatrixMarket matrix coordinate pattern symmetric\n';
+        content += `${this.vertices.length} ${this.vertices.length} ${this.edgeList.length}\n`;
+
+        const sortedEdges = this.edgeList
+            .map(([from, to]) => [Math.min(from, to), Math.max(from, to)])
+            .sort(([a1, b1], [a2, b2]) => a1 - a2 || b1 - b2);
+
+        content += sortedEdges
+            .map(([from, to]) => `${from + 1} ${to + 1}`)
+            .join('\n');
+
+        return content;
+    }
+
+    // --------------------------------
+    // Private
+    // --------------------------------
+
+    private init_adj_vertices(rows: number, cols: number): void {
+        for (let i = 0; i < rows; ++i) {
+            this.vertices.push(new Vertex(0, 0, 0));
+            this.adjacencyMatrix.push([]);
+
+            for (let j = 0; j < cols; ++j) {
+                this.adjacencyMatrix[i].push(0);
             }
+        }
+    }
 
-            for (let k = 0; k < edgs; ++k) {
-                if (I[k] != J[k]) {
-                    this.vertices[I[k]].attachPoint(this.vertices[J[k]]);
+    private update_adj_vertices(edgs: number, I: number[], J: number[]): void {
+        for (let k = 0; k < edgs; ++k) {
+            if (I[k] != J[k]) {
+                this.vertices[I[k]].attachPoint(this.vertices[J[k]]);
 
-                    this.vertices[I[k]].updateDegree();
-                    this.vertices[J[k]].updateDegree();
+                this.vertices[I[k]].updateDegree();
+                this.vertices[J[k]].updateDegree();
 
-                    this.adjacencyMatrix[I[k]][J[k]] = 1;
-                    this.adjacencyMatrix[J[k]][I[k]] = 1;
-                }
+                this.adjacencyMatrix[I[k]][J[k]] = 1;
+                this.adjacencyMatrix[J[k]][I[k]] = 1;
             }
+        }
+    }
 
-            this.edgeList = [];
+    private update_edges(rows: number, cols: number): void {
+        this.edgeList = [];
 
-            for (let i = 0; i < rows; ++i) {
-                for (let j = i; j < cols; ++j) {
-                    if (this.adjacencyMatrix[i][j] === 1) {
-                        this.edgeList.push([i, j]);
-                    }
+        for (let i = 0; i < rows; ++i) {
+            for (let j = i; j < cols; ++j) {
+                if (this.adjacencyMatrix[i][j] === 1) {
+                    this.edgeList.push([i, j]);
                 }
             }
         }

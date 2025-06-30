@@ -4,15 +4,11 @@ import path from 'path';
 
 import { MatrixMarketGraph } from '../../../../src/model/graph/MatrixMarketGraph';
 import { Vertex } from '../../../../src/model/Vertex';
-import { Config } from '../../../../src/Config';
 import { Graph } from '../../../../src/model/Graph';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
-
-// Enable testing to avoid WebGL checks
-Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const MATRIX_MARKET_PATH = path.join(CASES_WORKPLACE, 'matrix_market/');

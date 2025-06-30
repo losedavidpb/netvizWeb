@@ -5,7 +5,7 @@
  */
 export interface Command {
     /**
-     * Execute the current command
+     * Executes the current command
      */
     execute(): void;
 }

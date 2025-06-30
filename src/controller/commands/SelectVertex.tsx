@@ -15,20 +15,21 @@ export class SelectVertex implements Command {
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
-    private mousePosition: THREE.Vector2 | undefined;
+    private readonly window: GLWindow;
+    private mousePosition: THREE.Vector2 | null;
 
     /**
-     * Constructor for SelectVertex
+     * Creates a new SelectVertex instance.
      *
      * @param window parent window
      */
     constructor(window: GLWindow) {
         this.window = window;
+        this.mousePosition = null;
     }
 
     /**
-     * Set the current mouse position
+     * Updates the current mouse position.
      *
      * @param mouseX x-coord of the mouse
      * @param mouseY y-coord of the mouse
@@ -40,14 +41,18 @@ export class SelectVertex implements Command {
     execute(): void {
         const graph = this.window.getGraph();
 
-        if (graph !== null && this.mousePosition !== undefined) {
+        if (graph !== null && this.mousePosition !== null) {
             const pointerOver = this.get_pointer_over(graph.getVertices(), this.mousePosition);
-            if (pointerOver.length === 0) return;
+
+            if (pointerOver.length === 0) {
+                this.window.setSelectedNode(null);
+                this.window.updateColorNode(new THREE.Color());
+                this.window.updateTextNode('');
+                return;
+            }
 
             const depthValues = pointerOver.map((v) => v.getDepth());
             const closest = Math.min(...depthValues);
-
-            this.window.refresh(false, true);
 
             for (let i = 0; i < pointerOver.length; i++) {
                 if (closest === depthValues[i]) {
@@ -59,7 +64,7 @@ export class SelectVertex implements Command {
                 }
             }
 
-            this.window.refresh(false, false);
+            this.window.refresh(true, false);
         }
     }
 

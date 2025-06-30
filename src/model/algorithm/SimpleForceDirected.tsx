@@ -22,7 +22,6 @@ export class SimpleForceDirected extends Algorithm {
 
         if (vertices.length !== 0) {
             this.apply_placement(vertices);
-            this.check_duplications(vertices);
         }
     }
 
@@ -43,8 +42,7 @@ export class SimpleForceDirected extends Algorithm {
     }
 
     private update_positions(vertices: Vertex[]): void {
-        for (let i = 0; i < vertices.length; ++i) {
-            const v = vertices[i];
+        for (const v of vertices) {
             const pos = v.getPos();
             const velocity = v.getVelocity();
 
@@ -108,28 +106,20 @@ export class SimpleForceDirected extends Algorithm {
     }
 
     private apply_placement(vertices: Vertex[]): void {
-        for (let j = 0; j < vertices.length; ++j) {
-            vertices[j].setPos({
-                x: Math.random() * vertices.length - vertices.length / 2,
-                y: Math.random() * vertices.length - vertices.length / 2,
+        const crypto = window.crypto || (window as any).msCrypto;
+        const buf = new Uint32Array(2);
+
+        for (const v of vertices) {
+            crypto.getRandomValues(buf);
+
+            const randX = buf[0] / (0xFFFFFFFF + 1);
+            const randY = buf[1] / (0xFFFFFFFF + 1);
+
+            v.setPos({
+                x: randX * vertices.length - vertices.length / 2,
+                y: randY * vertices.length - vertices.length / 2,
                 z: 0
             });
-        }
-    }
-
-    /* v8 ignore next 13 */
-    private check_duplications(vertices: Vertex[]): void {
-        for (let i = 0; i < vertices.length; ++i) {
-            const v_pos = vertices[i].getPos();
-
-            for (let j = 0; j < vertices.length; ++j) {
-                const u_pos = vertices[j].getPos();
-
-                // TODO: Should I throw an error?
-                if (v_pos.x === u_pos.x && i != j && v_pos.y === u_pos.y) {
-                    console.log(`Warning: duplicate positions generated @ ${i}\n`);
-                }
-            }
         }
     }
 }

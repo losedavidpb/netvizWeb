@@ -1,8 +1,8 @@
 /**
- * Render the footer of the window
+ * Starts the rendering of the footer.
  *
  * @param param0 text of the footer
- * @returns JSX.Element
+ * @returns JSX element representing the footer
  */
 export const Footer: React.FC<{ text: string }> = ({ text }) => {
     return (

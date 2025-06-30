@@ -70,11 +70,11 @@ export class Betweenness extends Centrality {
         const adj_matrix = graph.getAdjacencyMatrix();
         this.tree = [];
 
-        for (let i = 0; i < adj_matrix.length; ++i) {
+        for (const row of adj_matrix) {
             const localTree = [];
 
-            for (let j = 0; j < adj_matrix[i].length; ++j) {
-                if (adj_matrix[i][j] === 1) {
+            for (const [j, value] of row.entries()) {
+                if (value === 1) {
                     localTree.push(j);
                 }
             }
@@ -107,9 +107,7 @@ export class Betweenness extends Centrality {
     }
 
     private bfs_adjacents(i: number, visited: number[], queue: number[], links: [number, number][], u: number): boolean {
-        for (let j = 0; j < this.tree[i].length; ++j) {
-            const x = this.tree[i][j];
-
+        for (const [_, x] of this.tree[i].entries()) {
             if (visited[x] !== 1 && !queue.includes(x)) queue.push(x);
 
             links.push([i, x]);

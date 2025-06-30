@@ -14,13 +14,13 @@ export class DragVertex implements Command {
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
+    private readonly window: GLWindow;
 
     private mouseDiff: THREE.Vector2 | undefined;
     private translateZ: number = -1;
 
     /**
-     * Constructor for DragVertex
+     * Creates a new DragVertex instance.
      *
      * @param window parent window
      */
@@ -29,7 +29,7 @@ export class DragVertex implements Command {
     }
 
     /**
-     * Set the mouse diff
+     * Updates the mouse diff.
      *
      * @param mouseDiff new mouse diff
      */
@@ -38,7 +38,7 @@ export class DragVertex implements Command {
     }
 
     /**
-     * Set the Z-coord of the translate
+     * Updates the Z-coord of the translate.
      *
      * @param translateZ Z-coord of translate
      */
@@ -58,7 +58,7 @@ export class DragVertex implements Command {
                     y: pos.y + this.mouseDiff.y * 0.05 * this.translateZ
                 });
 
-                this.window.refresh(false, false);
+                this.window.refresh(true, true);
             }
         }
     }

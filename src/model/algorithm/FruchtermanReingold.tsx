@@ -31,11 +31,11 @@ export class FruchtermanReingold extends Algorithm {
     // Properties
     // --------------------------------
 
-    private k: number = 0;
+    private readonly k: number = 0;
     private t: number = 0;
 
     /**
-     * Constructor for FruchtermanReingold
+     * Creates a new FruchtermanReingold instance.
      *
      * @param graph graph to be used
      */
@@ -66,7 +66,6 @@ export class FruchtermanReingold extends Algorithm {
 
         if (vertices.length !== 0) {
             this.apply_placement(vertices);
-            this.check_duplications(vertices);
         }
     }
 
@@ -106,11 +105,11 @@ export class FruchtermanReingold extends Algorithm {
     }
 
     private apply_attraction(vertices: Vertex[], edges: number[][]): void {
-        for (let i = 0; i < edges.length; ++i) {
-            const v = vertices[edges[i][0]];
+        for (const [base, connect] of edges) {
+            const v = vertices[base];
             const pos_v = v.getPos();
 
-            const u = vertices[edges[i][1]];
+            const u = vertices[connect];
             const pos_u = u.getPos();
 
             const xDist = (pos_v.x - pos_u.x);
@@ -137,8 +136,7 @@ export class FruchtermanReingold extends Algorithm {
     }
 
     private apply_cooling(vertices: Vertex[]): void {
-        for (let i = 0; i < vertices.length; ++i) {
-            const v = vertices[i];
+        for (const v of vertices) {
             const posV = v.getPos();
 
             v.setPos({
@@ -153,28 +151,19 @@ export class FruchtermanReingold extends Algorithm {
     private apply_placement(vertices: Vertex[]): void {
         const [W, L] = FruchtermanReingold.layout;
 
-        for (let j = 0; j < vertices.length; ++j) {
-            vertices[j].setPos({
-                x: Math.random() * W - W / 2,
-                y: Math.random() * L - L / 2,
-                z: 0
+        const crypto = window.crypto || (window as any).msCrypto;
+        const buf = new Uint32Array(2);
+
+        for (const vertex of vertices) {
+            crypto.getRandomValues(buf);
+
+            const randX = buf[0] / (0xFFFFFFFF + 1);
+            const randY = buf[1] / (0xFFFFFFFF + 1);
+
+            vertex.setPos({
+                x: randX * W - W / 2,
+                y: randY * L - L / 2,
             });
-        }
-    }
-
-    /* v8 ignore next 13 */
-    private check_duplications(vertices: Vertex[]): void {
-        for (let i = 0; i < vertices.length; ++i) {
-            const v_pos = vertices[i].getPos();
-
-            for (let j = 0; j < vertices.length; ++j) {
-                const u_pos = vertices[j].getPos();
-
-                // TODO: Should I throw an error?
-                if (v_pos.x === u_pos.x && i != j && v_pos.y === u_pos.y) {
-                    console.log(`Warning: duplicate positions generated @ ${i}\n`);
-                }
-            }
         }
     }
 }

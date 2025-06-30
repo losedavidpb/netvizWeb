@@ -3,14 +3,6 @@ import { test, expect } from 'vitest';
 import { AlgorithmFactoryMethod } from '../../../../src/model/algorithm/AlgorithmFactoryMethod';
 import { AlgorithmType } from '../../../../src/model/Algorithm';
 import { AdjacencyGraph } from '../../../../src/model/graph/AdjacencyGraph';
-import { Config } from '../../../../src/Config';
-
-// --------------------------------------
-// Test Configuration
-// --------------------------------------
-
-// Enable test mode to avoid WebGL dependencies
-Config.testMode = true;
 
 // --------------------------------------
 // Create Algorithm

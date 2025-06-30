@@ -16,11 +16,11 @@ export class DeleteEdge implements Command {
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
+    private readonly window: GLWindow;
     private selectedEdge: number;
 
     /**
-     * Constructor for DeleteEdge
+     * Creates a new DeleteEdge instance.
      *
      * @param window parent window
      */
@@ -30,7 +30,7 @@ export class DeleteEdge implements Command {
     }
 
     /**
-     * Set the selected edge
+     * Updates the selected edge.
      *
      * @param selectedEdge selected edge
      */
@@ -56,7 +56,7 @@ export class DeleteEdge implements Command {
                 this.update_graph(oldVertices, newVertices);
 
                 this.window.setGraph(newGraph);
-                this.window.refresh();
+                this.window.refresh(true, true);
             }
         }
     }

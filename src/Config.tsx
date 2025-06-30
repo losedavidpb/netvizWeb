@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 
+import type { GLWindow } from './gui/GLWindow';
 import { FileType } from './controller/commands/SaveGraph';
 import { CommandMap } from './controller/CommandMap';
-import type { GLWindow } from './gui/GLWindow';
 import { AlgorithmType } from './model/Algorithm';
 import { CentralityType } from './model/Centrality';
 
 /**
- * Config :: Configuration of the entire project
- *npm r
+ * Config :: Configuration of the project
+ *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
 export class Config {
@@ -18,10 +18,6 @@ export class Config {
     // --------------------------------
     // General
     // --------------------------------
-
-    // Specify whether or not the project is being tested. Do not modify
-    // this setting here, but modify it in the test files instead
-    static testMode: boolean = false;
 
     // Name of the application
     static readonly name: string = "NetvizWeb";
@@ -50,6 +46,13 @@ export class Config {
 
     // WebGL renderer used to draw the scene
     static renderer: THREE.WebGLRenderer;
+
+    // --------------------------------
+    // Concurrency
+    // --------------------------------
+
+    // Delay duration used to synchronise the execution timing .
+    static readonly delay: number = 0.2;
 
     // --------------------------------
     // File
@@ -88,17 +91,22 @@ export class Config {
     // Command
     // --------------------------------
 
+    // Map of commands to be used
     static readonly commands: CommandMap = new CommandMap();
 
     // --------------------------------
     // Keys
     // --------------------------------
 
-    // Available keys the user can employ to interact with the window
+    // Available keys the user can employ to interact with the window.
+    //
+    // This variable should not be modified externally except by the method
+    // setKeyHandler. However, the assigned keys within this structure may
+    // be adjusted directly if required
     static readonly keyBindings: Record<string, {
-        key: string;
-        state: boolean;
-        handler: () => void;
+        key: string;            // Assigned key
+        state: boolean;         // State of the key
+        handler: () => void;    // Function to be executed when key is pressed
     }> = {
         toogleToolbox:  { key: 'Escape',    state: false,   handler: () => { } },
         nameByIndex:    { key: 'n',         state: false,   handler: () => { } },
@@ -111,7 +119,7 @@ export class Config {
     };
 
     /**
-     * Save the new state of the key if is pressed
+     * Marks the key as pressed and invokes its handler.
      *
      * @param key key to check
      */
@@ -120,7 +128,7 @@ export class Config {
     }
 
     /**
-     * Save the new state of the key if is released
+     * Marks the key as released.
      *
      * @param key key to check
      */
@@ -129,27 +137,43 @@ export class Config {
     }
 
     /**
-     * Set the key handler of the passed action
+     * Updates the handler of the specified key.
      *
-     * @param action action to modify
+     * @param key associated key
      * @param handler new key handler
      */
-    static setKeyHandler(action: string, handler: () => void): void {
-        Config.keyBindings[action].handler = handler;
+    static setKeyHandler(key: string, handler: () => void): void {
+        if (key in Config.keyBindings) {
+            Config.keyBindings[key].handler = handler;
+        }
     }
 
     // --------------------------------
     // Mouse
     // --------------------------------
 
-    // Current position of the mouse
-    static mousePos = new THREE.Vector2();
+    // Position where the mouse is pointing.
+    private static mousePos = new THREE.Vector2();
 
-    // Mouse buttons the user can employ to interact with the window
+    /**
+     * Gets the position where the mouse is pointing.
+     *
+     * @returns mouse position
+     */
+    static getMousePos(): THREE.Vector2 {
+        return new THREE.Vector2(
+            Config.mousePos.x, Config.mousePos.y
+        );
+    }
+
+    // Mouse buttons the user can employ to interact with the window.
+    //
+    // This variable should not be modified externally except
+    // by the method setMouseHandler
     static readonly mouseBindings: Record<string, {
-        button: number;
-        state: boolean;
-        handler: () => void;
+        button: number;         // Button of the mouse
+        state: boolean;         // State of the button
+        handler: () => void;    // Function to be executed when button is pressed
     }> = {
         left:   { button: 0, state: false, handler: () => { } },
         middle: { button: 1, state: false, handler: () => { } },
@@ -157,31 +181,29 @@ export class Config {
     };
 
     /**
-     * Handle mouse press events
+     * Marks the mouse as pressed and invokes its handler.
      *
-     * @param window parent window
      * @param event mouse event
      */
-    static mousePressed(_: GLWindow, event: React.MouseEvent): void {
+    static mousePressed(event: React.MouseEvent): void {
         Config.mousePos = new THREE.Vector2(event.clientX, event.clientY);
         Config.set_mouse_state(event.button, true);
     }
 
     /**
-     * Handle mouse release events
+     * Marks the mouse as released.
      *
-     * @param window parent window
      * @param event mouse event
      */
-    static mouseReleased(_: GLWindow, event: React.MouseEvent): void {
+    static mouseReleased(event: React.MouseEvent): void {
         Config.mousePos = new THREE.Vector2(event.clientX, event.clientY);
         Config.set_mouse_state(event.button, false);
     }
 
     /**
-     * Handle mouse position events
+     * Handles mouse movement events.
      *
-     * @param window parent window
+     * @param window window to be operated on
      * @param event mouse event
      */
     static mousePosition(window: GLWindow, event: React.MouseEvent): void {
@@ -196,13 +218,15 @@ export class Config {
     }
 
     /**
-     * Set the mouse handler of the passed action
+     * Updates the handler of the specified mouse button.
      *
-     * @param button action to modify
+     * @param button button of the mouse
      * @param handler new mouse handler
      */
     static setMousehandler(button: string, handler: () => void): void {
-        Config.mouseBindings[button].handler = handler;
+        if (button in Config.mouseBindings) {
+            Config.mouseBindings[button].handler = handler;
+        }
     }
 
     // --------------------------------
@@ -212,15 +236,13 @@ export class Config {
     // Radius of the vertex
     static readonly radius: number = 1;
 
-    // Number of horizontal divisions (latitude)
-    // for the vertex sphere geometry
+    // Horizontal divisions for the vertex geometry
     static readonly rings: number = 12;
 
-    // Number of vertical divisions (longitude)
-    // for the vertex sphere geometry
+    // Vertical divisions for the vertex geometry
     static readonly sectors: number = 12;
 
-    // Size of the vertex for spherical dimensions
+    // Vertex size for spherical dimensions
     static readonly size: number = Config.rings * Config.sectors * 3;
 
     // Step size between rings
@@ -238,6 +260,8 @@ export class Config {
             if (binding.key === key) {
                 binding.state = state;
                 if (binding.state) binding.handler();
+
+                break;
             }
         }
     }
@@ -247,6 +271,8 @@ export class Config {
             if (binding.button === button) {
                 binding.state = state;
                 if (binding.state) binding.handler();
+
+                break;
             }
         }
     }

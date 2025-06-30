@@ -11,11 +11,11 @@ import { SimpleForceDirected } from "./SimpleForceDirected";
  */
 export class AlgorithmFactoryMethod {
     /**
-     * Create an algorithm based on its type
+     * Creates an algorithm based on its type.
      *
-     * @param type algorithm type
+     * @param type type of the algorithm
      * @param graph graph to be used
-     * @returns algorithm
+     * @returns new instance of an algorithm
      */
     static create(type: AlgorithmType, graph: Graph): Algorithm {
         switch (type) {

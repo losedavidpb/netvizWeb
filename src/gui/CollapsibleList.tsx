@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
+// Properties of a collapsible list
 interface CollapsibleList {
-    options: string[];
-    defaultText: string;
-    onOptionSelect: (option: string) => void;
+    options: string[];                          // Available options
+    defaultText: string;                        // Default option
+    onOptionSelect: (option: string) => void;   // Handler to be executed when option is changed
 }
 
-const CollapsibleList: React.FC<CollapsibleList> = ({ options, defaultText, onOptionSelect }) => {
+/**
+ * Renders a button that toggles the visibility of a list of options.
+ *
+ * When an option has been selected, the passed callback
+ * function will be executed.
+ *
+ * @param options available options
+ * @param defaultText default option that is initially selected
+ * @param onOptionSelect handler to be executed when option is changed
+ *
+ * @returns JSX.Element representing the collapsible list component.
+ */
+export const CollapsibleList: React.FC<CollapsibleList> = ({ options, defaultText, onOptionSelect }) => {
     const [isListOpen, setIsListOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState<string>(defaultText);
 
-    const handleOptionSelect = (option: string) => {
+    const onClickEvent = (option: string) => {
         setSelectedOption(option);
         onOptionSelect(option);
         setIsListOpen(false);
@@ -29,11 +42,11 @@ const CollapsibleList: React.FC<CollapsibleList> = ({ options, defaultText, onOp
 
             {isListOpen && (
                 <ul className="list-group">
-                    {options.map((option, index) => (
+                    {options.map((option) => (
                         <li
-                            key={index}
+                            key={option}
                             className="list-group-item text-center"
-                            onClick={() => handleOptionSelect(option)}
+                            onClick={() => onClickEvent(option)}
                         >
                             {option}
                         </li>
@@ -43,5 +56,3 @@ const CollapsibleList: React.FC<CollapsibleList> = ({ options, defaultText, onOp
         </div>
     );
 };
-
-export default CollapsibleList;

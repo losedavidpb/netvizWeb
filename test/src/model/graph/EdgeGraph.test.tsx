@@ -4,15 +4,11 @@ import path from 'path';
 
 import { EdgeGraph } from '../../../../src/model/graph/EdgeGraph';
 import { Vertex } from '../../../../src/model/Vertex';
-import { Config } from '../../../../src/Config';
 import { Graph } from '../../../../src/model/Graph';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
-
-// Enable testing to avoid WebGL checks
-Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const EDGE_PATH = path.join(CASES_WORKPLACE, 'edge_links/');

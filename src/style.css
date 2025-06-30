@@ -13,27 +13,28 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-
-a:hover {
-  color: #535bf2;
-}
-
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #242424;
+  background-color: inherit;
 }
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
   color: black;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+  transition: color 0.25s;
+}
+
+a:hover {
+  color: #535bf2;
 }
 
 #toolbox {
@@ -61,7 +62,7 @@ button {
   background-color: #1a1a1a;
   color: #ffffff;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, background-color 0.25s;
 }
 
 button:hover {
@@ -85,10 +86,6 @@ button:focus-visible {
 
   button {
     background-color: #f9f9f9;
-  }
-
-  #widget {
-    background-color: #ffffff;
-    color: #000000;
+    color: inherit;
   }
 }

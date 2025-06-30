@@ -58,6 +58,23 @@ test('Vertex::setConnect() : Valid Connect', () => {
 });
 
 // --------------------------------------
+// Edge Number
+// --------------------------------------
+
+test('Edge::getEdgeNumber() : Valid Edge', () => {
+    const base = new Vertex(0, 0, 0);
+    const connect = new Vertex(10, 20, 30);
+
+    const edge = new Edge(base, connect);
+
+    const baseID = base.getVertexNumber();
+    const connectID = connect.getVertexNumber();
+    const expected = 0.5 * (baseID + connectID) * (baseID + connectID + 1) + connectID;
+
+    expect(edge.getEdgeNumber()).toBe(expected);
+});
+
+// --------------------------------------
 // Text
 // --------------------------------------
 

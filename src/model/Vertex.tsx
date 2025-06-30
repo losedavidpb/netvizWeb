@@ -17,10 +17,10 @@ export class Vertex {
     // Properties
     // --------------------------------
 
+    private selected: boolean = false;
+
     private static vertexCounter = 0;
     private vertexNumber: number = Vertex.vertexCounter;
-
-    private selected: boolean = false;
 
     private pos: THREE.Vector3 = new THREE.Vector3();
     private force: THREE.Vector3 = new THREE.Vector3();
@@ -35,14 +35,13 @@ export class Vertex {
     private edges: Edge[] = [];
     private attachedPoints: Vertex[] = [];
 
-    // Spherical rendering
     private positions: number[] = new Array(Config.size).fill(0);
     private colours: number[] = new Array(Config.size).fill(0);
     private indices: number[] = new Array(Config.size).fill(0);
     private geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
     /**
-     * Constructor for Vertex
+     * Creates a new Vertex instance.
      *
      * @param offsetX offset for X-coord
      * @param offsetY offset for Y-coord
@@ -55,16 +54,16 @@ export class Vertex {
     }
 
     /**
-     * Get the last vertex number that was used
+     * Gets the most recently assigned vertex number.
      *
-     * @returns last used vertex number
+     * @returns last used vertex identifier.
      */
     static getLastVertexNumber(): number {
         return Vertex.vertexCounter - 1;
     }
 
     /**
-     * Update the vertex
+     * Updates the vertex for rendering.
      */
     update(): void {
         let [vIndx, colIndx, indIndx] = [0, 0, 0];
@@ -104,9 +103,9 @@ export class Vertex {
     }
 
     /**
-     * Draw the vertex
+     * Starts the rendering of the vertex component.
      *
-     * @returns vertex component
+     * @returns JSX element representing the vertex
      */
     /* v8 ignore next 52 */
     draw(): JSX.Element {
@@ -141,8 +140,8 @@ export class Vertex {
                 {this.text !== "" && this.drawText()}
 
                 {/* Render all connected edges, if any */}
-                {this.edges.map((edge, i) => (
-                    <React.Fragment key={i}>
+                {this.edges.map((edge) => (
+                    <React.Fragment key={edge.getEdgeNumber()}>
                         {edge.draw()}
                     </React.Fragment>
                 ))}
@@ -151,52 +150,50 @@ export class Vertex {
     }
 
     /**
-     * Draw the text of the vertex
+     * Renders the text associated with the vertex.
      *
-     * @returns text component
+     * @returns JSX element representing the vertex text
      */
     /* v8 ignore next 20 */
     drawText(): JSX.Element {
         return (
-            <>
-                <Billboard position={[
-                    this.pos.x,
-                    this.pos.y - Config.radius,
-                    this.pos.z
-                ]}>
-                    <Text
-                        color="white"
-                        anchorX="center"
-                        anchorY="top"
-                        fontSize={2}
-                    >
-                        {this.text}
-                    </Text>
-                </Billboard>
-            </>
+            <Billboard position={[
+                this.pos.x,
+                this.pos.y - Config.radius,
+                this.pos.z
+            ]}>
+                <Text
+                    color="white"
+                    anchorX="center"
+                    anchorY="top"
+                    fontSize={2}
+                >
+                    {this.text}
+                </Text>
+            </Billboard>
         );
     }
 
     /**
-     * Check if vertex is selected
+     * Checks if vertex has been selected.
      *
-     * @returns selected
+     * @returns selected state
      */
     isSelected(): boolean {
         return this.selected;
     }
 
     /**
-     * Set selected option
+     * Updates the selected state of the vertex.
      *
-     * @param selected new selected value
+     * @param selected new selected state
      */
     setSelected(selected: boolean): void {
         this.selected = selected;
     }
 
     /**
-     * Get the position of the vertex
+     * Gets a copy of the vertex position.
      *
      * @returns position of the vertex
      */
@@ -207,9 +204,9 @@ export class Vertex {
     }
 
     /**
-     * Set the position of the vertex [x, y, z]
+     * Updates the position of the vertex.
      *
-     * @param param0 x, y, z position-coords
+     * @param param0 [x, y, z] position-coords
      */
     setPos({ x, y, z }: { x?: number; y?: number; z?: number }): void {
         if (x !== undefined) this.pos.x = x;
@@ -220,7 +217,7 @@ export class Vertex {
     }
 
     /**
-     * Get the force of the vertex
+     * Gets a copy of the vertex force.
      *
      * @returns force of the vertex
      */
@@ -231,9 +228,9 @@ export class Vertex {
     }
 
     /**
-     * Set the force of the vertex [x, y, z]
+     * Updates the force of the vertex.
      *
-     * @param param0 x, y, z force-coords
+     * @param param0 [x, y, z] force-coords
      */
     setForce({ x, y, z }: { x?: number; y?: number; z?: number }): void {
         if (x !== undefined) this.force.x = x;
@@ -242,7 +239,7 @@ export class Vertex {
     }
 
     /**
-     * Get the velocity of the vertex
+     * Gets a copy of the vertex velocity.
      *
      * @returns velocity of the vertex
      */
@@ -253,9 +250,9 @@ export class Vertex {
     }
 
     /**
-     * Set the velocity of the vertex [x, y, z]
+     * Updates the velocity of the vertex.
      *
-     * @param param0 x, y, z velocity-coords
+     * @param param0 [x, y, z] velocity-coords
      */
     setVelocity({ x, y, z }: { x?: number; y?: number; z?: number }): void {
         if (x !== undefined) this.velocity.x = x;
@@ -264,7 +261,7 @@ export class Vertex {
     }
 
     /**
-     * Get the colour of the vertex
+     * Gets a copy of the vertex colour.
      *
      * @returns colour of the vertex
      */
@@ -275,15 +272,19 @@ export class Vertex {
     }
 
     /**
-     * Set the colours for the vertex
+     * Updates the colour of the vertex.
      *
-     * @param R R-component (red)
-     * @param G G-component (green)
-     * @param B B-component (blue)
+     * Each component must be within the range [0, 1].
+     *
+     * @param R red component (0 to 1)
+     * @param G green component (0 to 1)
+     * @param B blue component (0 to 1)
      */
     setColour(R: number, G: number, B: number): void {
         if (!(R >= 0 && R <= 1 && G >= 0 && G <= 1 && B >= 0 && B <= 1)) {
-            throw new Error('InvalidRGB :: Passed colour is invalid');
+            throw new Error(
+                'InvalidRGB :: Passed colour is invalid'
+            );
         }
 
         this.colour = new THREE.Color().setRGB(R, G, B);
@@ -291,7 +292,7 @@ export class Vertex {
     }
 
     /**
-     * Get the vertex's text
+     * Gets the text of the vertex.
      *
      * @returns text of the vertex
      */
@@ -300,7 +301,7 @@ export class Vertex {
     }
 
     /**
-     * Set the text of the vertex
+     * Updates the text of the vertex.
      *
      * @param t new text
      */
@@ -309,7 +310,7 @@ export class Vertex {
     }
 
     /**
-     * Get the level of the vertex
+     * Gets the level of the vertex.
      *
      * @returns level of the vertex
      */
@@ -318,20 +319,24 @@ export class Vertex {
     }
 
     /**
-     * Set a new level
+     * Updates the level of the vertex.
+     *
+     * The level must be a positive number (zero or greater).
      *
      * @param level new level
      */
     setLevel(level: number): void {
         if (level < 0) {
-            throw new Error('InvalidLevel: level must be an integer');
+            throw new Error(
+                'InvalidLevel: level must be a positive number'
+            );
         }
 
         this.level = level;
     }
 
     /**
-     * Get the degree of the vertex
+     * Gets the degree of the vertex.
      *
      * @returns degree of the vertex
      */
@@ -340,27 +345,31 @@ export class Vertex {
     }
 
     /**
-     * Set a new degree
+     * Updates the degree of the vertex.
+     *
+     * The degree must be a positive number (zero or greater).
      *
      * @param degree new degree
      */
     setDegree(degree: number): void {
         if (degree < 0) {
-            throw new Error('InvalidDegree: degree must be an integer');
+            throw new Error(
+                'InvalidDegree: degree must be a positive number'
+            );
         }
 
         this.degree = degree;
     }
 
     /**
-     * Increment the current degree
+     * Increments the degree of the vertex by one.
      */
     updateDegree(): void {
         this.degree += 1;
     }
 
     /**
-     * Get the vertex number
+     * Gets the vertex number.
      *
      * @returns number of the vertex
      */
@@ -369,20 +378,24 @@ export class Vertex {
     }
 
     /**
-     * Set a new vertex number
+     * Update the vertex number.
+     *
+     * The vertex number must be a positive number (zero or greater).
      *
      * @param vertexNumber new vertex number
      */
     setVertexNumber(vertexNumber: number): void {
         if (vertexNumber < 0) {
-            throw new Error('InvalidNumber: number must be an integer');
+            throw new Error(
+                'InvalidNumber: number must be a positive number'
+            );
         }
 
         this.vertexNumber = vertexNumber;
     }
 
     /**
-     * Get the edges of the vertex
+     * Gets a copy of the edges of the vertex.
      *
      * @returns edges
      */
@@ -391,7 +404,7 @@ export class Vertex {
     }
 
     /**
-     * Get the attached points of the vertex
+     * Gets a copy of the attached points of the vertex.
      *
      * @returns attached points
      */
@@ -400,9 +413,9 @@ export class Vertex {
     }
 
     /**
-     * Attach passed vertex to the current one
+     * Attaches the passed vertex to the current one.
      *
-     * @param vertex vertex to attached
+     * @param vertex vertex to be attached
      */
     attachPoint(vertex: Vertex): void {
         this.attachedPoints.push(vertex);
@@ -410,7 +423,7 @@ export class Vertex {
     }
 
     /**
-     * Detach passed vertex from the current one
+     * Detaches the passed vertex from the current one.
      *
      * @param vertex vertex to be detached
      */
@@ -420,7 +433,7 @@ export class Vertex {
     }
 
     /**
-     * Check if the mouse pointer is over the vertex
+     * Checks if the mouse pointer is over the vertex.
      *
      * @param mousePos position of the mouse
      * @returns if the mouse is over the vertex
@@ -447,7 +460,7 @@ export class Vertex {
     }
 
     /**
-     * Get the depth of the vertex
+     * Gets the depth of the vertex.
      *
      * @returns depth of the vertex
      */
@@ -457,11 +470,11 @@ export class Vertex {
     }
 
     /**
-     * Get the hashcode of the vertex
+     * Gets the hashcode of the vertex.
      *
      * @returns vertex hashcode
      */
-    hash(): number {
+    hashCode(): number {
         const json = JSON.stringify(this.toJSON());
         let hash = 5381;
 
@@ -474,24 +487,24 @@ export class Vertex {
     }
 
     /**
-     * Check whether the current and the passed vertex are equal
+     * Checks whether the current and the passed vertex are equal.
      *
-     * @param other vertex to compare
+     * @param other vertex to be compared
      * @returns if vertices are equal
      */
     equals(other: unknown): boolean {
         if (!(other instanceof Vertex)) return false;
-        return this.hash() === other.hash();
+        return this.hashCode() === other.hashCode();
     }
 
     /**
-     * Clone the current vertex
+     * Retrieves a copy of the current vertex.
      *
      * @returns clone of the vertex
      */
     clone(): Vertex {
         const clone_obj = new Vertex(0, 0, 0);
-        Vertex.vertexCounter--;
+        Vertex.vertexCounter--; // Counter decrements since this is not a new vertex
 
         clone_obj.selected = this.isSelected();
         clone_obj.pos = this.getPos();
@@ -512,15 +525,12 @@ export class Vertex {
     }
 
     /**
-     * Convert the vertex into a JSON object
+     * Serialises the vertex into a JSON-compatible object.
      *
-     * Note that this method does not preserve object references for
-     * attached points or edges. Instead, it stores only the vertex
-     * numbers required to reconstruct these relationships. As such,
-     * additional processing will be necessary to fully restore the
-     * original graph structure from the resulting data.
+     * Note: Attached points and edges are saved as vertex numbers, so
+     * extra steps are needed to fully restore the graph.
      *
-     * @returns JSON object
+     * @returns JSON representation of the vertex
      */
     toJSON(): object {
         return {
@@ -542,19 +552,18 @@ export class Vertex {
     }
 
     /**
-     * Convert a JSON object into a vertex
+     * Creates a vertex instance from a JSON object.
      *
-     * Note that this method does not restore object references for
-     * attached points or edges, as it relies on the simplified structure
-     * produced by {@link Vertex.toJSON}. Reconstruction of the full graph
-     * topology must be performed separately if required.
+     * Note: This method only restores basic data and does not
+     * rebuild attached points or edges. Full graph reconstruction
+     * must be done separately.
      *
-     * @param object JSON object
-     * @returns graph
+     * @param object JSON representation of the vertex
+     * @returns restored vertex instance
      */
     static fromJSON(object: any): Vertex {
         const vertex = new Vertex(0, 0, 0);
-        Vertex.vertexCounter--;
+        Vertex.vertexCounter--; // Counter decrements since this is not a new vertex
 
         vertex.pos = new THREE.Vector3(object.pos.x, object.pos.y, object.pos.z);
         vertex.selected = object.selected;

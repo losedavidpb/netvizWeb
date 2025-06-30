@@ -26,7 +26,7 @@ export abstract class Algorithm {
     protected graph: Graph;
 
     /**
-     * Constructor for Algorithm
+     * Creates a new Algorithm instance.
      *
      * @param graph graph to be used
      */
@@ -35,9 +35,9 @@ export abstract class Algorithm {
     }
 
     /**
-     * Get the graph of the algorithm
+     * Gets the graph of the algorithm.
      *
-     * @returns graph
+     * @returns graph of the algorithm
      */
     /* v8 ignore next 3 */
     getGraph(): Graph {
@@ -45,12 +45,12 @@ export abstract class Algorithm {
     }
 
     /**
-     * Executes the algorithm to the graph
+     * Applies the algorithm to the graph.
      */
     abstract apply(): void;
 
     /**
-     * Randomly places the vertices in the layout area
+     * Randomly places the vertices in the layout area.
      */
     abstract place(): void;
 }

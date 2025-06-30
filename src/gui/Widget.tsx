@@ -1,25 +1,26 @@
 import * as THREE from 'three';
 import React, { Component, type JSX } from 'react';
 
-import CollapsibleList from './CollapsibleList';
-
 import { GLWindow } from './GLWindow';
 import { Vertex } from '../model/Vertex';
 import { CentralityFactoryMethod } from '../model/centrality/CentralityFactoryMethod';
 import { AlgorithmFactoryMethod } from '../model/algorithm/AlgorithmFactoryMethod';
-import { AlgorithmType } from '../model/Algorithm';
-import { Algorithm } from '../model/Algorithm'
+import { AlgorithmType, Algorithm } from '../model/Algorithm';
 import { Centrality, CentralityType } from '../model/Centrality';
 import { Config } from '../Config';
 import { Footer } from './Footer';
+import { CollapsibleList } from './CollapsibleList';
+import { TaskRunner } from '../model/TaskRunner';
 
-/**
- * Widget :: Toolbox of the GLWindow
- *
- * @author losedavidpb <losedavidpb@gmail.com>
- */
-export class Widget extends Component<{}, {
-    visible: boolean,
+// Properties of the widget
+export type WidgetProps = {
+    visible: boolean;
+    applyAlgorithm: boolean;
+    applyColouration: boolean;
+};
+
+// State of the widget
+export type WidgetState = {
     algorithmType: AlgorithmType,
     algorithm: Algorithm | null,
     centralityType: CentralityType,
@@ -29,18 +30,25 @@ export class Widget extends Component<{}, {
     nodeColour: THREE.Color,
     edgeText: string,
     edgeColour: THREE.Color
-}> {
+};
+
+/**
+ * Widget :: Toolbox of the GLWindow
+ *
+ * @author losedavidpb <losedavidpb@gmail.com>
+ */
+export class Widget extends Component<WidgetProps, WidgetState> {
+    private runner: TaskRunner | undefined;
 
     /**
      * Constructor for Widget
      *
      * @param props properties  of the widget
      */
-    constructor(props: {}) {
+    constructor(props: WidgetProps) {
         super(props);
 
         this.state = {
-            visible: true,
             algorithmType: Config.defaultAlgorithm,
             algorithm: null,
             centralityType: Config.defaultCentrality,
@@ -51,28 +59,22 @@ export class Widget extends Component<{}, {
             edgeText: '',
             edgeColour: new THREE.Color(),
         };
+
+        this.init_threads();
     }
 
-    /**
-     * Set the visibility of the widget
-     */
-    toggleView(): void {
-        const visible = this.state.visible;
-        this.setState({ visible: !visible });
-    }
+    private init_threads(): void {
+        this.runner = new TaskRunner(() => {
+            if (this.props.applyAlgorithm) {
+                this.apply_algorithm(this.state.algorithmType);
+            }
 
-    /**
-     * Apply the algorithm to the graph
-     */
-    applyAlgorithm(): void {
-        this.apply_algorithm(this.state.algorithmType);
-    }
+            if (this.props.applyColouration) {
+                this.apply_centrality(this.state.centralityType);
+            }
 
-    /**
-     * Apply the coloration to the graph
-     */
-    applyColoration(): void {
-        this.apply_centrality(this.state.centralityType);
+            GLWindow.init().refresh();
+        });
     }
 
     /**
@@ -121,7 +123,7 @@ export class Widget extends Component<{}, {
      * @returns widget component
      */
     render(): JSX.Element | undefined {
-        if (this.state.visible) {
+        if (this.props.visible) {
             return (
                 <div className="container bg-white shadow-sm rounded" id="toolbox">
                     <h1 className="mb-3">Toolbox</h1>
@@ -155,20 +157,20 @@ export class Widget extends Component<{}, {
                     <CollapsibleList
                         options={['Fruchterman Reingold', 'Simple Force Directed', 'Multi Force']}
                         defaultText="Fruchterman Reingold"
-                        onOptionSelect={(e) => {
+                        onOptionSelect={(e: string) => {
                             const opt = e.replace(/\s+/g, '') as AlgorithmType;
                             this.apply_algorithm(opt);
-                            this.refresh_graph();
+                            GLWindow.init().refresh();
                         }}
                     />
 
                     <CollapsibleList
                         options={['Degree Centrality', 'Distance Centrality', 'Betweenness']}
                         defaultText="Degree Centrality"
-                        onOptionSelect={(e) => {
+                        onOptionSelect={(e: string) => {
                             const opt = e.replace(/\s+/g, '') as CentralityType;
                             this.apply_centrality(opt);
-                            this.refresh_graph();
+                            GLWindow.init().refresh();
                         }}
                     />
                     <hr></hr>
@@ -235,6 +237,8 @@ export class Widget extends Component<{}, {
                 const window = GLWindow.init();
                 window.setContent(content);
                 window.loadGraph();
+
+                this.runner?.start();
             };
 
             reader.readAsText(file);
@@ -242,19 +246,22 @@ export class Widget extends Component<{}, {
     }
 
     private export_file(): void {
-        let filename = prompt("Enter name of the new file", Config.defaultExportFile);
-        filename = filename === null ? Config.defaultExportFile : filename;
+        const filename = prompt(
+            "Enter name of the new file", Config.defaultExportFile
+        ) ?? Config.defaultExportFile;
 
         GLWindow.init().saveFile(filename);
     }
 
-    private async apply_algorithm(name: AlgorithmType): Promise<void> {
-        const graph = GLWindow.init().getGraph();
+
+    private apply_algorithm(name: AlgorithmType): void {
+        const window = GLWindow.init();
+        const graph = window.getGraph();
 
         if (graph !== null) {
             const { algorithmType, algorithm } = this.state;
 
-            if (algorithm !== null && algorithm?.getGraph() !== graph || algorithm === null || algorithmType !== name) {
+            if (!algorithm?.getGraph().equals(graph) || algorithmType !== name) {
                 const newAlgorithm = AlgorithmFactoryMethod.create(name, graph);
                 this.setState({ algorithmType: name, algorithm: newAlgorithm }, () => newAlgorithm.apply());
             } else {
@@ -263,7 +270,7 @@ export class Widget extends Component<{}, {
         }
     }
 
-    private async apply_centrality(name: CentralityType): Promise<void> {
+    private apply_centrality(name: CentralityType): void {
         const graph = GLWindow.init().getGraph();
 
         if (graph !== null) {
@@ -276,10 +283,6 @@ export class Widget extends Component<{}, {
                 centrality.apply(graph);
             }
         }
-    }
-
-    private refresh_graph(): void {
-        GLWindow.init().refresh();
     }
 
     private update_text_node(text: string): void {

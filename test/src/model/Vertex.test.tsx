@@ -292,7 +292,7 @@ test('Vertex::setLevel() : Invalid Level', () => {
     const vertex = new Vertex(0, 0, 0);
 
     expect(() => { vertex.setLevel(-1); }).toThrow(
-        'InvalidLevel: level must be an integer'
+        'InvalidLevel: level must be a positive number'
     );
 });
 
@@ -319,7 +319,7 @@ test('Vertex::setDegree() : Invalid Degree', () => {
     const vertex = new Vertex(0, 0, 0);
 
     expect(() => { vertex.setDegree(-1); }).toThrow(
-        'InvalidDegree: degree must be an integer'
+        'InvalidDegree: degree must be a positive number'
     );
 });
 
@@ -354,7 +354,7 @@ test('Vertex::setVertexNumber() : Invalid Vertex Number', () => {
     const vertex = new Vertex(0, 0, 0);
 
     expect(() => { vertex.setVertexNumber(-1); }).toThrow(
-        'InvalidNumber: number must be an integer'
+        'InvalidNumber: number must be a positive number'
     );
 });
 

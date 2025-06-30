@@ -1,6 +1,7 @@
+import * as THREE from 'three';
+
 import type { GLWindow } from "../../gui/GLWindow";
 import type { Command } from "../Command";
-import { GraphFactoryMethod } from '../../model/graph/GraphFactoryMethod';
 
 /**
  * LoadGraph :: Command to load graphs
@@ -13,10 +14,10 @@ export class LoadGraph implements Command {
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
+    private readonly window: GLWindow;
 
     /**
-     * Constructor for LoadGraph
+     * Creates a new LoadGraph instance.
      *
      * @param window parent window
      */
@@ -25,15 +26,33 @@ export class LoadGraph implements Command {
     }
 
     execute(): void {
-        const content = this.window.getContent();
+        (async () => {
+            const content = this.window.getContent();
 
-        if (content !== '') {
-            const lines = content.split(/\r?\n/);
-            const line = lines[0];
+            if (content !== '') {
+                const lines = content.split(/\r?\n/);
+                const line = lines[0];
 
-            const graph = GraphFactoryMethod.create(line, content);
-            this.window.setGraph(graph);
-            this.window.refresh();
-        }
+                this.reset_selector();
+
+                const { GraphFactoryMethod } = await import('../../model/graph/GraphFactoryMethod');
+                const graph = GraphFactoryMethod.create(line, content);
+
+                this.window.setGraph(graph);
+                this.window.refresh(true, true);
+            }
+        })();
+    }
+
+    // --------------------------------
+    // Private
+    // --------------------------------
+
+    private reset_selector(): void {
+        this.window.setSelectedNode(null);
+        this.window.updateColorNode(new THREE.Color());
+        this.window.updateTextNode('');
+        this.window.updateTextEdge('');
+        this.window.updateColorEdge(new THREE.Color());
     }
 }

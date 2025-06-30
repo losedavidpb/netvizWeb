@@ -11,38 +11,34 @@ export class CommandMap {
     // Properties
     // --------------------------------
 
-    private commands: Record<string, Command> = {};
+    private readonly commands: Record<string, Command> = {};
 
     /**
-     * Get the command with passed name
+     * Gets the command with passed name.
      *
      * @param name name of the command
-     * @returns command
+     * @returns command with the passed name
      */
-    get(name: string): Command {
-        return this.commands[name];
+    get(name: string): Command | null {
+        return name in this.commands ? this.commands[name] : null;
     }
 
     /**
-     * Add the passed command
+     * Includes the passed command to the map.
      *
      * @param name name of the command
      * @param command command to be added
      */
     add(name: string, command: Command): void {
-        if (this.commands[name] === undefined) {
-            this.commands[name] = command;
-        }
+        this.commands[name] ??= command;
     }
 
     /**
-     * Execute passed command
+     * Executes the passed command
      *
      * @param name name of the command
      */
     execute(name: string): void {
-        if (this.commands[name] !== undefined) {
-            this.commands[name].execute();
-        }
+        this.get(name)?.execute();
     }
 }

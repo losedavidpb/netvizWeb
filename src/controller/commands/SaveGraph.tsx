@@ -6,9 +6,9 @@ import type { Command } from "../Command";
  * Available file types
  */
 export const FileType = {
-    ADJACENCY: "ADJACENCY",
-    EDGELIST: "EDGELIST",
-    MATRIX_MARKET: "MATRIX_MARKET",
+    ADJACENCY: "AdjacencyGraph",
+    EDGELIST: "EdgeGraph",
+    MATRIX_MARKET: "MatrixMarketGraph",
     PNG: "PNG",
     SVG: "SVG"
 } as const;
@@ -27,13 +27,12 @@ export class SaveGraph implements Command {
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
-
+    private readonly window: GLWindow;
     private filename: string = '';
     private fileType: FileType = Config.defaultFileType;
 
     /**
-     * Constructor for SaveGraph
+     * Creates a new SaveGraph instance.
      *
      * @param window parent window
      */
@@ -42,7 +41,7 @@ export class SaveGraph implements Command {
     }
 
     /**
-     * Set the type of the file to be saved
+     * Updates the type of the file to be saved.
      *
      * @param fileType new file type
      */
@@ -51,7 +50,7 @@ export class SaveGraph implements Command {
     }
 
     /**
-     * Set the name of the file to be saved
+     * Updates the name of the file to be saved.
      *
      * @param filename new filename
      */
@@ -108,11 +107,15 @@ export class SaveGraph implements Command {
         this.window.pngScreenshot(this.filename);
     }
 
-    private save_text_file(): void {
+    private async save_text_file(): Promise<void> {
         const graph = this.window.getGraph();
 
         if (graph !== null) {
-            const content = graph.toString();
+            const { GraphFactoryMethod } = await import('../../model/graph/GraphFactoryMethod');
+            const other = GraphFactoryMethod.createWithType(this.fileType);
+            graph.migrate(other);
+
+            const content = other.toString();
             this.save_file(content);
         }
     }

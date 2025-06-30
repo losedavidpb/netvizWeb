@@ -7,14 +7,10 @@ import { AdjacencyGraph } from '../../../../src/model/graph/AdjacencyGraph';
 import { Betweenness } from '../../../../src/model/centrality/Betweenness';
 import { Vertex } from '../../../../src/model/Vertex';
 import { Centrality } from '../../../../src/model/Centrality';
-import { Config } from '../../../../src/Config';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
-
-// Enable testing to avoid WebGL checks
-Config.testMode = true;
 
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const DEGREE_CENTRALITY = path.join(CASES_WORKPLACE, 'betweenness/');

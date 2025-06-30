@@ -19,21 +19,25 @@ export type CentralityType = typeof CentralityType[keyof typeof CentralityType];
  */
 export abstract class Centrality {
     /**
-     * Apply the centrality algorithm
+     * Applies the colouration algorithm.
+     *
+     * @param graph graph to be coloured
      */
     abstract apply(graph: Graph): void;
 
     /**
-     * Convert HSV to RGB
+     * Converts HSV colour to RGB colour.
      *
      * @param h H-component (hue)
      * @param s S-component (saturation)
      * @param v V-component (value)
-     * @returns
+     * @returns RGB representation of the passed colour
      */
     protected static HSVtoRGB(h: number, s: number, v: number): [r: number, g: number, b: number] {
         if (!(this.in_range(h, 0, 360) && this.in_range(s, 0, 1) && this.in_range(v, 0, 1))) {
-            throw new Error("InvalidHSV :: Color values are not valid");
+            throw new Error(
+                "InvalidHSV :: Color values are not valid"
+            );
         }
 
         let [r, g, b] = [v, v, v];
@@ -61,16 +65,18 @@ export abstract class Centrality {
     }
 
     /**
-     * Normalize the value between the given min and max range
+     * Normalises the value between the given min and max range.
      *
      * @param x value to be normalized
      * @param max maximum value
      * @param min minimum value
-     * @returns normalized value
+     * @returns normalised value
      */
     protected static normalize(x: number, max: number, min: number): number {
         if (max < min) {
-            throw new Error("InvalidMaxMin :: Maximum value is less than the minimum value");
+            throw new Error(
+                "InvalidMaxMin :: Maximum value is less than the minimum value"
+            );
         }
 
         return (x - min) / (max - min);

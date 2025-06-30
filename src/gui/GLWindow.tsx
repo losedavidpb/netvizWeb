@@ -16,7 +16,6 @@ import { DeleteVertex } from '../controller/commands/DeleteVertex';
 import { DeleteEdge } from '../controller/commands/DeleteEdge';
 import { Config } from '../Config';
 import { GraphScene } from './GraphScene';
-import { TaskRunner } from '../model/Worker';
 
 /**
  * GLWindow :: Main window of the app
@@ -31,10 +30,11 @@ export class GLWindow {
 
     private static instance: GLWindow;
 
-    private firstIteration: boolean = false;
-    private algorithmRunner: TaskRunner | undefined;
+    private readonly widgetRef: RefObject<Widget | null>;
 
-    private widgetRef: RefObject<Widget | null> = createRef<Widget>();
+    private widgetVisible: boolean = true;
+    private applyAlgorithm: boolean = true;
+    private applyColouration: boolean = true;
 
     private content: string = '';
     private graph: Graph | null = null;
@@ -48,10 +48,7 @@ export class GLWindow {
      * @returns GLWindow
      */
     static init(): GLWindow {
-        if (GLWindow.instance === undefined) {
-            GLWindow.instance = new GLWindow();
-        }
-
+        GLWindow.instance ??= new GLWindow();
         return GLWindow.instance;
     }
 
@@ -61,10 +58,11 @@ export class GLWindow {
 
     // Avoid multiple instances
     private constructor() {
+        this.widgetRef = createRef<Widget>();
+
         this.init_commands();
         this.init_key_bindings();
         this.init_mouse_bindings();
-        this.init_threads();
     }
 
     private init_commands(): void {
@@ -72,7 +70,7 @@ export class GLWindow {
         Config.commands.add('SaveGraph', new SaveGraph(this));
         Config.commands.add('DeleteVertex', new DeleteVertex(this));
         Config.commands.add('DeleteEdge', new DeleteEdge(this));
-        Config.commands.add('RefreshGraph', new RefreshGraph(this));
+        Config.commands.add('RefreshGraph', new RefreshGraph());
         Config.commands.add('DragVertex', new DragVertex(this));
         Config.commands.add('SelectEdge', new SelectEdge(this));
         Config.commands.add('SelectVertex', new SelectVertex(this));
@@ -90,30 +88,32 @@ export class GLWindow {
 
     private init_mouse_bindings(): void {
         Config.setMousehandler('right', () => {
+            const mousePos = Config.getMousePos();
+
             if (Config.keyBindings['select'].state) {
-                this.selectEdge(Config.mousePos.x, Config.mousePos.y);
+                this.selectEdge(mousePos.x, mousePos.y);
             } else {
-                this.selectVertex(Config.mousePos.x, Config.mousePos.y);
+                this.selectVertex(mousePos.x, mousePos.y);
             }
         });
     }
 
-    private init_threads(): void {
-        this.firstIteration = true;
+    /**
+     * Enables or disables the algorithm.
+     *
+     * @param state visibility state
+     */
+    setApplyAlgorithm(state: boolean): void {
+        this.applyAlgorithm = state;
+    }
 
-        this.algorithmRunner = new TaskRunner(() => {
-            if (this.widgetRef.current !== null) {
-                this.widgetRef.current.applyAlgorithm();
-                this.refresh(true, this.firstIteration);
-
-                if (this.firstIteration) {
-                    this.firstIteration = false;
-                }
-
-                this.widgetRef.current.applyColoration();
-                this.refresh(false, true);
-            }
-        });
+    /**
+     * Enables or disables the colouration algorithm.
+     *
+     * @param state visibility state
+     */
+    setApplyColouration(state: boolean): void {
+        this.applyColouration = state;
     }
 
     /**
@@ -261,9 +261,8 @@ export class GLWindow {
      * Toggle the view of the widget
      */
     toggleWidget(): void {
-        if (this.widgetRef.current !== null) {
-            this.widgetRef.current.toggleView();
-        }
+        this.widgetVisible = !this.widgetVisible;
+        this.refresh();
     }
 
     /**
@@ -353,12 +352,11 @@ export class GLWindow {
     /**
      * Refresh the current graph
      */
-    refresh(applyAlgorithm: boolean = true, applyColoration: boolean = true): void {
-        const cmd = Config.commands.get('RefreshGraph') as RefreshGraph;
+    refresh(applyAlgorithm?: boolean, applyColoration?: boolean): void {
+        if (applyAlgorithm !== undefined) this.setApplyAlgorithm(applyAlgorithm);
+        if (applyColoration !== undefined) this.setApplyColouration(applyColoration);
 
-        cmd.setApplyAlgorithm(applyAlgorithm);
-        cmd.setApplyColoration(applyColoration);
-        cmd.execute();
+        Config.commands.execute('RefreshGraph');
     }
 
     /**
@@ -367,11 +365,9 @@ export class GLWindow {
      * @param color color to be updated
      */
     updateColorNode(color: THREE.Color): void {
-        if (this.widgetRef.current !== null) {
-            this.widgetRef.current.updateColorNode(
-                '#' + color.getHexString()
-            );
-        }
+        this.widgetRef.current?.updateColorNode(
+            '#' + color.getHexString()
+        );
     }
 
     /**
@@ -380,9 +376,7 @@ export class GLWindow {
      * @param text text to be updated
      */
     updateTextNode(text: string): void {
-        if (this.widgetRef.current !== null) {
-            this.widgetRef.current.updateTextNode(text);
-        }
+        this.widgetRef.current?.updateTextNode(text);
     }
 
     /**
@@ -391,11 +385,9 @@ export class GLWindow {
      * @param color color to be updated
      */
     updateColorEdge(color: THREE.Color): void {
-        if (this.widgetRef.current !== null) {
-            this.widgetRef.current.updateColorEdge(
-                '#' + color.getHexString()
-            );
-        }
+        this.widgetRef.current?.updateColorEdge(
+            '#' + color.getHexString()
+        );
     }
 
     /**
@@ -404,25 +396,7 @@ export class GLWindow {
      * @param text text to be updated
      */
     updateTextEdge(text: string): void {
-        if (this.widgetRef.current !== null) {
-            this.widgetRef.current.updateTextEdge(text);
-        }
-    }
-
-    /**
-     * Apply the selected algorithm
-     */
-    applyAlgorithm(): void {
-        if (this.algorithmRunner) {
-            this.algorithmRunner.start();
-        }
-    }
-
-    /**
-     * Apply the selected centrality algorithm
-     */
-    applyColoration(): void {
-        this.widgetRef.current?.applyColoration();
+        this.widgetRef.current?.updateTextEdge(text);
     }
 
     /**
@@ -432,14 +406,13 @@ export class GLWindow {
         return (
             <div
                 className="w-100 h-100"
-                tabIndex={0}
                 onKeyDown={(event) => Config.keyPressed(event.key)}
                 onKeyUp={(event) => Config.keyReleased(event.key)}
             >
                 <Canvas
                     gl={{ antialias: true }}
-                    onMouseDown={(event) => Config.mousePressed(this, event)}
-                    onMouseUp={(event) => Config.mouseReleased(this, event)}
+                    onMouseDown={(event) => Config.mousePressed(event)}
+                    onMouseUp={(event) => Config.mouseReleased(event)}
                     onMouseMove={(event) => Config.mousePosition(this, event)}
                     onContextMenu={e => e.preventDefault()}
                     onCreated={({ scene, camera, gl }) => {
@@ -450,7 +423,12 @@ export class GLWindow {
                 >
                     <GraphScene graph={this.graph} />
                 </Canvas>
-                <Widget ref={this.widgetRef} />
+                <Widget
+                    ref={this.widgetRef}
+                    visible={this.widgetVisible}
+                    applyAlgorithm={this.applyAlgorithm}
+                    applyColouration={this.applyColouration}
+                />
             </div>
         );
     }

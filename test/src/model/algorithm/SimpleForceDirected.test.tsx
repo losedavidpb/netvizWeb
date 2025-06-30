@@ -6,17 +6,29 @@ import { SimpleForceDirected } from '../../../../src/model/algorithm/SimpleForce
 import { AdjacencyGraph } from '../../../../src/model/graph/AdjacencyGraph';
 import { Graph } from '../../../../src/model/Graph';
 import type { Vertex } from '../../../../src/model/Vertex';
-import { Config } from '../../../../src/Config';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
 
-// Enable test mode to avoid WebGL dependencies
-Config.testMode = true;
-
 const CASES_WORKPLACE = path.join(__dirname, '../../../cases');
 const SIMPLE_FORCE_DIRECTED = path.join(CASES_WORKPLACE, 'simple_force_directed');
+
+// Mock window.crypto for tests (Node.js environment)
+Object.defineProperty(global, 'window', {
+    value: {
+        crypto: {
+            getRandomValues: (array: Uint32Array) => {
+                for (let i = 0; i < array.length; i++) {
+                    array[i] = Math.floor(Math.random() * 0xFFFFFFFF);
+                }
+
+                return array;
+            }
+        }
+    },
+    writable: true,
+});
 
 // Load the graph to be tested
 function load_test_graph(filePath: string): Graph {

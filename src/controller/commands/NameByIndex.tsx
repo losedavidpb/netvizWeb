@@ -12,10 +12,10 @@ export class NameByIndex implements Command {
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
+    private readonly window: GLWindow;
 
     /**
-     * Constructor for NameByIndex
+     * Creates a new NameByIndex instance.
      *
      * @param window parent window
      */
@@ -37,18 +37,18 @@ export class NameByIndex implements Command {
                 }
             }
 
-            for (let j = 0; j < vertices.length; ++j) {
-                const edges = vertices[j].getEdges();
+            for (const vertex of vertices) {
+                const edges = vertex.getEdges();
 
-                for (let k = 0; k < edges.length; k++) {
-                    const base = edges[k].getBase();
-                    const connect = edges[k].getConnect();
+                for (const edge of edges) {
+                    const base = edge.getBase();
+                    const connect = edge.getConnect();
 
-                    edges[k].setText(base.getText() + ' - ' + connect.getText());
+                    edge.setText(base.getText() + ' - ' + connect.getText());
                 }
             }
 
-            this.window.refresh(false, false);
+            this.window.refresh(true, true);
         }
     }
 }

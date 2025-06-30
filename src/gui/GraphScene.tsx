@@ -6,16 +6,16 @@ import * as THREE from 'three';
 import type { Graph } from "../model/Graph";
 
 /**
- * Render the current graph
+ * Starts the rendering of the graph.
  *
  * @param param0 graph to render
- * @returns JSX.Element
+ * @returns JSX element representing the graph
  */
 export const GraphScene = ({ graph }: { graph: Graph | null }) => {
     const { camera, gl, size } = useThree();
 
     useEffect(() => {
-        if (graph === null || graph === undefined) return;
+        if (graph === null) return;
 
         const pers_camera = camera as THREE.PerspectiveCamera;
         const bounds = graph.getBoundingBox();

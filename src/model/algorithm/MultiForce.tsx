@@ -27,14 +27,14 @@ export class MultiForce extends Algorithm {
     // Properties
     // --------------------------------
 
-    private k: number = 0;
-    private t: number = 0;
+    private readonly k: number = 0;
+    private readonly t: number = 0;
 
-    private visitedVertices: number[] = [];
+    private readonly visitedVertices: number[] = [];
     private edgeIndex: number = 0;
 
     /**
-     * Constructor for MultiForce
+     * Creates a new MultiForce instance.
      *
      * @param graph graph to be used
      */
@@ -90,8 +90,8 @@ export class MultiForce extends Algorithm {
     placement(): void {
         const vertices = this.graph.getVertices();
 
-        for (let j = 0; j < vertices.length; ++j) {
-            vertices[j].setPos({ x: 1, y: 1, z: 0 });
+        for (const vertex of vertices) {
+            vertex.setPos({ x: 1, y: 1, z: 0 });
         }
     }
 
@@ -176,7 +176,7 @@ export class MultiForce extends Algorithm {
             }
         }
 
-        return energy ? energy : 0;
+        return energy ?? 0;
     }
 
     private get_connected_edges(edges: number[][], v: number): number {
@@ -223,20 +223,14 @@ export class MultiForce extends Algorithm {
     }
 
     private update_visited_vertices(connectedNodes: number[]): void {
-        for (let i = 0; i < connectedNodes.length; ++i) {
-            if (!this.is_visited(connectedNodes[i])) {
-                this.visitedVertices.push(connectedNodes[i]);
+        for (const node of connectedNodes) {
+            if (!this.is_visited(node)) {
+                this.visitedVertices.push(node);
             }
         }
     }
 
     private is_visited(connectedNode: number): boolean {
-        for (let j = 0; j < this.visitedVertices.length; ++j) {
-            if (connectedNode === this.visitedVertices[j]) {
-                return true;
-            }
-        }
-
-        return false;
+        return this.visitedVertices.includes(connectedNode);
     }
 }

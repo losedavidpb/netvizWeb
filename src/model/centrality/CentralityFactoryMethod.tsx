@@ -10,10 +10,10 @@ import { DistanceCentrality } from "./DistanceCentrality";
  */
 export class CentralityFactoryMethod {
     /**
-     * Create an centrality algorithm based on its type
+     * Creates a centrality algorithm based on its type.
      *
-     * @param type type of algorithm
-     * @returns algorithm
+     * @param type type of the centrality algorithm
+     * @returns new instance of a centrality algorithm
      */
     static create(type: CentralityType): Centrality {
         switch (type) {

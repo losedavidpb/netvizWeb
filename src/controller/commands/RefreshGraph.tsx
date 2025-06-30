@@ -1,4 +1,3 @@
-import type { GLWindow } from "../../gui/GLWindow";
 import type { Command } from "../Command";
 
 /**
@@ -12,41 +11,10 @@ export class RefreshGraph implements Command {
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
-
-    private applyAlgorithm: boolean = true;
-    private applyColoration: boolean = true;
     private callback: () => void = () => { };
 
     /**
-     * Constructor for RefreshGraph
-     *
-     * @param window parent window
-     */
-    constructor(window: GLWindow) {
-        this.window = window;
-    }
-
-    /**
-     * Enable or disable the algorithm
-     *
-     * @param applyAlgorithm state of the algorithm
-     */
-    setApplyAlgorithm(applyAlgorithm: boolean): void {
-        this.applyAlgorithm = applyAlgorithm;
-    }
-
-    /**
-     * Enable or disable the coloration
-     *
-     * @param applyColoration state of the coloration
-     */
-    setApplyColoration(applyColoration: boolean): void {
-        this.applyColoration = applyColoration;
-    }
-
-    /**
-     * Set the callback used to re-render the graph
+     * Updates the callback used to render the graph,
      *
      * @param callback callback for rendering
      */
@@ -55,9 +23,6 @@ export class RefreshGraph implements Command {
     }
 
     execute(): void {
-        if (this.applyAlgorithm) this.window.applyAlgorithm();
-        if (this.applyColoration) this.window.applyColoration();
-
         this.callback();
     }
 }

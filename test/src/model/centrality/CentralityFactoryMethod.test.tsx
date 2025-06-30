@@ -2,14 +2,6 @@ import { test, expect } from 'vitest';
 
 import { CentralityType } from '../../../../src/model/Centrality';
 import { CentralityFactoryMethod } from '../../../../src/model/centrality/CentralityFactoryMethod';
-import { Config } from '../../../../src/Config';
-
-// --------------------------------------
-// Test Configuration
-// --------------------------------------
-
-// Enable test mode to avoid WebGL dependencies
-Config.testMode = true;
 
 // --------------------------------------
 // Create Centrality

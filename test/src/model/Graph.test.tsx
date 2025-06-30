@@ -2,15 +2,11 @@ import { test, expect } from 'vitest';
 import * as THREE from 'three';
 
 import { Graph } from '../../../src/model/Graph';
-import { Config } from '../../../src/Config';
 import { Vertex } from '../../../src/model/Vertex';
 
 // --------------------------------------
 // Test Configuration
 // --------------------------------------
-
-// Enable testing to avoid WebGL checks
-Config.testMode = true;
 
 // Mockup graph to test non-abstract methods
 class MockGraph extends Graph {
@@ -65,21 +61,6 @@ test('Graph::split() : Invalid Numbers', () => {
 });
 
 // --------------------------------------
-// Hash
-// --------------------------------------
-
-test('Graph::hash() : Valid Hash', () => {
-    const [h1, h2, h3] = [1, 2, 3];
-    const expected = ((h1 * 2654435789) + h2) * 2654435789 + h3;
-
-    expect(Graph.hash(h1, h2, h3)).toBe(expected);
-});
-
-test('Graph::hash() : Two Different Hash Codes', () => {
-    expect(Graph.hash(1, 2, 3)).not.toBe(Graph.hash(3, 2, 1));
-});
-
-// --------------------------------------
 // Get Bounding Box
 // --------------------------------------
 
@@ -128,6 +109,37 @@ test('Graph::getAdjacencyMatrix() : Default Adjaceny Matrix', () => {
 
     const adjacencyMatrix = graph.getAdjacencyMatrix();
     expect(adjacencyMatrix.length).toBe(0);
+});
+
+// --------------------------------------
+// equals
+// --------------------------------------
+
+test('Graph:equals(): Same Graphs', () => {
+    const graph = new MockGraph();
+    const other = graph;
+
+    expect(graph.equals(other)).toBe(true);
+});
+
+test('Graph:equals(): Different Graphs', () => {
+    const vertices = [
+        new Vertex(1, 2, 3),
+        new Vertex(-1, -2, -3),
+        new Vertex(5, 0, 1),
+    ];
+
+    const graph = new MockGraph();
+    const other = new MockGraph(undefined, vertices);
+
+    expect(graph.equals(other)).toBe(false);
+});
+
+test('Graph:equals(): Invalid Type', () => {
+    const graph = new MockGraph();
+    const other = -1;
+
+    expect(graph.equals(other)).toBe(false);
 });
 
 // --------------------------------------

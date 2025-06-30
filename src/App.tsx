@@ -2,17 +2,21 @@ import { useEffect, useState, type JSX } from "react";
 import { GLWindow } from "./gui/GLWindow";
 
 /**
- * Execute the React application
+ * Executes the React application
  *
  * @returns HTML content
  */
 function App(): JSX.Element {
   const [glWindow, setGLWindow] = useState<GLWindow | null>(null);
-  const [, forceUpdate] = useState(0);
+  const [_, forceUpdate] = useState(0);
 
+  // Force constant rendering
   useEffect(() => {
     const instance = GLWindow.init();
-    instance.setUpdateCallback(() => forceUpdate(n => n + 1));
+
+    instance.setUpdateCallback(
+      () => forceUpdate(n => n + 1)
+    );
 
     setGLWindow(instance);
   }, []);

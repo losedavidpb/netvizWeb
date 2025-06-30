@@ -17,11 +17,11 @@ export class DeleteVertex implements Command {
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
+    private readonly window: GLWindow;
     private selectedNode: Vertex | null;
 
     /**
-     * Constructor for DeleteVertex
+     * Creates a new DeleteVertex instance.
      *
      * @param window parent window
      */
@@ -31,7 +31,7 @@ export class DeleteVertex implements Command {
     }
 
     /**
-     * Set the selected node to be deleted
+     * Updates the selected node to be deleted.
      *
      * @param selectedNode selected node
      */
@@ -45,14 +45,15 @@ export class DeleteVertex implements Command {
             const graph = this.window.getGraph();
 
             if (graph !== null && graph.getNumVertices() > 1) {
-                const newEdges = graph.getEdges().filter(edge =>
+                let newEdges = graph.getEdges().filter(edge =>
                     edge[0] !== deleteNode && edge[1] !== deleteNode
                 );
 
-                for (let i = 0; i < newEdges.length; ++i) {
-                    if (newEdges[i][0] > deleteNode) newEdges[i][0]--;
-                    if (newEdges[i][1] > deleteNode) newEdges[i][1]--;
-                }
+                newEdges = newEdges.map(([base, connect]) => {
+                    const adjustedBase = base > deleteNode ? base - 1 : base;
+                    const adjustedConnect = connect > deleteNode ? connect - 1 : connect;
+                    return [adjustedBase, adjustedConnect];
+                });
 
                 const tempGraph = graph;
                 const newGraph = new EdgeGraph(undefined, newEdges);
@@ -61,7 +62,7 @@ export class DeleteVertex implements Command {
                 this.update_graph(tempGraph, newGraph, f);
 
                 this.window.setGraph(newGraph);
-                this.window.refresh();
+                this.window.refresh(true, true);
             }
         }
     }

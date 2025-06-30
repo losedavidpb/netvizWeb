@@ -1,5 +1,7 @@
+import { Config } from "../Config";
+
 /**
- * TaskRunner :: Thread as a task runner
+ * TaskRunner :: Task runner that repeatedly executes a task
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
@@ -11,19 +13,19 @@ export class TaskRunner {
 
     private endThread: boolean = false;
     private isRunning: boolean = false;
-    private apply: () => void;
+    private readonly task: () => void;
 
     /**
-     * Constructor of TaskRunner
+     * Creates a new TaskRunner instance.
      *
-     * @param apply function to apply
+     * @param task task to be executed
      */
-    constructor(apply: () => void) {
-        this.apply = apply;
+    constructor(task: () => void) {
+        this.task = task;
     }
 
     /**
-     * Start the task
+     * Starts the current task
      */
     start(): void {
         if (this.isRunning) return;
@@ -35,7 +37,7 @@ export class TaskRunner {
     }
 
     /**
-     * Stop the current task
+     * Stops the current task
      */
     stop(): void {
         if (!this.isRunning) return;
@@ -50,8 +52,8 @@ export class TaskRunner {
 
     private async run_loop(): Promise<void> {
         while (!this.endThread) {
-            this.apply();
-            await this.sleep(0);
+            this.task();
+            await this.sleep(Config.delay);
         }
     }
 

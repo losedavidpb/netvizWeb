@@ -9,18 +9,17 @@ import type { Command } from "../Command";
  *
  * @author losedavidpb <losedavidpb@gmail.com>
  */
-// TODO: Fix it cos it's not working
 export class SelectEdge implements Command {
 
     // --------------------------------
     // Properties
     // --------------------------------
 
-    private window: GLWindow;
+    private readonly window: GLWindow;
     private mousePosition: THREE.Vector2 | null;
 
     /**
-     * Constructor for SelectEdge
+     * Creates a new SelectEdge instance.
      *
      * @param window parent window
      */
@@ -30,7 +29,7 @@ export class SelectEdge implements Command {
     }
 
     /**
-     * Set the current mouse position
+     * Updates the current mouse position.
      *
      * @param mouseX x-coord of the mouse
      * @param mouseY y-coord of the mouse
@@ -46,45 +45,55 @@ export class SelectEdge implements Command {
             const vertices = graph.getVertices();
 
             const pointerOver = this.get_pointer_over(vertices, this.mousePosition);
-            if (pointerOver.length === 0) return;
+
+            if (pointerOver.length === 0) {
+                this.reset_selector();
+                return;
+            }
 
             const secondVertex = this.get_second_vertex(pointerOver);
-            if (secondVertex === null) return;
+
+            if (secondVertex === null) {
+                this.reset_selector();
+                return;
+            }
 
             const selectedNode = this.window.getSelectedNode();
-            if (selectedNode === null) return;
+
+            if (selectedNode === null) {
+                this.reset_selector();
+                return;
+            }
 
             const selectedVertexNumber = selectedNode.getVertexNumber();
             const edges = graph.getEdges();
 
             this.window.refresh(false, true);
-            let edgeBetween = false;
-
-            for (let i = 0; i < graph.getNumEdges(); i++) {
-                edgeBetween = this.is_edge_between(edges[i], selectedVertexNumber, secondVertex);
-
-                if (edgeBetween) {
-                    this.window.setSelectedEdgeIndex(i);
-                    //secondVertex.setSelected(true);
-                    break;
-                }
-            }
+            const edgeBetween = this.find_selected_edge(edges, selectedVertexNumber, secondVertex);
 
             if (edgeBetween) {
-                const [u, v] = edges[this.window.getSelectedEdgeIndex()];
+                const [firstVertex, secondVertex] = edges[this.window.getSelectedEdgeIndex()];
 
-                if (!this.update_edge_details(vertices, u, v)) {
-                    this.update_edge_details(vertices, v, u);
+                if (!this.update_edge_details(vertices, firstVertex, secondVertex)) {
+                    this.update_edge_details(vertices, secondVertex, firstVertex);
                 }
             }
 
-            this.window.refresh(false, false);
+            this.window.refresh(true, false);
         }
     }
 
     // --------------------------------
     // Private
     // --------------------------------
+
+    private reset_selector(): void {
+        this.window.setSelectedNode(null);
+        this.window.updateColorNode(new THREE.Color());
+        this.window.updateTextNode('');
+        this.window.updateTextEdge('');
+        this.window.updateColorEdge(new THREE.Color());
+    }
 
     private get_pointer_over(vertices: Vertex[], mousePos: THREE.Vector2): Vertex[] {
         const pointerOver = [];
@@ -115,6 +124,21 @@ export class SelectEdge implements Command {
         }
 
         return closest;
+    }
+
+    private find_selected_edge(edges: number[][], selectedVertexNumber: number, secondVertex: Vertex): boolean {
+        let edgeBetween = false;
+
+        for (let i = 0; i < edges.length; i++) {
+            edgeBetween = this.is_edge_between(edges[i], selectedVertexNumber, secondVertex);
+
+            if (edgeBetween) {
+                this.window.setSelectedEdgeIndex(i);
+                break;
+            }
+        }
+
+        return edgeBetween;
     }
 
     private is_edge_between(edge: number[], vertex_number: number, second_vertex: Vertex): boolean {

@@ -22,10 +22,10 @@ export class Edge {
     private colour: THREE.Color = new THREE.Color();
 
     /**
-     * Constructor for Edge
+     * Creates new Edge instance.
      *
-     * @param base first vertex of the edge
-     * @param connect second vertex of the edge
+     * @param base base component of the edge
+     * @param connect connect component of the edge
      */
     constructor(base: Vertex, connect: Vertex) {
         this.base = base;
@@ -33,9 +33,9 @@ export class Edge {
     }
 
     /**
-     * Draw the edge
+     * Starts the rendering of the edge.
      *
-     * @returns edge component
+     * @returns JSX element representing the edge
      */
     /* v8 ignore next 26 */
     draw(): JSX.Element {
@@ -47,10 +47,6 @@ export class Edge {
                         this.getBase().getPos(),
                         this.getConnect().getPos()
                     ]}
-                    //vertexColors={[
-                    //    this.getBase().getColour(),
-                    //    this.getConnect().getColour()
-                    //]}
                     color={
                         this.getColour().getHex()
                     }
@@ -63,9 +59,9 @@ export class Edge {
     }
 
     /**
-     * Draws the text of the edge
+     * Renders the text associated with the edge.
      *
-     * @returns text component
+     * @returns JSX element representing the edge text
      */
     /* v8 ignore next 25 */
     drawText(): JSX.Element {
@@ -74,59 +70,69 @@ export class Edge {
         position.divideScalar(2);
 
         return (
-            <>
-                <Billboard position={position}>
-                    <Text
-                        color="white"
-                        anchorX="center"
-                        anchorY="top"
-                        fontSize={2}
-                    >
-                        {this.text}
-                    </Text>
-                </Billboard>
-            </>
+            <Billboard position={position}>
+                <Text
+                    color="white"
+                    anchorX="center"
+                    anchorY="top"
+                    fontSize={2}
+                >
+                    {this.text}
+                </Text>
+            </Billboard>
         );
     }
 
     /**
-     * Get the base vertex
+     * Gets the ID of the edge.
      *
-     * @returns base vertex
+     * @returns identifier of the edge
+     */
+    getEdgeNumber(): number {
+        const baseID = this.base.getVertexNumber();
+        const connectID = this.connect.getVertexNumber();
+
+        return 0.5 * (baseID + connectID) * (baseID + connectID + 1) + connectID;
+    }
+
+    /**
+     * Gets the base component of the edge.
+     *
+     * @returns base component
      */
     getBase(): Vertex {
         return this.base;
     }
 
     /**
-     * Set the base vertex
+     * Updates the base component.
      *
-     * @param base new base
+     * @param base new base component
      */
     setBase(base: Vertex): void {
         this.base = base;
     }
 
     /**
-     * Get the connect vertex
+     * Gets the connect component of the edge.
      *
-     * @returns connect vertex
+     * @returns connect component
      */
     getConnect(): Vertex {
         return this.connect;
     }
 
     /**
-     * Set the connect vertex
+     * Updates the connect component.
      *
-     * @param connect new connect
+     * @param connect new connect component
      */
     setConnect(connect: Vertex): void {
         this.connect = connect;
     }
 
     /**
-     * Get the edge's text
+     * Gets the text of the edge.
      *
      * @returns text of the edge
      */
@@ -135,7 +141,7 @@ export class Edge {
     }
 
     /**
-     * Set the text of the edge
+     * Updates the text of the edge.
      *
      * @param t new text
      */
@@ -144,7 +150,7 @@ export class Edge {
     }
 
     /**
-     * Get the colour of the edge
+     * Gets a copy of the colour of the edge.
      *
      * @returns colour of the edge
      */
@@ -155,25 +161,29 @@ export class Edge {
     }
 
     /**
-     * Set the colours for the edge
+     * Updates the colour of the edge.
      *
-     * @param R R-component (red)
-     * @param G G-component (green)
-     * @param B B-component (blue)
+     * Each component must be within the range [0, 1].
+     *
+     * @param R red component (0 to 1)
+     * @param G green component (0 to 1)
+     * @param B blue component (0 to 1)
      */
     setColour(R: number, G: number, B: number): void {
         if (!(R >= 0 && R <= 1 && G >= 0 && G <= 1 && B >= 0 && B <= 1)) {
-            throw new Error('InvalidRGB :: Passed colour is invalid');
+            throw new Error(
+                'InvalidRGB :: Passed colour is invalid'
+            );
         }
 
         this.colour = new THREE.Color().setRGB(R, G, B);
     }
 
     /**
-    * Clone the current edge
-    *
-    * @returns clone of the edge
-    */
+     * Retrieves a copy of the current vertex.
+     *
+     * @returns clone of the vertex
+     */
     clone(): Edge {
         const clone_obj = new Edge(this.base.clone(), this.connect.clone());
         clone_obj.colour = this.getColour();

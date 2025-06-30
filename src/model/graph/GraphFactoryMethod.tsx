@@ -10,15 +10,15 @@ import { MatrixMarketGraph } from "./MatrixMarketGraph";
  */
 export class GraphFactoryMethod {
     /**
-     * Create an graph based on its type
+     * Creates a graph based on the provided content and initial line.
      *
-     * @param line line of the file
-     * @param content content of the graph
-     * @returns algorithm
+     * @param line first line of the graph file, used to identify the graph format
+     * @param content full content of the graph file
+     * @returns instance of the corresponding Graph subclass
      */
     static create(line: string, content: string): Graph {
         // Matrix Market Graph
-        if (line.length >= 14 && line.substring(0, 14) === "%%MatrixMarket") {
+        if (line.length >= 14 && line.startsWith("%%MatrixMarket")) {
             return new MatrixMarketGraph(content);
         }
 
@@ -28,7 +28,7 @@ export class GraphFactoryMethod {
         }
 
         // Adjacency Graph
-        else if (line.length > 0 && (line.substring(0, 1) === "0" || line.substring(0, 1) === "1")) {
+        else if (line.length > 0 && (line.startsWith("0") || line.startsWith("1"))) {
             return new AdjacencyGraph(content);
         }
 
@@ -41,7 +41,7 @@ export class GraphFactoryMethod {
     }
 
     /**
-     * Create a empty graph based on its type
+     * Creates an empty graph based on its type.
      *
      * @param type type of the graph
      * @param content content of the graph
@@ -49,13 +49,17 @@ export class GraphFactoryMethod {
      */
     static createWithType(type: string): Graph {
         switch (type) {
-            case 'AdjacencyGraph':
+            case 'AdjacencyGraph': {
                 return new AdjacencyGraph();
-            case 'EdgeGraph':
-                return new EdgeGraph();
+            }
 
-            case 'MatrixMarketGraph':
+            case 'EdgeGraph': {
+                return new EdgeGraph();
+            }
+
+            case 'MatrixMarketGraph': {
                 return new MatrixMarketGraph();
+            }
 
             default:
                 throw new Error(
