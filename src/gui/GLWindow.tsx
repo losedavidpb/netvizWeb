@@ -406,6 +406,7 @@ export class GLWindow {
         return (
             <div
                 className="w-100 h-100"
+                tabIndex={0}
                 onKeyDown={(event) => Config.keyPressed(event.key)}
                 onKeyUp={(event) => Config.keyReleased(event.key)}
             >
