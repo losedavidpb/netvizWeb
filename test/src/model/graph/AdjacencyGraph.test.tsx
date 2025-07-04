@@ -58,7 +58,7 @@ test('AdjacencyGraph::toString(): 1x1 Graph', () => {
 
 test('AdjacencyGraph::toString(): 3x3 Graph', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_3x3.txt');
-    const content = get_content(filePath);
+    const content = get_content(filePath).replace(/\r/g, "");
     const graph = load_test_graph(content);
 
     expect(graph.toString()).toBe(content);
@@ -66,7 +66,7 @@ test('AdjacencyGraph::toString(): 3x3 Graph', () => {
 
 test('AdjacencyGraph::toString(): 6x6 Graph', () => {
     const filePath = path.join(ADJACENCY_PATH, 'test_adj_6x6.txt');
-    const content = get_content(filePath);
+    const content = get_content(filePath).replace(/\r/g, "");
     const graph = load_test_graph(content);
 
     expect(graph.toString()).toBe(content);

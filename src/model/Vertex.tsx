@@ -18,6 +18,7 @@ export class Vertex {
     // --------------------------------
 
     private selected: boolean = false;
+    private isModified: boolean = false;
 
     private static vertexCounter = 0;
     private vertexNumber: number = Vertex.vertexCounter;
@@ -37,8 +38,25 @@ export class Vertex {
 
     private positions: number[] = new Array(Config.size).fill(0);
     private colours: number[] = new Array(Config.size).fill(0);
-    private indices: number[] = new Array(Config.size).fill(0);
     private geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
+
+    private static readonly indices: number[] = (() => {
+        const indices: number[] = [];
+
+        for (let r = 0; r < Config.rings; r++) {
+            for (let s = 0; s < Config.sectors; s++) {
+                if (r < Config.rings - 1 && s < Config.sectors - 1) {
+                    indices.push(r * Config.sectors + s);
+                    indices.push(r * Config.sectors * (s + 1));
+                    indices.push((r + 1) * Config.sectors + (s + 1));
+                    indices.push((r + 1) * Config.sectors + s);
+                }
+            }
+        }
+
+        return indices;
+    })();
+
 
     /**
      * Creates a new Vertex instance.
@@ -50,7 +68,6 @@ export class Vertex {
     constructor(offsetX: number, offsetY: number, offsetZ: number) {
         this.setPos({ x: offsetX, y: offsetY, z: offsetZ });
         this.vertexNumber = Vertex.vertexCounter++;
-        this.update();
     }
 
     /**
@@ -66,7 +83,7 @@ export class Vertex {
      * Updates the vertex for rendering.
      */
     update(): void {
-        let [vIndx, colIndx, indIndx] = [0, 0, 0];
+        let [vIndx, colIndx] = [0, 0];
 
         for (let r = 0; r < Config.rings; r++) {
             const polarAngle = Math.PI * r * Config.ringStep;
@@ -86,20 +103,16 @@ export class Vertex {
                 this.colours[colIndx++] = this.colour.r;
                 this.colours[colIndx++] = this.colour.g;
                 this.colours[colIndx++] = this.colour.b;
-
-                if (r < Config.rings - 1 && s < Config.sectors - 1) {
-                    this.indices[indIndx++] = r * Config.sectors + s;
-                    this.indices[indIndx++] = r * Config.sectors * (s + 1);
-                    this.indices[indIndx++] = (r + 1) * Config.sectors + (s + 1);
-                    this.indices[indIndx++] = (r + 1) * Config.sectors + s;
-                }
             }
         }
 
-        this.geometry = new THREE.BufferGeometry();
         this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
         this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colours, 3));
-        this.geometry.setIndex(this.indices);
+        this.geometry.setIndex(Vertex.indices);
+
+        this.geometry.attributes.position.needsUpdate = true;
+        this.geometry.attributes.color.needsUpdate = true;
+        this.geometry.index!.needsUpdate = true;
     }
 
     /**
@@ -109,11 +122,16 @@ export class Vertex {
      */
     /* v8 ignore next 52 */
     draw(): JSX.Element {
+        if (this.isModified) {
+            this.update();
+            this.isModified = false;
+        }
+
         return (
             <>
                 {/* Additional wireframe if vertex is selected */}
                 {this.selected && (
-                    <mesh position={this.getPos()}>
+                    <mesh position={this.pos}>
                         <sphereGeometry args={[1.5 * Config.radius, 16, 16]} />
                         <meshBasicMaterial
                             color="yellow"
@@ -209,11 +227,13 @@ export class Vertex {
      * @param param0 [x, y, z] position-coords
      */
     setPos({ x, y, z }: { x?: number; y?: number; z?: number }): void {
-        if (x !== undefined) this.pos.x = x;
-        if (y !== undefined) this.pos.y = y;
-        if (z !== undefined) this.pos.z = z;
+        this.isModified = x !== undefined || y !== undefined || z !== undefined;
 
-        this.update();
+        if (this.isModified) {
+            if (x !== undefined) this.pos.x = x;
+            if (y !== undefined) this.pos.y = y;
+            if (z !== undefined) this.pos.z = z;
+        }
     }
 
     /**
@@ -288,7 +308,7 @@ export class Vertex {
         }
 
         this.colour = new THREE.Color().setRGB(R, G, B);
-        this.update();
+        this.isModified = true;
     }
 
     /**
@@ -518,9 +538,6 @@ export class Vertex {
         clone_obj.attachedPoints = this.getAttachedPoints();
         clone_obj.edges = this.getEdges();
 
-        clone_obj.update();
-        clone_obj.geometry = this.geometry;
-
         return clone_obj;
     }
 
@@ -574,7 +591,6 @@ export class Vertex {
         vertex.degree = object.degree;
         vertex.vertexNumber = object.vertexNumber;
 
-        vertex.update();
         return vertex;
     }
 }

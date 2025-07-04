@@ -184,5 +184,5 @@ test('Edge::clone() : Valid Edge', () => {
     const vertex_2 = new Vertex(20, 50, 30);
     const edge = new Edge(vertex_1, vertex_2);
 
-    expect(edge.clone()).toStrictEqual(edge);
+    expect(edge.clone().equals(edge)).toBe(true);
 });

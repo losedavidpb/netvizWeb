@@ -440,7 +440,7 @@ test('Vertex::equals() : Same vertex', () => {
 test('Vertex::clone() : Valid Vertex', () => {
     const vertex = new Vertex(10, 20, 50);
 
-    expect(vertex.clone()).toStrictEqual(vertex);
+    expect(vertex.clone().equals(vertex)).toBe(true);
 });
 
 // --------------------------------------

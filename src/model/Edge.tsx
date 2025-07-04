@@ -180,6 +180,29 @@ export class Edge {
     }
 
     /**
+     * Gets the hashcode of the edge.
+     *
+     * @returns edge hashcode
+     */
+    hashCode(): number {
+        const baseHash = this.base.hashCode();
+        const connectHash = this.connect.hashCode();
+
+        return 0.5 * (baseHash + connectHash) * (baseHash + connectHash + 1) + connectHash;
+    }
+
+    /**
+     * Checks whether the current and the passed edge are equal.
+     *
+     * @param other edge to be compared
+     * @returns if edges are equal
+     */
+    equals(other: unknown): boolean {
+        if (!(other instanceof Edge)) return false;
+        return this.hashCode() === other.hashCode();
+    }
+
+    /**
      * Retrieves a copy of the current vertex.
      *
      * @returns clone of the vertex
