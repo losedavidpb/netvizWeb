@@ -35,20 +35,23 @@ export class Edge {
         this.set_default_colour();
     }
 
+    /* v8 ignore next 16 */
     private set_default_colour(): void {
-        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-            this.setColour(1, 1, 1);
-        } else {
-            this.setColour(0, 0, 0);
-        }
-
-        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
-            if (e.matches) {
+        if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+            if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
                 this.setColour(1, 1, 1);
             } else {
                 this.setColour(0, 0, 0);
             }
-        });
+
+            window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
+                if (e.matches) {
+                    this.setColour(1, 1, 1);
+                } else {
+                    this.setColour(0, 0, 0);
+                }
+            });
+        }
     }
 
     /**
