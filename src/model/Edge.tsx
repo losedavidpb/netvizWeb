@@ -30,6 +30,25 @@ export class Edge {
     constructor(base: Vertex, connect: Vertex) {
         this.base = base;
         this.connect = connect;
+
+        // Set colour edge based on the browser
+        this.set_default_colour();
+    }
+
+    private set_default_colour(): void {
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+            this.setColour(1, 1, 1);
+        } else {
+            this.setColour(0, 0, 0);
+        }
+
+        window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", e => {
+            if (e.matches) {
+                this.setColour(1, 1, 1);
+            } else {
+                this.setColour(0, 0, 0);
+            }
+        });
     }
 
     /**
