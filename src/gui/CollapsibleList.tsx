@@ -9,16 +9,13 @@ interface CollapsibleList {
 }
 
 /**
- * Renders a button that toggles the visibility of a list of options.
- *
- * When an option has been selected, the passed callback
- * function will be executed.
+ * Renders a button that toggles the visibility of a list of options
  *
  * @param options available options
  * @param defaultText default option that is initially selected
  * @param onOptionSelect handler to be executed when option is changed
  *
- * @returns JSX.Element representing the collapsible list component.
+ * @returns JSX.Element representing the collapsible list component
  */
 export const CollapsibleList: React.FC<CollapsibleList> = ({ options, defaultText, onOptionSelect }) => {
     const [isListOpen, setIsListOpen] = useState(false);

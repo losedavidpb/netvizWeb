@@ -1,21 +1,23 @@
-import { Canvas, } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { createRef, type JSX, type RefObject } from 'react';
 import * as THREE from 'three';
 
-import { Graph } from '../model/Graph';
-import { Vertex } from '../model/Vertex';
-import { Widget } from './Widget';
+import { Config } from '../Config';
+import { DeleteEdge } from '../controller/commands/DeleteEdge';
+import { DeleteVertex } from '../controller/commands/DeleteVertex';
+import { DragVertex } from '../controller/commands/DragVertex';
 import { LoadGraph } from '../controller/commands/LoadGraph';
+import { NameByIndex } from '../controller/commands/NameByIndex';
 import { RefreshGraph } from '../controller/commands/RefreshGraph';
 import { SaveGraph } from '../controller/commands/SaveGraph';
-import { SelectVertex } from '../controller/commands/SelectVertex';
 import { SelectEdge } from '../controller/commands/SelectEdge';
-import { NameByIndex } from '../controller/commands/NameByIndex';
-import { DragVertex } from '../controller/commands/DragVertex';
-import { DeleteVertex } from '../controller/commands/DeleteVertex';
-import { DeleteEdge } from '../controller/commands/DeleteEdge';
-import { Config } from '../Config';
+import { SelectVertex } from '../controller/commands/SelectVertex';
+import type { Graph } from '../model/Graph';
+import type { Vertex } from '../model/Vertex';
+import { AlgorithmFactoryMethod } from '../model/algorithm/AlgorithmFactoryMethod';
+import { CentralityFactoryMethod } from '../model/centrality/CentralityFactoryMethod';
 import { GraphScene } from './GraphScene';
+import { Widget } from './Widget';
 
 /**
  * GLWindow :: Main window of the app
@@ -38,6 +40,7 @@ export class GLWindow {
 
     private content: string = '';
     private graph: Graph | null = null;
+    private welcomeGraph: Graph | null = null;
 
     private selectedNode: Vertex | null = null;
     private selectedEdgeIndex: number = -1;
@@ -63,6 +66,44 @@ export class GLWindow {
         this.init_commands();
         this.init_key_bindings();
         this.init_mouse_bindings();
+        void this.load_welcome_graph();
+    }
+
+    private async load_welcome_graph(): Promise<void> {
+        const response = await fetch(`${import.meta.env.BASE_URL}${Config.welcomeGraphPath}`);
+        const content = await response.text();
+        const firstLine = content.split(/\r?\n/, 1)[0];
+
+        const { GraphFactoryMethod } = await import('../model/graph/GraphFactoryMethod');
+        const graph = GraphFactoryMethod.create(firstLine, content);
+        const algorithm = AlgorithmFactoryMethod.create(Config.defaultAlgorithm, graph);
+
+        for (let iteration = 0; iteration < 200; iteration++) {
+            algorithm.apply();
+        }
+
+        CentralityFactoryMethod.create(Config.defaultCentrality).apply(graph);
+
+        this.fit_welcome_graph(graph);
+        this.welcomeGraph = graph;
+        this.refresh();
+    }
+
+    private fit_welcome_graph(graph: Graph): void {
+        const bounds = graph.getBoundingBox();
+        const centre = bounds.getCenter(new THREE.Vector3());
+        const size = bounds.getSize(new THREE.Vector3());
+        const scale = Math.min(24 / Math.max(size.x, 1), 14 / Math.max(size.y, 1));
+
+        graph.getVertices().forEach((vertex) => {
+            const position = vertex.getPos();
+
+            vertex.setPos({
+                x: (position.x - centre.x) * scale,
+                y: (position.y - centre.y) * scale,
+                z: 0,
+            });
+        });
     }
 
     private init_commands(): void {
@@ -99,7 +140,7 @@ export class GLWindow {
     }
 
     /**
-     * Enables or disables the algorithm.
+     * Enables or disables the algorithm
      *
      * @param state visibility state
      */
@@ -108,7 +149,7 @@ export class GLWindow {
     }
 
     /**
-     * Enables or disables the colouration algorithm.
+     * Enables or disables the colouration algorithm
      *
      * @param state visibility state
      */
@@ -405,7 +446,7 @@ export class GLWindow {
     render(): JSX.Element {
         return (
             <div
-                className="w-100 h-100"
+                className="w-100 h-100 graph-window"
                 tabIndex={0}
                 onKeyDown={(event) => Config.keyPressed(event.key)}
                 onKeyUp={(event) => Config.keyReleased(event.key)}
@@ -422,8 +463,17 @@ export class GLWindow {
                         Config.renderer = gl;
                     }}
                 >
-                    <GraphScene graph={this.graph} />
+                    <GraphScene
+                        graph={this.graph ?? this.welcomeGraph}
+                        isWelcome={this.graph === null}
+                    />
                 </Canvas>
+                {this.graph === null && (
+                    <div className="welcome-message">
+                        <h1 className="welcome-title">{Config.name}</h1>
+                        <p className="welcome-subtitle">{Config.welcomeSubtitle}</p>
+                    </div>
+                )}
                 <Widget
                     ref={this.widgetRef}
                     visible={this.widgetVisible}

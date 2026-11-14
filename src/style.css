@@ -52,6 +52,54 @@ a:hover {
   text-align: center;
 }
 
+.graph-window {
+  position: relative;
+}
+
+.welcome-message {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  text-align: center;
+  pointer-events: none;
+}
+
+.welcome-message::before {
+  content: '';
+  position: absolute;
+  width: min(40rem, 90vw);
+  height: 13rem;
+  background: radial-gradient(
+    ellipse,
+    rgba(12, 16, 24, 0.78) 0%,
+    rgba(12, 16, 24, 0.48) 45%,
+    rgba(12, 16, 24, 0) 75%
+  );
+  filter: blur(8px);
+}
+
+.welcome-title {
+  position: relative;
+  margin: 0;
+  color: inherit;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+}
+
+.welcome-subtitle {
+  position: relative;
+  margin: 0.75rem 1rem 0;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.1rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
+}
+
 button {
   border-radius: 8px;
   border: 1px solid transparent;

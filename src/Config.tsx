@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { ReactNode } from 'react';
 
 import type { GLWindow } from './gui/GLWindow';
 import { FileType } from './controller/commands/SaveGraph';
@@ -23,7 +24,7 @@ export class Config {
     static readonly name: string = "NetvizWeb";
 
     // Version of the application
-    static readonly version: string = "v1.0.0";
+    static readonly version: string = "v1.1.0";
 
     // Author of the application
     static readonly author: string = "David Parreño Barbuzano";
@@ -31,8 +32,26 @@ export class Config {
     // Contact of the author
     static readonly contact: string = "losedavidpb@gmail.com";
 
+    // GitHub profile
+    static readonly github: string = "https://github.com/losedavidpb";
+
     // Footer of the application
-    static readonly footer: string = `${Config.name} (${Config.version}) - ${Config.author} <${Config.contact}>`;
+    static readonly footer: ReactNode = (
+        <>
+            {Config.name} ({Config.version}) -{' '}
+            <a
+                href={Config.github}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: 'inherit' }}
+            >
+                {Config.author}
+            </a>{' '}
+            &lt;<a href={`mailto:${Config.contact}`} style={{ color: 'inherit' }}>
+                {Config.contact}
+            </a>&gt;
+        </>
+    );
 
     // --------------------------------
     // WebGL
@@ -66,6 +85,12 @@ export class Config {
 
     // Default filename to export
     static readonly defaultExportFile: string = 'Untitled' + Config.defaultExtension;
+
+    // Welcome graph file path
+    static readonly welcomeGraphPath: string = 'wgraph.txt';
+
+    // Welcome message displayed before loading a graph
+    static readonly welcomeSubtitle: string = 'An interactive tool for visualising and exploring networks.';
 
     // Default PNG filename
     static readonly defaultPNG: string = "DefaultPng.png";
