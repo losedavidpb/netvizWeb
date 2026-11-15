@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 
 /**
- * Starts the rendering of the footer.
+ * Starts the rendering of the footer
  *
  * @param param0 text of the footer
  * @returns JSX element representing the footer

@@ -24,7 +24,7 @@ export class Config {
     static readonly name: string = "NetvizWeb";
 
     // Version of the application
-    static readonly version: string = "v1.1.0";
+    static readonly version: string = "v1.2.0";
 
     // Author of the application
     static readonly author: string = "David Parreño Barbuzano";

@@ -16,6 +16,7 @@ import type { Graph } from '../model/Graph';
 import type { Vertex } from '../model/Vertex';
 import { AlgorithmFactoryMethod } from '../model/algorithm/AlgorithmFactoryMethod';
 import { CentralityFactoryMethod } from '../model/centrality/CentralityFactoryMethod';
+import { Footer } from './Footer';
 import { GraphScene } from './GraphScene';
 import { Widget } from './Widget';
 
@@ -62,10 +63,16 @@ export class GLWindow {
     // Avoid multiple instances
     private constructor() {
         this.widgetRef = createRef<Widget>();
+        const mobileViewport = window.matchMedia('(max-width: 47.99rem)');
+        this.widgetVisible = !mobileViewport.matches;
 
         this.init_commands();
         this.init_key_bindings();
         this.init_mouse_bindings();
+        mobileViewport.addEventListener('change', (event) => {
+            this.widgetVisible = !event.matches;
+            this.refresh();
+        });
         void this.load_welcome_graph();
     }
 
@@ -307,6 +314,16 @@ export class GLWindow {
     }
 
     /**
+     * Hides the toolbox after a graph action on small screens
+     */
+    hideWidgetOnMobile(): void {
+        if (window.matchMedia('(max-width: 47.99rem)').matches && this.widgetVisible) {
+            this.widgetVisible = false;
+            this.refresh();
+        }
+    }
+
+    /**
      * Load a graph based on the graph file path
      */
     loadGraph(): void {
@@ -468,6 +485,16 @@ export class GLWindow {
                         isWelcome={this.graph === null}
                     />
                 </Canvas>
+                <button
+                    type="button"
+                    className={`toolbox-toggle${this.widgetVisible ? ' toolbox-toggle--open' : ''}`}
+                    aria-label={this.widgetVisible ? 'Close toolbox' : 'Open toolbox'}
+                    aria-expanded={this.widgetVisible}
+                    aria-controls="toolbox"
+                    onClick={() => this.toggleWidget()}
+                >
+                    <span aria-hidden="true">{this.widgetVisible ? '\u00d7' : '\u2630'}</span>
+                </button>
                 {this.graph === null && (
                     <div className="welcome-message">
                         <h1 className="welcome-title">{Config.name}</h1>
@@ -480,6 +507,7 @@ export class GLWindow {
                     applyAlgorithm={this.applyAlgorithm}
                     applyColouration={this.applyColouration}
                 />
+                <Footer text={Config.footer} />
             </div>
         );
     }

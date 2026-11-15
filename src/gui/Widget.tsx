@@ -8,7 +8,6 @@ import { AlgorithmFactoryMethod } from '../model/algorithm/AlgorithmFactoryMetho
 import { AlgorithmType, Algorithm } from '../model/Algorithm';
 import { Centrality, CentralityType } from '../model/Centrality';
 import { Config } from '../Config';
-import { Footer } from './Footer';
 import { CollapsibleList } from './CollapsibleList';
 import { TaskRunner } from '../model/TaskRunner';
 
@@ -156,20 +155,20 @@ export class Widget extends Component<WidgetProps, WidgetState> {
                     <h4>Graph Settings</h4>
                     <CollapsibleList
                         options={['Fruchterman Reingold', 'Simple Force Directed', 'Multi Force']}
-                        defaultText="Fruchterman Reingold"
+                        selectedOption={this.state.algorithmType.replace(/([a-z])([A-Z])/g, '$1 $2')}
                         onOptionSelect={(e: string) => {
                             const opt = e.replace(/\s+/g, '') as AlgorithmType;
-                            this.apply_algorithm(opt);
+                            this.apply_algorithm(opt, true);
                             GLWindow.init().refresh();
                         }}
                     />
 
                     <CollapsibleList
                         options={['Degree Centrality', 'Distance Centrality', 'Betweenness']}
-                        defaultText="Degree Centrality"
+                        selectedOption={this.state.centralityType.replace(/([a-z])([A-Z])/g, '$1 $2')}
                         onOptionSelect={(e: string) => {
                             const opt = e.replace(/\s+/g, '') as CentralityType;
-                            this.apply_centrality(opt);
+                            this.apply_centrality(opt, true);
                             GLWindow.init().refresh();
                         }}
                     />
@@ -185,13 +184,19 @@ export class Widget extends Component<WidgetProps, WidgetState> {
                                 value={this.state.nodeText}
                                 placeholder=""
                                 onChange={(e) => this.updateTextNode(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') GLWindow.init().hideWidgetOnMobile();
+                                }}
                             />
                             <input
                                 type="color"
                                 name="color_node"
                                 className="form-control mb-2"
                                 value={'#' + this.state.nodeColour.getHexString()}
-                                onChange={(e) => this.updateColorNode(e.target.value)}
+                                onChange={(e) => {
+                                    this.updateColorNode(e.target.value);
+                                    GLWindow.init().hideWidgetOnMobile();
+                                }}
                             />
                         </div>
                         <div>
@@ -203,18 +208,22 @@ export class Widget extends Component<WidgetProps, WidgetState> {
                                 value={this.state.edgeText}
                                 placeholder=""
                                 onChange={(e) => this.updateTextEdge(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') GLWindow.init().hideWidgetOnMobile();
+                                }}
                             />
                             <input
                                 type="color"
                                 name="color_edge"
                                 className="form-control mb-2"
                                 value={'#' + this.state.edgeColour.getHexString()}
-                                onChange={(e) => this.updateColorEdge(e.target.value)}
+                                onChange={(e) => {
+                                    this.updateColorEdge(e.target.value);
+                                    GLWindow.init().hideWidgetOnMobile();
+                                }}
                             />
                         </div>
                     </div>
-                    <hr></hr>
-                    <Footer text={Config.footer} />
                 </div>
             );
         }
@@ -239,6 +248,7 @@ export class Widget extends Component<WidgetProps, WidgetState> {
                 window.loadGraph();
 
                 this.runner?.start();
+                window.hideWidgetOnMobile();
             };
 
             reader.readAsText(file);
@@ -254,7 +264,7 @@ export class Widget extends Component<WidgetProps, WidgetState> {
     }
 
 
-    private apply_algorithm(name: AlgorithmType): void {
+    private apply_algorithm(name: AlgorithmType, hideAfterAction = false): void {
         const window = GLWindow.init();
         const graph = window.getGraph();
 
@@ -267,10 +277,12 @@ export class Widget extends Component<WidgetProps, WidgetState> {
             } else {
                 algorithm.apply();
             }
+
+            if (hideAfterAction) window.hideWidgetOnMobile();
         }
     }
 
-    private apply_centrality(name: CentralityType): void {
+    private apply_centrality(name: CentralityType, hideAfterAction = false): void {
         const graph = GLWindow.init().getGraph();
 
         if (graph !== null) {
@@ -282,6 +294,8 @@ export class Widget extends Component<WidgetProps, WidgetState> {
             } else {
                 centrality.apply(graph);
             }
+
+            if (hideAfterAction) GLWindow.init().hideWidgetOnMobile();
         }
     }
 

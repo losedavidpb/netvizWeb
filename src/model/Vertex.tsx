@@ -40,24 +40,6 @@ export class Vertex {
     private colours: number[] = new Array(Config.size).fill(0);
     private geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
 
-    private static readonly indices: number[] = (() => {
-        const indices: number[] = [];
-
-        for (let r = 0; r < Config.rings; r++) {
-            for (let s = 0; s < Config.sectors; s++) {
-                if (r < Config.rings - 1 && s < Config.sectors - 1) {
-                    indices.push(r * Config.sectors + s);
-                    indices.push(r * Config.sectors * (s + 1));
-                    indices.push((r + 1) * Config.sectors + (s + 1));
-                    indices.push((r + 1) * Config.sectors + s);
-                }
-            }
-        }
-
-        return indices;
-    })();
-
-
     /**
      * Creates a new Vertex instance.
      *
@@ -108,11 +90,9 @@ export class Vertex {
 
         this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.positions, 3));
         this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colours, 3));
-        this.geometry.setIndex(Vertex.indices);
 
         this.geometry.attributes.position.needsUpdate = true;
         this.geometry.attributes.color.needsUpdate = true;
-        this.geometry.index!.needsUpdate = true;
     }
 
     /**
